@@ -1,0 +1,28 @@
+{
+  "EnterPort":{
+    "PortID": 6,
+    "Direction": 0,
+    "SerialName":"COM3",
+    "SerialPort":{
+      "baudRate":57600
+    }
+  },
+  "ExitPort":{
+    "Port":
+      [
+        {"Id":950,"Direction":0},
+        {"Id":951,"Direction":0},
+        {"Id":952,"Direction":0},
+        {"Id":953,"Direction":0},
+        {"Id":954,"Direction":0},
+        {"Id":955,"Direction":0},
+        {"Id":956,"Direction":0},
+        {"Id":957,"Direction":0}
+      ],
+    "Interval": 500,
+    "SerialName":"COM4",
+    "SerialPort":{
+      "baudRate":57600
+    }
+  }
+}

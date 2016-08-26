@@ -1,0 +1,1 @@
+sequelize-auto -o "./models" -d bfsort -h localhost -u bfsort  -x bfsorting -e mysql

@@ -1,12 +1,25 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var debug = require('debug')('bfsort');
+
+var EnterPort = require('./EnterPort.js');
+var ExitPort = require("./ExitPort.js");
+
+var log4js = require('log4js');
+var logger = log4js.getLogger();
+log4js.configure({
+  appenders: [
+    { type: 'console' }, //控制台输出
+  ]
+});
+logger.setLevel('INFO');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var sendfj = require('./routes/sendfj');
 
 var app = express();
 
@@ -16,7 +29,7 @@ app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -24,6 +37,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/sendfj',sendfj);
+app.use('/ping',sendfj.ping);
+app.use('/status',sendfj.status);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -56,6 +72,11 @@ app.use(function(err, req, res, next) {
   });
 });
 
+var models = require('./models');
+models.sequelize.sync().then(function (){
+  debug("models synced")
+});
+
 var SerialPort = require('serialport');
 console.log('List all serialport');
 SerialPort.list(function (err, ports) {
@@ -65,5 +86,15 @@ SerialPort.list(function (err, ports) {
     console.log(port.manufacturer);
   });
 });
+
+var bfConfig = require ('./config/bfconfig.json');
+if (bfConfig.EnterPort !== undefined){
+  EnterPort.working = new EnterPort(bfConfig.EnterPort);
+}
+
+if (bfConfig.ExitPort !== undefined){
+  ExitPort.working = new ExitPort(bfConfig.ExitPort);
+}
+
 
 module.exports = app;
