@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="08/24/2016 12:05:46" ReportInfo.Modified="08/24/2016 15:09:28" ReportInfo.CreatorVersion="2013.2.5.0">
+  <Dictionary>
+    <TableDataSource Name="Ba_PrintQueue" DataType="System.Int32" Enabled="true" TableName="Ba_PrintQueue">
+      <Column Name="PrintQueueID" DataType="System.Int32"/>
+      <Column Name="PrintQueueName" DataType="System.String"/>
+      <Column Name="OutPortCmd" DataType="System.String"/>
+      <Column Name="Direction" DataType="System.String"/>
+      <Column Name="PrintFileName" DataType="System.String"/>
+      <Column Name="Count" DataType="System.Int32"/>
+      <Column Name="Weight" DataType="System.Decimal"/>
+      <Column Name="SerialNumber" DataType="System.String"/>
+      <Column Name="baggingBatchNumber" DataType="System.String"/>
+      <Column Name="mailBagNumbe" DataType="System.String"/>
+      <Column Name="sortingCode" DataType="System.String"/>
+      <Column Name="barcodeContent" DataType="System.String"/>
+      <Column Name="CountryCode" DataType="System.String"/>
+      <Column Name="ErrorMsg" DataType="System.String"/>
+      <Column Name="PrintFlag" DataType="System.String"/>
+      <Column Name="CreateDate" DataType="System.DateTime"/>
+    </TableDataSource>
+  </Dictionary>
+  <ReportPage Name="ReportPage">
+    <DataBand Name="ReportData" Width="718.2" Height="113.4" DataSource="Ba_PrintQueue">
+      <BarcodeObject Name="packageBarcode" Left="245.7" Top="9.45" Width="198.73" Height="66.15" Text="[Ba_PrintQueue.SerialNumber]"/>
+      <TextObject Name="Text1" Left="37.8" Top="28.35" Width="141.75" Height="18.9" Text="[Ba_PrintQueue.PrintQueueName]" Font="宋体, 9pt"/>
+      <TextObject Name="Text2" Left="37.8" Top="66.15" Width="94.5" Height="18.9" Text="[Ba_PrintQueue.Direction]" Font="宋体, 9pt"/>
+      <TextObject Name="Text4" Left="529.2" Top="47.25" Width="122.85" Height="18.9" Text="[Ba_PrintQueue.CountryCode]" Font="宋体, 9pt"/>
+    </DataBand>
+  </ReportPage>
+</Report>

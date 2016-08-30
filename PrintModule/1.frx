@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="08/24/2016 12:05:46" ReportInfo.Modified="08/24/2016 15:58:51" ReportInfo.CreatorVersion="2013.2.5.0">
+  <Dictionary>
+    <TableDataSource Name="Ba_PrintQueue" ReferenceName="Ba_PrintQueue.Ba_PrintQueue" DataType="System.Int32" Enabled="true">
+      <Column Name="PrintQueueID" DataType="System.Int32"/>
+      <Column Name="Weight" DataType="System.Decimal"/>
+    </TableDataSource>
+  </Dictionary>
+  <ReportPage Name="ReportPage">
+    <DataBand Name="ReportData" Width="718.2" Height="113.4">
+      <TextObject Name="Text3" Left="500.85" Top="66.15" Width="94.5" Height="18.9" Text="[Ba_PrintQueue.PrintQueueID]" Font="宋体, 9pt"/>
+      <TextObject Name="Text5" Left="614.25" Top="66.15" Width="94.5" Height="18.9" Text="[Ba_PrintQueue.Weight]" Format="Currency" Format.UseLocale="true" HorzAlign="Right" WordWrap="false" Font="宋体, 9pt" Trimming="EllipsisCharacter"/>
+    </DataBand>
+  </ReportPage>
+</Report>
