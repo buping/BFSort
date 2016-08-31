@@ -3,7 +3,8 @@ var router = express.Router();
 var util = require('util');
 var models = require('../models');
 var debug=require('debug')('bfsort');
-var enterPort = require("../EnterPort.js").working;
+var EnterPort = require("../EnterPort.js");
+
 
 /* sunyou interface. */
 var currentData={};
@@ -13,15 +14,15 @@ var sendfj = {};
 
 function FjData(cb,barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber){
 	this.cb = cb;
-    this.barcode=barcode;
-	this.channelCode=channelCode;
-	this.countryCode=countryCode;
-	this.countryCnName=countryCnName;
-	this.packageWeight=packageWeight;
-	this.portNumber=portNumber;
-	this.receiveTime = new Date().getTime();
+    this.TrackNum=barcode;
+	this.ChannelCode=channelCode;
+	this.CountryCode=countryCode;
+	this.CountryCnName=countryCnName;
+	this.PackageWeight=packageWeight;
+	this.PortNumber=portNumber;
+	this.UploadDate = Date.now();
 	this.isFinished=false;
-	this.finishTime=null;
+	this.FinishDate=null;
 }
 
 router.get('/', function(req, res, next){
@@ -32,6 +33,7 @@ router.get('/', function(req, res, next){
     var countryCnName=req.query.countryCnName;
     var packageWeight=req.query.packageWeight;
     var portNumber=req.query.portNumber;
+
     if (cb === undefined || barcode === undefined || channelCode === undefined ||
         countryCnName === undefined || countryCode === undefined || packageWeight === undefined ||
         portNumber === undefined) {
@@ -41,9 +43,10 @@ router.get('/', function(req, res, next){
 	
 	var received = new FjData(cb,barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
 	debug("received sunyou message:"+util.inspect(received));
+	var enterPort = EnterPort.working;
 	
-	if (barcode.length > 10 && barcode.length<20 &&
-        enterPort.equeue(received)){
+	if (barcode.length > 10 && barcode.length<20){
+        enterPort.enqueue(received);
 
 	    /*
 		models.eq_scanpackage.max('ScanPackageID').then(function (max){
@@ -65,6 +68,7 @@ router.get('/', function(req, res, next){
 });
 
 router.ping = function(req,res,next){
+	var enterPort = EnterPort.working;
 	if (enterPort.isConnected()){
 		res.send("FJStatus._onok();");
 	}else{
@@ -74,11 +78,18 @@ router.ping = function(req,res,next){
 
 router.status = function (req,res,next){
 	var cb=req.query.cb;
+	var enterPort = EnterPort.working;
+	setTimeout(function(){
+		this.send("ok");
+	}.bind(res),5000);
+	/*
 	if (cb === undefined){
 		res.send("cb required");
 	}else{
-		res.send(enterPort.GetStatus(cb));
+		enterPort.GetStatus(cb,res);
+		//res.send(util.inspect(enterPort.GetStatus(cb,res)));
 	}
+	*/
 }
 
 

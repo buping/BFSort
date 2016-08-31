@@ -1,0 +1,20 @@
+{
+  "name": "bffrontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.htm",
+  "author": "",
+  "license": "ISC",
+  "window": {
+    "show": true,
+    "toolbar": false,
+    "frame": false,
+    "position": "center",
+    "width": 800,
+    "height": 600
+  },
+  "scripts": {
+    "start": "nw ."
+  }
+  
+}

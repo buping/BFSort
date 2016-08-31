@@ -8,18 +8,13 @@ var debug = require('debug')('bfsort');
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
-log4js.configure({
-  appenders: [
-    { type: 'console' }, //控制台输出
-  ]
-});
+var logger = require('./log.js').logger;
 logger.setLevel('INFO');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var sendfj = require('./routes/sendfj');
+var admin = require('./routes/admin');
 
 var app = express();
 
@@ -40,6 +35,7 @@ app.use('/users', users);
 app.use('/sendfj',sendfj);
 app.use('/ping',sendfj.ping);
 app.use('/status',sendfj.status);
+app.use('/admin',admin);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -90,10 +86,12 @@ SerialPort.list(function (err, ports) {
 var bfConfig = require ('./config/bfconfig.json');
 if (bfConfig.EnterPort !== undefined){
   EnterPort.working = new EnterPort(bfConfig.EnterPort);
+  EnterPort.working.Init();
 }
 
 if (bfConfig.ExitPort !== undefined){
   ExitPort.working = new ExitPort(bfConfig.ExitPort);
+  ExitPort.working.Init();
 }
 
 

@@ -5,7 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     ScanPackageID: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     IsSelect: {
       type: DataTypes.STRING,
@@ -20,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     SerialNumber: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     ChannelCode: {

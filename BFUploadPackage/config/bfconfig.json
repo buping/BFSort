@@ -2,13 +2,13 @@
   "EnterPort":{
     "PortID": 6,
     "Direction": 0,
-    "SerialName":"COM3",
+    "SerialName":"COM4",
     "SerialPort":{
       "baudRate":57600
     }
   },
   "ExitPort":{
-    "Port":
+    "Boards":
       [
         {"Id":950,"Direction":0},
         {"Id":951,"Direction":0},

@@ -12,7 +12,7 @@ function PostPackage(barcode,channelCode,countryCode,countryCnName,packageWeight
     this.countryCode=countryCode;
     this.countryCnName=countryCnName;
     this.packageWeight=packageWeight;
-    this.portNumber=portNumber;
+    this.PortNumber=portNumber;
     this.receiveTime = now();
     this.isFinished=false;
     this.finishTime=null;
