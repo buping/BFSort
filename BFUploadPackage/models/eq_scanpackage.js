@@ -37,15 +37,15 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     EnterPort: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     ExitPort: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     Direction: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     PackageWeight: {

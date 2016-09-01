@@ -274,9 +274,13 @@ EnterPort.prototype.enqueue = function(fjData){
     package.ExitDirection = exitDirection;
     package.Direction = exitDirection;
 
-    var enterPort = package.EnterPort.toString();
+    var enterPort = package.EnterPort;
 
-    scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}}).then(function(max) {
+    scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}})
+        .then(function(max) {
+            if (isNaN(max)){
+                max=0;
+            }
             package.SerialNumber = (max + 1)%65536;
             debug("using serialnum:"+package.SerialNumber);
             this.sendPackage(package);

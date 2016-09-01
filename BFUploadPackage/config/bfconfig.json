@@ -2,7 +2,7 @@
   "EnterPort":{
     "PortID": 6,
     "Direction": 0,
-    "SerialName":"COM4",
+    "SerialName":"COM3",
     "SerialPort":{
       "baudRate":57600
     }
@@ -19,7 +19,7 @@
         {"Id":956,"Direction":0},
         {"Id":957,"Direction":0}
       ],
-    "Interval": 500,
+    "Interval": 100,
     "SerialName":"COM4",
     "SerialPort":{
       "baudRate":57600

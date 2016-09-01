@@ -35,22 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastReport">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Bars">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.Bars.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Editor">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Install">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.Install.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.VSDesign">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.VSDesign.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Web">
-      <HintPath>..\..\..\..\FastReport\FastReport.Net\FastReport.Web.dll</HintPath>
+      <HintPath>..\..\..\..\bsort\FastReport\FastReport.Net\FastReport.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>lib\Json90r1\Bin\Net45\Newtonsoft.Json.dll</HintPath>
@@ -59,7 +44,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

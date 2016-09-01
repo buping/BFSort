@@ -20,7 +20,9 @@ function Command(){
 
     this.isComplete = false;
 
-    this.buffer = new Buffer[INSTRUCTION_LENGTH];
+    this.buffer = new Buffer(INSTRUCTION_LENGTH);
+    this.isAllowRecieved = false;
+    this.receivedCount = 0;
 }
 
 Command.PC_TO_EXIT = 0x01;
@@ -60,30 +62,61 @@ Command.prototype.MakeBuffer = function(){
 
 //todo
 Command.prototype.FromBuffer = function(){
-}
+    var buf = this.buffer;
+    this.packetHeader = buf[0];
+    this.instructionId = buf[1];
+    this.exitPortID = buf[3]*256+buf[2];
+    this.enterPortID = buf[4];
+    this.serialNumer = buf[6]*256+buf[5];
+    this.reserved = buf[7];
+    this.exitDirection = buf[8]%2;
+    this.enterDirection = buf[8]/2;;
+    this.status = buf[9];
+};
 
 
 Command.prototype.MakePcQueryExit = function (id,direction){
 
-}
+};
+
+Command.prototype.RecieveDirect = function(){
+    if (this.buffer[INSTRUCTION_LENGTH-1] == CalcChecksum(this.buffer)){
+        this.FromBuffer();
+        this.isComplete = true;
+    }else{
+        this.isComplete = false;
+        this.Clear();
+    }
+};
+
+Command.prototype.Clear = function(){
+    this.isAllowRecieved = false;
+    this.isComplete = false;
+    this.receivedCount = 0;
+};
 
 Command.prototype.ReadData = function(data){
     if (data && data.length>0){
         for (var i=0;i<data.length;i++){
             if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
-                receivedCount = 1;
+                this.receivedCount = 1;
                 this.isAllowRecieved = true;
+                this.buffer[0] = INSTRUCTION_HEADER;
             }else{
                 if (this.isAllowRecieved) {
-                    this.currentBuffer[receivedCount++] = data[i];
-                    if (receivedCount == 11) {
+                    this.buffer[this.receivedCount++] = data[i];
+                    if (this.receivedCount == INSTRUCTION_LENGTH) {
                         this.isAllowRecieved = false;
-                        this.recieveDirect();
+                        this.RecieveDirect();
                     }
                 }
             }
         }
     }
+}
+
+Command.prototype.Clone = function(){
+    return JSON.parse(JSON.stringify(this));
 }
 
 module.exports = Command;

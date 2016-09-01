@@ -11,11 +11,11 @@ var scanPackageDb = require('./models').eq_scanpackage;
 
 var defaults = {
     //reportVersionTimeout: 5000,
-    exitInterval: 1000,
-    portDelay: 100,
+    Interval: 100,
+    //portDelay: 100,
     //sendInterval:500,
     //repeatSendTimes:3,	// 最多重发次数
-    serialport: {
+    SerialPort: {
         baudRate: 57600,
         autoOpen: false,
         parity: 'none',
@@ -45,9 +45,9 @@ function ExitPort(options, callback) {
     this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
     this.queryBoards = this.settings.Boards;
+    this.currentQueryIdx = 0;
 
     this.opened = false;
-    this.isReady = false;
     this.currentRecvCmd = new Command();
 
     this.transport = new com.SerialPort(options.SerialName, this.settings.SerialPort);
@@ -61,17 +61,14 @@ function ExitPort(options, callback) {
         debug("com port:" + this.settings.SerialName + " is disconected");
         this.transport.close();
         this.opened = false;
-        this.isReady = false;
         this.emit("disconnect");
-        this.Init();
+        this.Open();
     }.bind(this));
 
+    //reopen
     this.transport.on("error", function (error) {
-        if (!this.isReady && "function" == typeof callback) {
-            callback(error);
-        } else {
-            this.emit("error", error);
-        }
+        this.transport.close();
+        this.Open();
     }.bind(this));
 
     this.transport.on('data', function (data) {
@@ -94,10 +91,26 @@ ExitPort.prototype.Init = function() {
         board.RecvCmd = response;
         //board.
     }
+    this.Open();
+    this.StartQuery();
+};
+
+ExitPort.prototype.Open = function() {
+    this.transport.open(function (error) {
+        if (error) {
+            console.log("open com port " + this.settings.SerialName + " failed:" + error + ".try again in 5 seconds");
+            this.transport.opening = false;
+            setTimeout(this.Open.bind(this), 5000);
+        } else {
+            console.log("com port " + this.settings.SerialName + " opened successful");
+            this.opened = true;
+        }
+    }.bind(this));
 };
 
 ExitPort.prototype.RecvCompleteCmd = function(){
-    var cmd=this.currentRecvCmd;
+    var cmd=this.currentRecvCmd.Clone();
+    this.currentRecvCmd.Clear();
     if (cmd.instructionId != Command.EXIT_TO_PC){
         logger.err("Recv unknown com message:"+util.inspect(cmd.buffer));
         return;
@@ -112,23 +125,45 @@ ExitPort.prototype.RecvCompleteCmd = function(){
 
     for (var board in this.queryBoards){
         if (exitPortID == board.Id && exitDirection == board.Direction){
-            this.SavePackage(cmd.copy());
+            this.SavePackage(cmd);
         }
     }
 };
 
 ExitPort.prototype.SavePackage = function(cmd){
-    //var package = scanPackageDb.findOne()
+    var package;
+    scanPackageDb.findOrCreate({where:{SerialNumber:cmd.serialNumer,EnterPort:cmd.enterPortID}})
+        .spread(
+        function (res,created){
+            package = res;
+            package.FinishDate = Date.now();
+            return package;
+        }
+    ).then(
+        function (res){
+            scanPackageDb.upsert(res);
+        }
+    );
+    //todo:Post message to chengbang server
 };
 
 
-ExitPort.prototype.QueryAll = function(){
-
+ExitPort.prototype.StartQuery = function(){
+    setInterval(this.QueryOne.bind(this),this.settings.Interval);
 };
 
-ExitPort.prototype.QueryOne = function(idx){
+ExitPort.prototype.QueryOne = function(){
+    if (!this.opened){
+        return;
+    }
+    var board = this.queryBoards[this.currentQueryIdx];
+    this.transport.write(board.buffer);
 
-};
+    this.currentQueryIdx++;
+    if (this.currentQueryIdx >= this.queryBoards.length){
+        this.currentQueryIdx = 0;
+    }
+}
 
 module.exports = ExitPort;
 

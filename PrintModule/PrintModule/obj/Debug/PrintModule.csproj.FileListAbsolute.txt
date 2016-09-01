@@ -1,0 +1,9 @@
+D:\install\PrintModule.exe.config
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.csprojResolveAssemblyReference.cache
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.Form1.resources
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.Properties.Resources.resources
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.csproj.GenerateResource.Cache
+D:\install\PrintModule.exe
+D:\install\PrintModule.pdb
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.exe
+D:\work\BFSort\PrintModule\PrintModule\obj\Debug\PrintModule.pdb

@@ -89,10 +89,12 @@ if (bfConfig.EnterPort !== undefined){
   EnterPort.working.Init();
 }
 
-if (bfConfig.ExitPort !== undefined){
-  ExitPort.working = new ExitPort(bfConfig.ExitPort);
-  ExitPort.working.Init();
-}
+/*
+ if (bfConfig.ExitPort !== undefined){
+ ExitPort.working = new ExitPort(bfConfig.ExitPort);
+ ExitPort.working.Init();
+ }
+ */
 
 
 module.exports = app;
