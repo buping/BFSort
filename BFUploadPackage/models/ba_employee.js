@@ -44,8 +44,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     CreateDate: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      allowNull: true
     }
   }, {
     tableName: 'ba_employee'

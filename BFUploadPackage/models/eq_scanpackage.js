@@ -62,13 +62,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     FinishDate: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: '0000-00-00 00:00:00'
+      allowNull: true
     },
     UploadDate: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: '0000-00-00 00:00:00'
+      allowNull: true
     }
   }, {
     tableName: 'eq_scanpackage'

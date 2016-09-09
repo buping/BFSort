@@ -16,8 +16,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     OperatorDate: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      allowNull: true
     }
   }, {
     tableName: 'ba_logs'
