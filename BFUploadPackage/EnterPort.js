@@ -135,7 +135,8 @@ function EnterPort(options, callback){
             }
         }
     }.bind(this));
-}
+};
+
 EnterPort.prototype = Object.create(Emitter.prototype,{
     constructor:{
         value:EnterPort,
@@ -155,7 +156,7 @@ EnterPort.prototype.Init=function(){
         }
     }.bind(this));
     //todo
-}
+};
 
 EnterPort.prototype.recieveDirect= function(){
     var now = new Date();
@@ -180,7 +181,7 @@ EnterPort.prototype.recieveDirect= function(){
     if (this.currentBuffer[1] == RECEIVE_UPLOAD){
         this.receiveUpload();
     }
-}
+};
 
 EnterPort.prototype.receiveUpload = function(){
     var currentBuffer = this.currentBuffer;
@@ -211,7 +212,7 @@ EnterPort.prototype.receiveUpload = function(){
             this.emit('loaded');
         }
     }
-}
+};
 
 /*
  Send a package to uploadStation
@@ -241,7 +242,7 @@ EnterPort.prototype.sendPackage = function(postPackage) {
     this.isLoading = true;
     this.actualSendData();
     //this.savePackage();
-}
+};
 
 EnterPort.prototype.actualSendData = function() {
     if (! this.loadSucc  ) {
@@ -255,7 +256,7 @@ EnterPort.prototype.actualSendData = function() {
             setTimeout(this.actualSendData.bind(this), this.settings.sendInterval);
         }
     }
-}
+};
 
 EnterPort.prototype.enqueue = function(fjData){
     if (!this.opened){
@@ -286,29 +287,29 @@ EnterPort.prototype.enqueue = function(fjData){
             this.sendPackage(package);
         }.bind(this)
     );
-}
+};
 
 EnterPort.prototype.savePackage = function(){
     var package = this.package;
     package.IsSelect = "0";
     package.EmployeeName = this.employeeName;
     package.ScanType = "EQ";
-    package.FinishDate = Date.now();
+    //package.FinishDate = Date.now();
     scanPackageDb.create(package).then(function(ret){
         debug("saved package to datebase successful:"+util.inspect(ret));
     },function(err){
         debug("saved package to datebase failed:"+util.inspect(err));
     });
-}
+};
 
 EnterPort.prototype.isConnected = function(){
     return this.opened;
-}
+};
 
 EnterPort.prototype.GetStatus= function(cb,res){
     //todo
     this.webResponse = res;
     return this.respondStatus;
-}
+};
 
 module.exports = EnterPort;

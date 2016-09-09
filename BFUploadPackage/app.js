@@ -84,17 +84,20 @@ SerialPort.list(function (err, ports) {
 });
 
 var bfConfig = require ('./config/bfconfig.json');
+
+
 if (bfConfig.EnterPort !== undefined){
   EnterPort.working = new EnterPort(bfConfig.EnterPort);
   EnterPort.working.Init();
 }
 
-/*
- if (bfConfig.ExitPort !== undefined){
+
+
+if (bfConfig.ExitPort !== undefined){
  ExitPort.working = new ExitPort(bfConfig.ExitPort);
  ExitPort.working.Init();
- }
- */
+}
+
 
 
 module.exports = app;

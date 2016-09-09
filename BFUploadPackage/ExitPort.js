@@ -48,7 +48,7 @@ function ExitPort(options, callback) {
     this.currentQueryIdx = 0;
 
     this.opened = false;
-    this.currentRecvCmd = new Command();
+    this.currentRecvCmd = new Command(Command.EXIT_TO_PC);
 
     this.transport = new com.SerialPort(options.SerialName, this.settings.SerialPort);
 
@@ -67,12 +67,13 @@ function ExitPort(options, callback) {
 
     //reopen
     this.transport.on("error", function (error) {
+        debug("com port:" + this.settings.SerialName + " error");
         this.transport.close();
         this.Open();
     }.bind(this));
 
     this.transport.on('data', function (data) {
-        logger.info("\rReceive serial data:" + util.inspect(data));
+        console.log("\rExitport Receive serial data:" + util.inspect(data));
         this.currentRecvCmd.ReadData(data);
         if (this.currentRecvCmd.isComplete) {
             this.RecvCompleteCmd();
@@ -81,10 +82,11 @@ function ExitPort(options, callback) {
 }
 
 ExitPort.prototype.Init = function() {
-    for (var board in this.queryBoards){
+    for (var boardIdx in this.queryBoards){
+        var board = this.queryBoards[boardIdx];
         var query = new Command(Command.PC_TO_EXIT);
         query.exitPortID = board.Id;
-        query.status = board.Direction;
+        query.exitDirection = board.Direction;
         query.MakeBuffer();
         board.SendCmd = query;
         var response = new Command(Command.EXIT_TO_PC);
@@ -123,25 +125,33 @@ ExitPort.prototype.RecvCompleteCmd = function(){
         return;
     }
 
-    for (var board in this.queryBoards){
+    for (var boardIdx in this.queryBoards){
+        var board = this.queryBoards[boardIdx];
         if (exitPortID == board.Id && exitDirection == board.Direction){
-            this.SavePackage(cmd);
+            board.TotalCount = packageCount;
+            if (cmd.serialNumer != 0) {
+                this.SavePackage(cmd);
+            }
         }
     }
 };
 
 ExitPort.prototype.SavePackage = function(cmd){
     var package;
+    console.log("saving receiving cmd:");
+    console.log(util.inspect(cmd));
     scanPackageDb.findOrCreate({where:{SerialNumber:cmd.serialNumer,EnterPort:cmd.enterPortID}})
-        .spread(
+        .then(
         function (res,created){
-            package = res;
-            package.FinishDate = Date.now();
-            return package;
-        }
-    ).then(
-        function (res){
+            //res.FinishDate = Date.now();
+            debug(util.inspect(res));
+            if (created){
+                res.Logs = "err no such serial number in upload";
+            }else{
+                res.Logs = "succ";
+            }
             scanPackageDb.upsert(res);
+            return package;
         }
     );
     //todo:Post message to chengbang server
@@ -157,7 +167,8 @@ ExitPort.prototype.QueryOne = function(){
         return;
     }
     var board = this.queryBoards[this.currentQueryIdx];
-    this.transport.write(board.buffer);
+    this.transport.write(board.SendCmd.buffer);
+    console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
 
     this.currentQueryIdx++;
     if (this.currentQueryIdx >= this.queryBoards.length){

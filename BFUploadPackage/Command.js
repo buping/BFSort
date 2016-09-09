@@ -6,9 +6,9 @@ var INSTRUCTION_HEADER = 0xAA;
 var INSTRUCTION_LENGTH = 11;
 
 
-function Command(){
+function Command(instruction){
     this.packetHeader = INSTRUCTION_HEADER;
-    this.instructionId = 0x00;
+    this.instructionId = instruction;
     this.exitPortID = 0x0000;
     this.enterPortID = 0x00;
     this.serialNumer = 0x0000;
@@ -43,38 +43,34 @@ function CalcChecksum(direct){
 
 //todo
 Command.prototype.MakeBuffer = function(){
-    var buf = this.buffer;
-    buf.fill(0);
-    buf[0] = this.packetHeader;
-    buf[1] = this.instructionId;
-    buf[2] = this.exitPortID%256;
-    buf[3] = this.exitPortID/256;
-    buf[4] = this.enterPortID % 256;
-    buf[5] = this.serialNumer % 256;
-    buf[6] = this.serialNumer / 256;
-    buf[7] = this.reserved;
-    buf[8] = this.enterDirection * 2 + this.exitDirection;
-    buf[9] = this.status;
-    buf[10] = CalcChecksum(buf);
-
-    return buf;
+    this.buffer.fill(0);
+    this.buffer[0] = this.packetHeader;
+    this.buffer[1] = this.instructionId;
+    this.buffer[2] = this.exitPortID%256;
+    this.buffer[3] = this.exitPortID/256;
+    this.buffer[4] = this.enterPortID % 256;
+    this.buffer[5] = this.serialNumer % 256;
+    this.buffer[6] = this.serialNumer / 256;
+    this.buffer[7] = this.reserved;
+    this.buffer[8] = this.enterDirection * 2 + this.exitDirection;
+    this.buffer[9] = this.status;
+    this.buffer[10] = CalcChecksum(this.buffer);
 };
 
 //todo
 Command.prototype.FromBuffer = function(){
-    var buf = this.buffer;
-    this.packetHeader = buf[0];
-    this.instructionId = buf[1];
-    this.exitPortID = buf[3]*256+buf[2];
-    this.enterPortID = buf[4];
-    this.serialNumer = buf[6]*256+buf[5];
-    this.reserved = buf[7];
-    this.exitDirection = buf[8]%2;
-    this.enterDirection = buf[8]/2;;
-    this.status = buf[9];
+    this.packetHeader = this.buffer[0];
+    this.instructionId = this.buffer[1];
+    this.exitPortID = this.buffer[3]*256+this.buffer[2];
+    this.enterPortID = this.buffer[4];
+    this.serialNumer = this.buffer[6]*256+this.buffer[5];
+    this.reserved = this.buffer[7];
+    this.exitDirection = this.buffer[8]%2;
+    this.enterDirection = this.buffer[8]/2;
+    this.status = this.buffer[9];
 };
 
-
+//todo
 Command.prototype.MakePcQueryExit = function (id,direction){
 
 };
