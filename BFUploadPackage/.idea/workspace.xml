@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/juxin.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Command.js" afterPath="$PROJECT_DIR$/Command.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/EnterPort.js" afterPath="$PROJECT_DIR$/EnterPort.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ExitPort.js" afterPath="$PROJECT_DIR$/ExitPort.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/bfconfig.json" afterPath="$PROJECT_DIR$/config/bfconfig.json" />
     </list>
     <ignored path="BFUploadPackage.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -415,7 +409,7 @@
       <workItem from="1472553859890" duration="772000" />
       <workItem from="1472554669739" duration="599000" />
       <workItem from="1472605055819" duration="19569000" />
-      <workItem from="1473382750195" duration="20676000" />
+      <workItem from="1473382750195" duration="20697000" />
     </task>
     <task id="LOCAL-00001" summary="add to webstorm project">
       <created>1470297823571</created>
@@ -438,11 +432,18 @@
       <option name="project" value="LOCAL" />
       <updated>1473387818262</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="change table definition">
+      <created>1473414247372</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1473414247372</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="127083000" />
+    <option name="totallyTimeSpent" value="127104000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1928" height="1060" extended-state="6" />
