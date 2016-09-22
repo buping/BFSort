@@ -2,7 +2,7 @@
  * Created by Administrator on 2016/8/4.
  */
 
-var com = require("./com");
+var com = require("./com.js");
 //var SerialPort = com.SerialPort;
 
 var logger = require('./log.js').logger;

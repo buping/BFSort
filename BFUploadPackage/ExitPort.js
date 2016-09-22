@@ -1,9 +1,9 @@
-var com = require("./com");
+var com = require("./com.js");
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
 var util= require('util');
-var Command = require('./command');
+var Command = require('./Command.js');
 var Emitter=require("events").EventEmitter;
 var debug = require('debug')('bfsort');
 var scanPackageDb = require('./models').eq_scanpackage;
