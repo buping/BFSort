@@ -138,7 +138,7 @@ function EnterPort(options, callback){
 }
 EnterPort.prototype = Object.create(Emitter.prototype,{
     constructor:{
-        value:EnterPort,
+        value:EnterPort
     }
 });
 

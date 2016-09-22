@@ -16,7 +16,7 @@ var defaults = {
     //sendInterval:500,
     //repeatSendTimes:3,	// 最多重发次数
     SerialPort: {
-        baudRate: 57600,
+        baudRate: 115200,
         autoOpen: false,
         parity: 'none',
         xon: false,
