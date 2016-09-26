@@ -12,8 +12,7 @@ var prevData={};
 
 var sendfj = {};
 
-function FjData(cb,barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber){
-	this.cb = cb;
+function FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber){
     this.TrackNum=barcode;
 	this.ChannelCode=channelCode;
 	this.CountryCode=countryCode;
@@ -46,7 +45,7 @@ router.get('/', function(req, res, next){
 				return;
     }
 	
-	var received = new FjData(cb,barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
+	var received = new FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
 	debug("received sunyou message:"+util.inspect(received));
 	var enterPort = EnterPort.working;
 

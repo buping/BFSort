@@ -155,7 +155,7 @@ EnterPort.prototype.Init=function(){
         }
     }.bind(this));
     //todo
-}
+};
 
 EnterPort.prototype.recieveDirect= function(){
     var now = new Date();
@@ -180,7 +180,7 @@ EnterPort.prototype.recieveDirect= function(){
     if (this.currentBuffer[1] == RECEIVE_UPLOAD){
         this.receiveUpload();
     }
-}
+};
 
 EnterPort.prototype.receiveUpload = function(){
     var currentBuffer = this.currentBuffer;
@@ -211,7 +211,7 @@ EnterPort.prototype.receiveUpload = function(){
             this.emit('loaded');
         }
     }
-}
+};
 
 /*
  Send a package to uploadStation
@@ -240,8 +240,8 @@ EnterPort.prototype.sendPackage = function(postPackage) {
     this.isSending = true;
     this.isLoading = true;
     this.actualSendData();
-    //this.savePackage();
-}
+    //this.savePackage();r
+};
 
 EnterPort.prototype.actualSendData = function() {
     if (! this.loadSucc  ) {
@@ -255,7 +255,7 @@ EnterPort.prototype.actualSendData = function() {
             setTimeout(this.actualSendData.bind(this), this.settings.sendInterval);
         }
     }
-}
+};
 
 EnterPort.prototype.enqueue = function(fjData){
     if (!this.opened){
@@ -286,7 +286,7 @@ EnterPort.prototype.enqueue = function(fjData){
             this.sendPackage(package);
         }.bind(this)
     );
-}
+};
 
 EnterPort.prototype.savePackage = function(){
     var package = this.package;
@@ -299,16 +299,16 @@ EnterPort.prototype.savePackage = function(){
     },function(err){
         debug("saved package to datebase failed:"+util.inspect(err));
     });
-}
+};
 
 EnterPort.prototype.isConnected = function(){
     return this.opened;
-}
+};
 
 EnterPort.prototype.GetStatus= function(cb,res){
     //todo
     this.webResponse = res;
     return this.respondStatus;
-}
+};
 
 module.exports = EnterPort;
