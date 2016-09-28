@@ -51,7 +51,6 @@ router.get('/', function(req, res, next){
 
 
 	
-	if (barcode.length > 10 && barcode.length<20){
 		if (enterPort.respondStatus != 0){
 			retJson.sendfjresult = "BUSY";
 		}else {
@@ -71,12 +70,7 @@ router.get('/', function(req, res, next){
 		*/
 		//Parse(received);
 		//res.json("sendFJCallbacks['"+cb+"']('"+cb+"|SUCCESS);");
-        debug("return sucess");
-	}else{
-		//res.send("sendFJCallbacks['"+cb+"']('"+cb+"|FAILURE);");
-		retJson.sendfjresult = "ERROR";
-		debug("return failure");
-	}
+	debug("return sucess");
 	res.json(retJson);
 });
 
