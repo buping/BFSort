@@ -1,8 +1,9 @@
 const net = require("net");
+const Emitter=require("events").EventEmitter;
 const logger = require('./log.js').logger;
 
 function  Juxin() {
-    
+    Emitter.call(this);
 }
 
 Juxin.prototype.init = function (cfg){
@@ -11,7 +12,14 @@ Juxin.prototype.init = function (cfg){
     this.isConnected = false;
 
     this.start();
-}
+};
+
+Juxin.prototype = Object.create(Emitter.prototype,{
+    constructor:{
+        value:Juxin,
+    }
+});
+
 
 Juxin.protype.start = function(){
     this.client = net.connect({host:this.addr,port:this.port},function(){
@@ -43,6 +51,7 @@ Juxin.prototype.readData = function(data){
         var barCodes = resArr[6];
 
         var barCodeArr = barCodes.split(";");
+        this.emit('data',barCodeArr);
         //todo
     }else if (resArr[0] == "40"){ //heartbeat response
         this.receiveHeatbeat();

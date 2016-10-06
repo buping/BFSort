@@ -80,7 +80,7 @@ function EnterPort(options, callback){
     this.receivedCount = 1;
     this.isAllowRecieved = false;
 
-    this.package = null;
+    this.parcel = null;
     this.loadDeviceId = 0;
     this.loadDirection = 0;
     this.loadSucc = false;
@@ -184,7 +184,7 @@ EnterPort.prototype.recieveDirect= function(){
 
 EnterPort.prototype.receiveUpload = function(){
     var currentBuffer = this.currentBuffer;
-    var package=this.package;
+    var parcel=this.parcel;
     var respondExitPort = currentBuffer[2] + currentBuffer[3] * 256;
     var respondEnterPort = currentBuffer[4];
     var respondSerialNum = currentBuffer[5] + currentBuffer[6] * 256;
@@ -196,12 +196,12 @@ EnterPort.prototype.receiveUpload = function(){
     if (respondStatus == 0x00){
         this.isReady = true;
     }
-    if (!this.isLoading || this.package === undefined){
+    if (!this.isLoading || this.parcel === undefined){
         return;
     }
-    if (respondExitPort == package.ExitPort && respondEnterPort == package.EnterPort
-        && respondSerialNum == package.SerialNumber && respondEnterDirection == package.EnterDirection
-        && respondExitDirection == package.ExitDirection){
+    if (respondExitPort == parcel.ExitPort && respondEnterPort == parcel.EnterPort
+        && respondSerialNum == parcel.SerialNumber && respondEnterDirection == parcel.EnterDirection
+        && respondExitDirection == parcel.ExitDirection){
         this.sendConfirmed = true;
         this.isSending = false;
         if (respondStatus == 0x00) {
@@ -214,21 +214,21 @@ EnterPort.prototype.receiveUpload = function(){
 };
 
 /*
- Send a package to uploadStation
+ Send a parcel to uploadStation
  */
 EnterPort.prototype.sendPackage = function(postPackage) {
     this.loadSucc =false;
-    this.package = postPackage;
+    this.parcel = postPackage;
     var sendBuffer = this.sendBuffer;
     sendBuffer[0] = INSTRUCTION_HEADER;
     sendBuffer[1] = 0x01;
-    sendBuffer[2] = this.package.ExitPort % 256;
-    sendBuffer[3] = this.package.ExitPort / 256;
-    sendBuffer[4] = this.package.EnterPort % 256;
-    sendBuffer[5] = this.package.SerialNumber % 256;
-    sendBuffer[6] = this.package.SerialNumber / 256;
+    sendBuffer[2] = this.parcel.ExitPort % 256;
+    sendBuffer[3] = this.parcel.ExitPort / 256;
+    sendBuffer[4] = this.parcel.EnterPort % 256;
+    sendBuffer[5] = this.parcel.SerialNumber % 256;
+    sendBuffer[6] = this.parcel.SerialNumber / 256;
     sendBuffer[7] = 0x00;
-    sendBuffer[8] = this.package.EnterDirection * 2 + this.package.ExitDirection;
+    sendBuffer[8] = this.parcel.EnterDirection * 2 + this.parcel.ExitDirection;
     sendBuffer[9] = 0x00;
     var totalSum = 0;
     for(var i = 0;i<10;i++){
@@ -236,7 +236,7 @@ EnterPort.prototype.sendPackage = function(postPackage) {
     }
     sendBuffer[10] = totalSum%256;
 
-    this.package.BufStr = util.inspect(sendBuffer);
+    this.parcel.BufStr = util.inspect(sendBuffer);
     this.isSending = true;
     this.isLoading = true;
     this.actualSendData();
@@ -264,40 +264,40 @@ EnterPort.prototype.enqueue = function(fjData){
     if (this.isLoading){
         return false;
     }
-    var package = fjData;
-    package.EnterPort = this.portID;
-    package.EnterDirection = this.direction;
+    var parcel = fjData;
+    parcel.EnterPort = this.portID;
+    parcel.EnterDirection = this.direction;
     var outPortWhole = fjData.PortNumber; //like "950|1"
     var exitPort = parseInt(outPortWhole.substr(0,outPortWhole.indexOf('|')));
     var exitDirection = parseInt(outPortWhole.substr(outPortWhole.indexOf('|')+1));
-    package.ExitPort = exitPort;
-    package.ExitDirection = exitDirection;
-    package.Direction = exitDirection;
+    parcel.ExitPort = exitPort;
+    parcel.ExitDirection = exitDirection;
+    parcel.Direction = exitDirection;
 
-    var enterPort = package.EnterPort;
+    var enterPort = parcel.EnterPort;
 
     scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}})
         .then(function(max) {
             if (isNaN(max)){
                 max=0;
             }
-            package.SerialNumber = (max + 1)%65536;
-            debug("using serialnum:"+package.SerialNumber);
-            this.sendPackage(package);
+            parcel.SerialNumber = (max + 1)%65536;
+            debug("using serialnum:"+parcel.SerialNumber);
+            this.sendPackage(parcel);
         }.bind(this)
     );
 };
 
 EnterPort.prototype.savePackage = function(){
-    var package = this.package;
-    package.IsSelect = "0";
-    package.EmployeeName = this.employeeName;
-    package.ScanType = "EQ";
-    package.FinishDate = Date.now();
-    scanPackageDb.create(package).then(function(ret){
-        debug("saved package to datebase successful:"+util.inspect(ret));
+    var parcel = this.parcel;
+    parcel.IsSelect = "0";
+    parcel.EmployeeName = this.employeeName;
+    parcel.ScanType = "EQ";
+    parcel.FinishDate = Date.now();
+    scanPackageDb.create(parcel).then(function(ret){
+        debug("saved parcel to datebase successful:"+util.inspect(ret));
     },function(err){
-        debug("saved package to datebase failed:"+util.inspect(err));
+        debug("saved parcel to datebase failed:"+util.inspect(err));
     });
 };
 
@@ -307,7 +307,6 @@ EnterPort.prototype.isConnected = function(){
 
 EnterPort.prototype.GetStatus= function(cb,res){
     //todo
-    this.webResponse = res;
     return this.respondStatus;
 };
 
