@@ -2,7 +2,7 @@
   "EnterPort":{
     "PortID": 6,
     "Direction": 0,
-    "SerialName":"COM5",
+    "SerialName":"COM4",
     "SerialPort":{
       "baudRate":57600
     }
@@ -10,12 +10,19 @@
   "ExitPort":{
     "Boards":
       [
-        {"Id":950,"Direction":0}
+        {"Id":950,"Direction":0},
+        {"Id":951,"Direction":0},
+        {"Id":952,"Direction":0},
+        {"Id":953,"Direction":0},
+        {"Id":954,"Direction":0},
+        {"Id":955,"Direction":0},
+        {"Id":956,"Direction":0},
+        {"Id":957,"Direction":0}
       ],
-    "Interval": 1000,
-    "SerialName":"COM3",
+    "Interval": 100,
+    "SerialName":"COM4",
     "SerialPort":{
-      "baudRate":115200
+      "baudRate":57600
     }
   }
 }

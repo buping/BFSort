@@ -1,9 +1,9 @@
-var com = require("./com");
+var com = require("./com.js");
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
 var util= require('util');
-var Command = require('./command');
+var Command = require('./Command.js');
 var Emitter=require("events").EventEmitter;
 var debug = require('debug')('bfsort');
 var scanPackageDb = require('./models').eq_scanpackage;
@@ -16,7 +16,7 @@ var defaults = {
     //sendInterval:500,
     //repeatSendTimes:3,	// 最多重发次数
     SerialPort: {
-        baudRate: 57600,
+        baudRate: 115200,
         autoOpen: false,
         parity: 'none',
         xon: false,

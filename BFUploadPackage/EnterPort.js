@@ -2,7 +2,7 @@
  * Created by Administrator on 2016/8/4.
  */
 
-var com = require("./com");
+var com = require("./com.js");
 //var SerialPort = com.SerialPort;
 
 var logger = require('./log.js').logger;
@@ -135,11 +135,10 @@ function EnterPort(options, callback){
             }
         }
     }.bind(this));
-};
-
+}
 EnterPort.prototype = Object.create(Emitter.prototype,{
     constructor:{
-        value:EnterPort,
+        value:EnterPort
     }
 });
 
@@ -241,7 +240,7 @@ EnterPort.prototype.sendPackage = function(postPackage) {
     this.isSending = true;
     this.isLoading = true;
     this.actualSendData();
-    //this.savePackage();
+    //this.savePackage();r
 };
 
 EnterPort.prototype.actualSendData = function() {
@@ -294,7 +293,7 @@ EnterPort.prototype.savePackage = function(){
     package.IsSelect = "0";
     package.EmployeeName = this.employeeName;
     package.ScanType = "EQ";
-    //package.FinishDate = Date.now();
+    package.FinishDate = Date.now();
     scanPackageDb.create(package).then(function(ret){
         debug("saved package to datebase successful:"+util.inspect(ret));
     },function(err){
