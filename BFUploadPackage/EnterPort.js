@@ -188,7 +188,7 @@ EnterPort.prototype.receiveUpload = function(){
     var respondExitPort = currentBuffer[2] + currentBuffer[3] * 256;
     var respondEnterPort = currentBuffer[4];
     var respondSerialNum = currentBuffer[5] + currentBuffer[6] * 256;
-    var respondEnterDirection = currentBuffer[8] / 2;
+    var respondEnterDirection = (currentBuffer[8] & 0x02)/ 2;
     var respondExitDirection = currentBuffer[8] % 2;
     var respondStatus = currentBuffer[9];
 
