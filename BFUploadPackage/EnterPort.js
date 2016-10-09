@@ -34,13 +34,13 @@ var defaults = {
         dataBits: 8,
         stopBits: 1,
         bufferSize: 256
-    },
+    }
 };
 
 var RESPONSE_FUNC = {};
 RESPONSE_FUNC[RECEIVE_UPLOAD] = function (board){
 
-}
+};
 
 function validDirect(direct){
     var totalSum = 0;
@@ -188,8 +188,8 @@ EnterPort.prototype.receiveUpload = function(){
     var respondExitPort = currentBuffer[2] + currentBuffer[3] * 256;
     var respondEnterPort = currentBuffer[4];
     var respondSerialNum = currentBuffer[5] + currentBuffer[6] * 256;
-    var respondEnterDirection = currentBuffer[8] % 2;
-    var respondExitDirection = currentBuffer[8] / 2;
+    var respondEnterDirection = currentBuffer[8] / 2;
+    var respondExitDirection = currentBuffer[8] % 2;
     var respondStatus = currentBuffer[9];
 
     this.respondStatus = respondStatus;
@@ -272,7 +272,6 @@ EnterPort.prototype.enqueue = function(fjData){
     var exitDirection = parseInt(outPortWhole.substr(outPortWhole.indexOf('|')+1));
     parcel.ExitPort = exitPort;
     parcel.ExitDirection = exitDirection;
-    parcel.Direction = exitDirection;
 
     var enterPort = parcel.EnterPort;
 
