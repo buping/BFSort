@@ -1,10 +1,9 @@
 var com = require("./com.js");
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
+var logger = require('./log.js').logger;
 var util= require('util');
 var Command = require('./Command.js');
-var Emitter=require("events").EventEmitter;
+var Emitter=require('events').EventEmitter;
 var debug = require('debug')('bfsort');
 var scanPackageDb = require('./models').eq_scanpackage;
 
@@ -143,7 +142,7 @@ ExitPort.prototype.SavePackage = function(cmd){
     scanPackageDb.findOrCreate({where:{SerialNumber:cmd.serialNumer,EnterPort:cmd.enterPortID}})
         .then(
         function (res,created){
-            //res.FinishDate = Date.now();
+            res.FinishDate = Date.now();
             debug(util.inspect(res));
             if (created){
                 res.Logs = "err no such serial number in upload";
@@ -174,6 +173,13 @@ ExitPort.prototype.QueryOne = function(){
     if (this.currentQueryIdx >= this.queryBoards.length){
         this.currentQueryIdx = 0;
     }
+};
+
+ExitPort.prototype.RelayCmd = function(cmd){
+    if (!this.opened){
+        return;
+    }
+    this.transport.write(cmd.buffer);
 }
 
 module.exports = ExitPort;

@@ -30,6 +30,8 @@ Command.EXIT_TO_PC = 0x04;
 Command.PC_TO_ENTRY = 0x01;
 Command.ENTRY_TO_PC = 0x03;
 
+Command.BUTTON_TO_PC = 0x07;
+Command.PC_TO_BUTTON = 0x01;
 /*
  @return checksum
  */
@@ -65,8 +67,9 @@ Command.prototype.FromBuffer = function(){
     this.enterPortID = this.buffer[4];
     this.serialNumer = this.buffer[6]*256+this.buffer[5];
     this.reserved = this.buffer[7];
+    this.direction = this.buffer[8];
     this.exitDirection = this.buffer[8]%2;
-    this.enterDirection = this.buffer[8]/2;
+    this.enterDirection = (this.buffer[8] & 0x02)/2;
     this.status = this.buffer[9];
 };
 
