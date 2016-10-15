@@ -184,4 +184,4 @@ app.post("/autoSorting/batchAddSortData",function(req, res) {
   res.send(retObj);
 });
 
-app.listen(27405);
+app.listen(27406);
