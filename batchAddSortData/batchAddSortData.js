@@ -1,5 +1,5 @@
 var express = require('express');
-var app=express();
+var router = express.Router();
 var crypto = require('crypto');
 var util = require('util');
 var cookieParser = require('cookie-parser');
@@ -11,7 +11,7 @@ var Sequelize = require('sequelize');
 
 var sequelize = new Sequelize('bfsort','bfsort','bfsorting',{
     host: 'localhost',
-    dialect: 'mysql',
+    dialect: 'mysql', 
     pool:{
         max:5,
         min:0,
@@ -43,18 +43,10 @@ sortData.sync().then(function(){
 });
 
 
-var appsecret = 's7M#z34!f#%@$@Zwe$';
-
-var jsonParser = bodyParser.json();
-app.use(bodyParser.json());
-//app.use(bodyParser.raw());
-//var rawParser = bodyParser.raw();
-//app.use(rawParser);
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+var appsecret = 'njcb@1234';
 
 
-app.use(function(err, req, res, next){
+router.use(function(err, req, res, next){
 	retObj = new Object();
 
 	if (err instanceof SyntaxError){
@@ -148,7 +140,11 @@ function AddSortData(req){
 	 return retObj;
 }
 
-app.post("/autoSorting/batchAddSortData",function(req, res) {
+router.get("/",function(req,res,next){
+  res.send("use post please");
+});
+
+router.post("/",function(req, res) {
   debug("query:" + req.query.appid);
   var retObj = AddSortData(req);
 
@@ -184,4 +180,5 @@ app.post("/autoSorting/batchAddSortData",function(req, res) {
   res.send(retObj);
 });
 
-app.listen(27405);
+module.exports = router;
+//app.listen(27406);
