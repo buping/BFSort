@@ -7,6 +7,7 @@ var debug = require('debug')('bfsort');
 
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
+var TriggerPort = require('./TriggerPort.js');
 
 var logger = require('./log.js').logger;
 logger.setLevel('INFO');
@@ -105,6 +106,16 @@ if (bfConfig.ExitPort !== undefined){
  ExitPort.working.Init();
 }
 
+
+if (bfConfig.TriggerPort !== undefined){
+  TriggerPort.working = new TriggerPort(bfConfig.TriggerPort);
+  TriggerPort.working.Init();
+}
+
+if (bfConfig.Vitronic !== undefined){
+  Vitronic.working = new Vitronic(bfConfig.Vitronic);
+  Vitronic.working.Init();
+}
 
 
 module.exports = app;

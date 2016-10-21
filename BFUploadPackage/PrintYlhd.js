@@ -17,7 +17,7 @@ function PrintYlhd(){
 
     return Promise of the job finished
  */
-PrintYlhd.PackageBag=function(orders,msgId,cb){
+PrintYlhd.PackageBag=function(orders,msgId,cb,err){
   var requestObj={};
 
   requestObj.userToken = userToken;
@@ -33,7 +33,7 @@ PrintYlhd.PackageBag=function(orders,msgId,cb){
   });
 };
 
-PrintYlhd.GetBagInfo=function(bagId,msgId,cb){
+PrintYlhd.GetBagInfo=function(bagId,msgId,cb,err){
   var requestObj={};
 
   requestObj.userToken = userToken;
@@ -48,6 +48,15 @@ PrintYlhd.GetBagInfo=function(bagId,msgId,cb){
   });
 };
 
+PrintYlhd.NewMsgID = function(){
+  var msgIdBuf = new Buffer[16];
+  for (var i=0;i<16;i++){
+    msgIdBuf[i] = Math.floor(Math.random(256));
+  }
+
+  var msgId = msgIdBuf.tostring('hex');
+  return msgId;
+};
 
 PrintYlhd.Test = function(){
   var orders  = [];

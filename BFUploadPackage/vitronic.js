@@ -3,9 +3,22 @@ const util = require('util');
 const Emitter=require('events').EventEmitter;
 const logger = require('./log.js').logger;
 
-function  Vitronic() {
+var defaults = {
+    //reportVersionTimeout: 5000,
+    addr: "192.168.3.234",
+    port: 5001,
+    station: "01"
+};
+
+function  Vitronic(options) {
+    if (!(this instanceof Vitronic)){
+        return new Vitronic(options);
+    }
     Emitter.call(this);
+
+    this.settings = Object.assign({}, defaults, options);
 }
+
 
 Vitronic.STX = 0x02;
 Vitronic.ETX = 0x03;
@@ -18,9 +31,10 @@ Vitronic.prototype = Object.create(Emitter.prototype,{
     }
 });
 
-Vitronic.prototype.init = function (cfg){
-    this.addr = cfg.addr;
-    this.port = cfg.port;
+Vitronic.prototype.Init = function (){
+    this.addr = this.settings.addr;
+    this.port = this.settings.port;
+    this.stationID = this.settings.station;
     this.isConnected = false;
 
     this.start();
@@ -55,6 +69,7 @@ Vitronic.prototype.start = function(){
 }
 
 Vitronic.prototype.readData = function(data){
+    console.log(util.inspect(data));
     logger.info(util.inspect(data));
     if (data[0] != Vitronic.STX || data[data.length-1] != Vitronic.CR  || data[data.length-2] != Vitronic.ETX){
         logger.info('incorrect vitronic message format');
@@ -107,8 +122,21 @@ Vitronic.prototype.receiveHeartbeat = function(diagnostic){
 };
 
 Vitronic.prototype.heartBeat = function(){
-    this.writeData('40|01|00000000');
+    var heatBeatMsg = '40|'+this.stationID+'|00000000'
+    this.writeData(heatBeatMsg);
     setTimeout(this.heartBeat.bind(this),15000);
-}
+};
+
+Vitronic.prototype.sendIdentifier = function(packetID){
+    if (packetID >= 10000){
+        packetID = packetID%10000;
+    }
+
+    var idStr = packetID.toString();
+
+    var identifierMsg = '20|'+this.stationID+'|'+idStr+'|0000000000';
+    this.writeData(identifierMsg);
+};
+
 
 module.exports = Vitronic;

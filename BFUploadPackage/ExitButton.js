@@ -7,6 +7,8 @@ var Emitter=require('events').EventEmitter;
 var debug = require('debug')('bfsort');
 var enterOutPortDb = require('./models').ba_enteroutport;
 var printQueueDb = require('./models').ba_printqueue;
+var scanPackageDb = require('./models').eq_scanpackage;
+
 
 var defaults = {
   //reportVersionTimeout: 5000,
@@ -155,7 +157,7 @@ ExitButton.prototype.Print = function(cmd){
   printQueue.OutPortCmd = cmd.exitPort;
   printQueue.Direction = cmd.exitDirection;
 
-  printQueueDb.create(printQueue)
+  printQueueDb.create(printQueue);
 };
 
 ExitButton.prototype.UpdateExitPort = function(port,direction,status){

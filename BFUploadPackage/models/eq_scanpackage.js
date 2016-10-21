@@ -67,6 +67,10 @@ module.exports = function(sequelize, DataTypes) {
     UploadDate: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    PrintQueueID: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true
     }
   }, {
     tableName: 'eq_scanpackage'

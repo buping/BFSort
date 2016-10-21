@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/PrintYlhd.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testpackagebag.js" />
+    <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="remove bug">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TriggerPort.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/electronprint.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ExitButton.js" afterPath="$PROJECT_DIR$/ExitButton.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PrintYlhd.js" afterPath="$PROJECT_DIR$/PrintYlhd.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/bfconfig.json" afterPath="$PROJECT_DIR$/config/bfconfig.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/eq_scanpackage.js" afterPath="$PROJECT_DIR$/models/eq_scanpackage.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testjuxin.js" afterPath="$PROJECT_DIR$/testjuxin.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/vitronic.js" afterPath="$PROJECT_DIR$/vitronic.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../batchAddSortData/batchAddSortData.js" afterPath="$PROJECT_DIR$/../batchAddSortData/batchAddSortData.js" />
     </list>
     <ignored path="BFUploadPackage.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,48 +38,40 @@
       <file leaf-file-name="ExitPort.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExitPort.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="719">
-              <caret line="181" column="37" selection-start-line="181" selection-start-column="37" selection-end-line="181" selection-end-column="37" />
+            <state relative-caret-position="2378">
+              <caret line="82" column="38" selection-start-line="82" selection-start-column="38" selection-end-line="82" selection-end-column="38" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintYlhd.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PrintYlhd.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PrintYlhd.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="607">
-              <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+            <state relative-caret-position="2001">
+              <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testpackagebag.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testpackagebag.js">
+      <file leaf-file-name="electronprint.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/electronprint.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="29" selection-start-line="0" selection-start-column="29" selection-end-line="0" selection-end-column="29" />
-              <folding />
+            <state relative-caret-position="319">
+              <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#50#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/index.js">
+      <file leaf-file-name="electronprint.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../electron/TestPrint/electronprint.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="16" column="2" selection-start-line="16" selection-start-column="2" selection-end-line="16" selection-end-column="2" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="eq_scanpackagebak.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/eq_scanpackagebak.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="665">
-              <caret line="53" column="21" selection-start-line="53" selection-start-column="21" selection-end-line="53" selection-end-column="21" />
+            <state relative-caret-position="406">
+              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -81,28 +80,28 @@
       <file leaf-file-name="ExitButton.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExitButton.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="404">
-              <caret line="141" column="5" selection-start-line="141" selection-start-column="5" selection-end-line="141" selection-end-column="5" />
+            <state relative-caret-position="4408">
+              <caret line="152" column="0" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ba_printqueue.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/ba_printqueue.js">
+      <file leaf-file-name="bfconfig.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config/bfconfig.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
-              <caret line="14" column="14" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="14" />
+            <state relative-caret-position="464">
+              <caret line="16" column="24" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ba_enteroutport.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/ba_enteroutport.js">
+      <file leaf-file-name="eq_scanpackage.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/models/eq_scanpackage.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="87">
-              <caret line="3" column="42" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="42" />
+            <state relative-caret-position="694">
+              <caret line="77" column="2" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -111,8 +110,18 @@
       <file leaf-file-name="EnterPort.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/EnterPort.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="614">
-              <caret line="277" column="45" selection-start-line="277" selection-start-column="45" selection-end-line="277" selection-end-column="45" />
+            <state relative-caret-position="4147">
+              <caret line="143" column="0" selection-start-line="138" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TriggerPort.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TriggerPort.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="5684">
+              <caret line="196" column="0" selection-start-line="196" selection-start-column="0" selection-end-line="196" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -121,8 +130,8 @@
       <file leaf-file-name="Command.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Command.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1071">
-              <caret line="105" column="31" selection-start-line="105" selection-start-column="25" selection-end-line="105" selection-end-column="31" />
+            <state relative-caret-position="1421">
+              <caret line="51" column="41" selection-start-line="51" selection-start-column="41" selection-end-line="51" selection-end-column="41" />
               <folding>
                 <element signature="e#0#50#0" expanded="false" />
               </folding>
@@ -165,7 +174,6 @@
         <option value="$PROJECT_DIR$/log.js" />
         <option value="$PROJECT_DIR$/node_modules/serialport/lib/serialport.js" />
         <option value="$PROJECT_DIR$/routes/admin.js" />
-        <option value="$PROJECT_DIR$/config/bfconfig.json" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/models/pr_printdata.js" />
         <option value="$PROJECT_DIR$/models/ba_logs.js" />
@@ -176,16 +184,22 @@
         <option value="$PROJECT_DIR$/models/eq_outportdata_error.js" />
         <option value="$PROJECT_DIR$/models/ba_employee.js" />
         <option value="$PROJECT_DIR$/models/eq_scanpackagebak.js" />
-        <option value="$PROJECT_DIR$/models/eq_scanpackage.js" />
         <option value="$PROJECT_DIR$/models/index.js" />
-        <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/routes/sendfj.js" />
         <option value="$PROJECT_DIR$/EnterPort.js" />
         <option value="$PROJECT_DIR$/Command.js" />
         <option value="$PROJECT_DIR$/ExitPort.js" />
-        <option value="$PROJECT_DIR$/ExitButton.js" />
         <option value="$PROJECT_DIR$/testpackagebag.js" />
         <option value="$PROJECT_DIR$/PrintYlhd.js" />
+        <option value="$PROJECT_DIR$/ExitButton.js" />
+        <option value="$PROJECT_DIR$/models/eq_scanpackage.js" />
+        <option value="$PROJECT_DIR$/TriggerPort.js" />
+        <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/testjuxin.js" />
+        <option value="$PROJECT_DIR$/vitronic.js" />
+        <option value="$PROJECT_DIR$/config/bfconfig.json" />
+        <option value="$PROJECT_DIR$/electronprint.js" />
+        <option value="$PROJECT_DIR$/../../electron/TestPrint/electronprint.js" />
       </list>
     </option>
   </component>
@@ -228,8 +242,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -245,20 +259,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="BFUploadPackage" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BFUploadPackage" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BFUploadPackage" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="routes" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -302,6 +302,11 @@
     <property name="nodejs_interpreter_path" value="D:/nodejs/node" />
     <property name="js-jscs-nodeInterpreter" value="D:\nodejs\node.exe" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\work\electron\TestPrint" />
+    </key>
   </component>
   <component name="RunManager" selected="Node.js.www">
     <configuration default="false" name="www" type="NodeJSConfigurationType" factoryName="Node.js" activateToolWindowBeforeRun="false" temporary="true" path-to-node="project" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$/">
@@ -420,7 +425,8 @@
       <workItem from="1474883861539" duration="5946000" />
       <workItem from="1475715563481" duration="338000" />
       <workItem from="1475997769976" duration="6782000" />
-      <workItem from="1476063239893" duration="14011000" />
+      <workItem from="1476063239893" duration="28865000" />
+      <workItem from="1477012055893" duration="17000" />
     </task>
     <task id="LOCAL-00001" summary="add to webstorm project">
       <created>1470297823571</created>
@@ -485,11 +491,18 @@
       <option name="project" value="LOCAL" />
       <updated>1476166671021</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="remove bug">
+      <created>1476328413884</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1476328413884</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="141797000" />
+    <option name="totallyTimeSpent" value="156668000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1060" extended-state="6" />
@@ -500,19 +513,19 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33261105" sideWeight="0.46041667" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32908458" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32254586" sideWeight="0.5395833" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32769728" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32254586" sideWeight="0.5395833" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -552,34 +565,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test/testUpload.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-36">
-          <caret line="11" column="20" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavaScriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/EcmaScript5.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="12" column="3" selection-start-line="12" selection-start-column="3" selection-end-line="12" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/postpackage.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="756">
-          <caret line="23" column="27" selection-start-line="23" selection-start-column="27" selection-end-line="23" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavaScriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/DHTML.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5481">
-          <caret line="1152" column="0" selection-start-line="1152" selection-start-column="0" selection-end-line="1152" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/serialport/lib/serialport.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5688">
@@ -722,13 +707,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/eq_outportdata.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="609">
-          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/eq_outportdatadone.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="609">
@@ -757,27 +735,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/com.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="22" column="2" selection-start-line="22" selection-start-column="2" selection-end-line="22" selection-end-column="2" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/routes/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="261">
           <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="899">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -793,31 +754,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="290">
           <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/bfconfig.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="261">
-          <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vitronic.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testjuxin.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -825,15 +761,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/eq_scanpackage.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="62" column="14" selection-start-line="62" selection-start-column="4" selection-end-line="62" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -841,7 +768,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="665">
           <caret line="53" column="21" selection-start-line="53" selection-start-column="21" selection-end-line="53" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -849,49 +775,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="87">
           <caret line="3" column="42" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Command.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1071">
-          <caret line="105" column="31" selection-start-line="105" selection-start-column="25" selection-end-line="105" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#50#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/ba_printqueue.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="14" column="14" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ExitButton.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="404">
-          <caret line="141" column="5" selection-start-line="141" selection-start-column="5" selection-end-line="141" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/EnterPort.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="614">
-          <caret line="277" column="45" selection-start-line="277" selection-start-column="45" selection-end-line="277" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ExitPort.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="719">
-          <caret line="181" column="37" selection-start-line="181" selection-start-column="37" selection-end-line="181" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -899,7 +782,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
           <caret line="16" column="2" selection-start-line="16" selection-start-column="2" selection-end-line="16" selection-end-column="2" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/mysql/lib/PoolSelector.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="404">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/eq_outportdata.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="607">
+          <caret line="26" column="21" selection-start-line="25" selection-start-column="6" selection-end-line="26" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/ba_printqueue.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="145">
+          <caret line="5" column="33" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/com.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="638">
+          <caret line="22" column="2" selection-start-line="22" selection-start-column="2" selection-end-line="22" selection-end-column="2" />
         </state>
       </provider>
     </entry>
@@ -907,14 +817,110 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="29" selection-start-line="0" selection-start-column="29" selection-end-line="0" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testjuxin.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="6" column="18" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="636">
+          <caret line="117" column="1" selection-start-line="117" selection-start-column="1" selection-end-line="117" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vitronic.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="126" column="48" selection-start-line="126" selection-start-column="48" selection-end-line="126" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Command.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1421">
+          <caret line="51" column="41" selection-start-line="51" selection-start-column="41" selection-end-line="51" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#50#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExitPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2378">
+          <caret line="82" column="38" selection-start-line="82" selection-start-column="38" selection-end-line="82" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/bfconfig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="16" column="24" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EnterPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4147">
+          <caret line="143" column="0" selection-start-line="138" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExitButton.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4408">
+          <caret line="152" column="0" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TriggerPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5684">
+          <caret line="196" column="0" selection-start-line="196" selection-start-column="0" selection-end-line="196" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/PrintYlhd.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="607">
-          <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+        <state relative-caret-position="2001">
+          <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/electronprint.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#50#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../electron/TestPrint/electronprint.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="406">
+          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/eq_scanpackage.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="694">
+          <caret line="77" column="2" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="2" />
           <folding />
         </state>
       </provider>

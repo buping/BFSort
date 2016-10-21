@@ -1,4 +1,5 @@
 {
+  /*
   "EnterPort":{
     "PortID": 6,
     "Direction": 0,
@@ -6,5 +7,28 @@
     "SerialPort":{
       "baudRate":57600
     }
+  },
+  */
+  "ExitPort":{
+    "Boards":[
+      {"Id":950,"Direction":1},
+      {"Id":951,"Direction":1}
+    ],
+    "SerialName":"COM1",
+    "SerialPort":{
+      "baudRate":115200
+    }
+
+  },
+  "TriggerPort":{
+    "SerialName":"COM4",
+    "SerialPort":{
+      "baudRate":57600
+    }
+  },
+  "Vitronic":{
+    "addr":"192.168.3.234",
+    "port":5001,
+    "station":"01"
   }
 }
