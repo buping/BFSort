@@ -10,6 +10,17 @@ var defaults = {
     station: "01"
 };
 
+function pad(pad,str,padLeft){
+    if (typeof str === 'undefined'){
+        return pad;
+    }
+    if (padLeft){
+        return (pad+str).slice(-pad.length);
+    }else{
+        return (str+pad).substring(0,pad.length);
+    }
+}
+
 function  Vitronic(options) {
     if (!(this instanceof Vitronic)){
         return new Vitronic(options);
@@ -83,15 +94,16 @@ Vitronic.prototype.readData = function(data){
     logger.info('message body:'+str);
 
     if (resArr[0] == '30'){  //data response
-        var tunnelID = resArr[1];
-        var packetID = resArr[2];
-        var volumeData = resArr[3];
-        var parcelCenter = resArr[4];
-        var barCodeNum = resArr[5];
-        var barCodes = resArr[6];
+        var readResult = {};
+        readResult.tunnelID = resArr[1];
+        readResult.packetID = resArr[2];
+        readResult.volumeData = resArr[3];
+        readResult.parcelCenter = resArr[4];
+        readResult.barCodeNum = resArr[5];
+        readResult.barCodes = resArr[6];
 
-        var barCodeArr = barCodes.split(';');
-        this.emit('data',barCodeArr);
+        readResult.barCodeArr = barCodes.split(';');
+        this.emit('data',readResult);
         //todo
     }else if (resArr[0] == '40'){ //heartbeat response
         var tunnelID = resArr[1];
@@ -133,8 +145,10 @@ Vitronic.prototype.sendIdentifier = function(packetID){
     }
 
     var idStr = packetID.toString();
+    var idStr4 = pad('0000',idStr,true);
+    var idStr10 = pad('0000000000',idStr,true);
 
-    var identifierMsg = '20|'+this.stationID+'|'+idStr+'|0000000000';
+    var identifierMsg = '20|'+this.stationID+'|'+idStr4+'|'+idStr10;
     this.writeData(identifierMsg);
 };
 
