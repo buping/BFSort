@@ -47,6 +47,8 @@ Vitronic.prototype.Init = function (){
     this.port = this.settings.port;
     this.stationID = this.settings.station;
     this.isConnected = false;
+    this.packetID = 1;
+    this.packetMapping = new Map();
 
     this.start();
 };
@@ -103,7 +105,7 @@ Vitronic.prototype.readData = function(data){
         readResult.barCodes = resArr[6];
 
         readResult.barCodeArr = barCodes.split(';');
-        this.emit('data',readResult);
+        this.receiveScanResult(readResult);
         //todo
     }else if (resArr[0] == '40'){ //heartbeat response
         var tunnelID = resArr[1];
@@ -152,5 +154,39 @@ Vitronic.prototype.sendIdentifier = function(packetID){
     this.writeData(identifierMsg);
 };
 
+Vitronic.prototype.enqueue = function(parcel){
+    this.packetMapping.set(this.packetID,parcel);
+    this.sendIdentifier(this.packetID);
+
+    this.packetID++;
+    if (this.packetID >= 10000){
+        this.packetID = 1;
+    }
+};
+
+Vitronic.prototype.checkBarCode=function(barCode){
+    //todo:Check for correct barcode;
+    return true;
+};
+
+Vitronic.prototype.receiveScanResult = function(result){
+    var packetID = parseInt(result.packetID);
+    var barCode = "";
+    for (var i=0;i<result.barCodeArr.length;i++){
+        if (checkBarCode(result[i])){
+            barCode = result[i];
+            break;
+        }
+    }
+
+    var dest = this.packetMapping.get(packetID);
+    if (dest !== undefined){
+        this.packetMapping.delete(packetID);
+        dest.scanResult = barCode;
+        this.emit("scan",dest);
+    }else{
+        logger.error("receive packetID not in map:" + util.inspect(result));
+    }
+};
 
 module.exports = Vitronic;

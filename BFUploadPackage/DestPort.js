@@ -1,17 +1,16 @@
 /**
- * Created by Administrator on 2016/8/4.
+ * Created by HongL on 2016/10/23.
  */
 
 var com = require("./com.js");
 //var SerialPort = com.SerialPort;
-
 var logger = require('./log.js').logger;
 var util= require('util');
 var debug = require('debug')('bfsort');
-
 var Emitter=require("events").EventEmitter;
-var scanPackageDb = require('./models').eq_scanpackage;
-var workingPort;
+
+var Command = require('./Command.js');
+var sortDataDb = require('./models').sortdata;
 
 var SEND_UPLOAD = 0x01;
 var RECEIVE_UPLOAD = 0x03;
@@ -23,6 +22,7 @@ var defaults = {
   receiveInterval: 100,
   sendInterval:500,
   repeatSendTimes:3,	// 最多重发次数
+  trashPort : "950|1",
   SerialPort: {
     baudRate: 57600,
     autoOpen: false,
@@ -46,14 +46,17 @@ function validDirect(direct){
   return (totalSum%256) == direct[10];
 }
 
-function TriggerPort(options, callback){
+/*
+ * Write Desination Port to Cart Board
+ */
+function DestPort(options, callback){
   if ("function" == typeof options || "undefined"== typeof options){
     callback = options;
     options = {};
   }
 
-  if (!(this instanceof TriggerPort)){
-    return new TriggerPort(options,callback);
+  if (!(this instanceof DestPort)){
+    return new DestPort(options,callback);
   }
 
   Emitter.call(this);
@@ -61,9 +64,6 @@ function TriggerPort(options, callback){
   this.settings = Object.assign({}, defaults, options);
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
-  this.isReady = true;
-  this.portID = options.PortID;
-  this.direction = options.Direction;
   this.opened = false;
   this.lastBuffer = new Buffer(INSTRUCTION_LENGTH);
   this.currentBuffer = new Buffer(INSTRUCTION_LENGTH);
@@ -73,8 +73,7 @@ function TriggerPort(options, callback){
   this.isAllowRecieved = false;
 
   this.parcel = null;
-  this.loadSucc = false;
-  this.employeeName = "admin";
+  this.sendBuffer = null;
 
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
@@ -122,13 +121,13 @@ function TriggerPort(options, callback){
     }
   }.bind(this));
 }
-TriggerPort.prototype = Object.create(Emitter.prototype,{
+DestPort.prototype = Object.create(Emitter.prototype,{
   constructor:{
-    value:TriggerPort
+    value:DestPort
   }
 });
 
-TriggerPort.prototype.Init=function(){
+DestPort.prototype.Init=function(){
   //this.transport.close();
   this.transport.open(function (error){
     if (error){
@@ -143,7 +142,7 @@ TriggerPort.prototype.Init=function(){
   //todo
 };
 
-TriggerPort.prototype.recieveDirect= function(){
+DestPort.prototype.recieveDirect= function(){
   var now = new Date();
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
@@ -163,46 +162,68 @@ TriggerPort.prototype.recieveDirect= function(){
     logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
     return;
   }
+  /*
   if (this.currentBuffer[1] == RECEIVE_TRIGGER){
     this.receiveTrigger();
   }
+  */
 };
 
-TriggerPort.prototype.receiveTrigger = function() {
-  var currentBuffer = this.currentBuffer;
-  var parcel = this.parcel;
-  parcel.ExitPort = currentBuffer[2] + currentBuffer[3] * 256;
-  parcel.EnterPort = currentBuffer[4];
-  parcel.SerialNumber = currentBuffer[5] + currentBuffer[6] * 256;
-  parcel.EnterDirection = (currentBuffer[8] & 0x02) / 2;
-  parcel.ExitDirection = currentBuffer[8] % 2;
-  this.respondStatus = currentBuffer[9];
-
-  this.savePackage();
-  this.emit('triggered',parcel);
+DestPort.prototype.receiveTrigger = function() {
 };
 
 
-TriggerPort.prototype.savePackage = function(){
-  var parcel = this.parcel;
-  parcel.IsSelect = "0";
-  parcel.EmployeeName = this.employeeName;
-  parcel.ScanType = "PZ";
-  parcel.UploadDate = Date.now();
-  scanPackageDb.create(parcel).then(function(ret){
-    debug("saved parcel to datebase successful:"+util.inspect(ret));
-  },function(err){
-    debug("saved parcel to datebase failed:"+util.inspect(err));
-  });
+DestPort.prototype.savePackage = function(){
 };
 
-TriggerPort.prototype.isConnected = function(){
+DestPort.prototype.isConnected = function(){
   return this.opened;
 };
 
-TriggerPort.prototype.GetStatus= function(cb,res){
+DestPort.prototype.GetStatus= function(cb,res){
   //todo
-  return this.respondStatus;
 };
 
-module.exports = TriggerPort;
+DestPort.prototype.SendDestDirection= function(enterPort,enterDirection,serialNum,destPort){
+  var cmd = new Command(Command.PC_TO_ENTRY);
+  cmd.enterPortID = enterPort;
+  cmd.serialNumer = serialNum;
+  cmd.enterDirection = enterDirection;
+
+  var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
+  var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
+
+  cmd.exitPortID = exitPort;
+  cmd.exitDirection = exitDirection;
+
+  cmd.MakeBuffer();
+  this.sendBuffer = cmd.buffer;
+
+  if (this.opened ){
+    this.transport.write(this.sendBuffer);
+  }
+  // todo:resend?
+};
+
+DestPort.prototype.enqueue = function(dest){
+  var enterPort = dest.EnterPort;
+  var serialNum = dest.SerialNumber;
+  var enterDirection = dest.EnterDirection;
+
+  if (dest.scanResult == "" || dest.scanResult == "0000"){
+    this.SendDestDirection(enterPort,enterDirection,serialNum,this.settings.trashPort);
+  }
+
+  sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
+    if (entry == null) {
+      this.SendDestDirection(enterPort, enterDirection, serialNum, this.settings.trashPort);
+    }else{
+      var site=entry.packageSite;
+      var destPort = this.settings.Port[entry.packageSite];
+      if (destPort !== undefined){
+        this.SendDestDirection(enterPort,enterDirection,serialNum,destPort);
+      }
+    }
+  })
+};
+module.exports = DestPort;

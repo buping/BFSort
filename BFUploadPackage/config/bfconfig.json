@@ -9,6 +9,7 @@
     }
   },
   */
+  /*
   "ExitPort":{
     "Boards":[
       {"Id":950,"Direction":1},
@@ -20,10 +21,22 @@
     }
 
   },
+  */
   "TriggerPort":{
     "SerialName":"COM4",
     "SerialPort":{
       "baudRate":57600
+    }
+  },
+  "DestPort":{
+    "SerialName":"COM3",
+    "SerialPort":{
+      "baudRate":57600
+    },
+    "trashPort":"950|1",
+    "Port":{
+      "6911064":"951|0",
+      "6911065":"951|1"
     }
   },
   "Vitronic":{

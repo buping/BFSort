@@ -8,6 +8,7 @@ var debug = require('debug')('bfsort');
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
 var TriggerPort = require('./TriggerPort.js');
+var DestPort = require('./DestPort.js');
 
 var logger = require('./log.js').logger;
 logger.setLevel('INFO');
@@ -117,5 +118,19 @@ if (bfConfig.Vitronic !== undefined){
   Vitronic.working.Init();
 }
 
+if (bfConfig.DestPort !== undefined){
+  DestPort.working = new DestPort(bfConfig.Vitronic);
+  DestPort.working.Init();
+}
 
+if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
+  TriggerPort.working.on("triggered",function(parcel){
+    Vitronic.working.enqueue(parcel);
+  });
+  Vitronic.working.on("scan",function(dest){
+    if (DestPort.working !== undefined){
+      DestPort.working.enqueue(dest);
+    }
+  });
+}
 module.exports = app;
