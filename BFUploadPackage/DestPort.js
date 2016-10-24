@@ -11,6 +11,7 @@ var Emitter=require("events").EventEmitter;
 
 var Command = require('./Command.js');
 var sortDataDb = require('./models').sortdata;
+var siteExitPortDb = require('./models').siteexitport;
 
 var SEND_UPLOAD = 0x01;
 var RECEIVE_UPLOAD = 0x03;
@@ -221,14 +222,22 @@ DestPort.prototype.enqueue = function(dest){
       workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
     }else{
       var site=entry.packageSite;
-      var destPort = workingPort.settings.Port[entry.packageSite];
-      if (destPort !== undefined){
-        workingPort.SendDestDirection(enterPort,enterDirection,serialNum,destPort);
-      }else{
-        workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
-        logger.error("receive site mapping not in definition: site "+entry.packageSite);
-      }
+      siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
+        if (siteExit == null) {
+          workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
+          logger.error("receive site mapping not in definition: site " + site);
+        } else {
+          var destPort = siteExit.exitPort;
+          if (destPort !== undefined) {
+            workingPort.SendDestDirection(enterPort, enterDirection, serialNum, destPort);
+          }
+        }
+      }).catch(function (err){
+        logger.error("database error in find sortData"+err);
+      });
     }
-  })
+  }).catch(function (err){
+    logger.error("database error in find sortData"+err);
+  });
 };
 module.exports = DestPort;

@@ -199,6 +199,8 @@ TriggerPort.prototype.savePackage = function(){
     debug("saved parcel to datebase successful:"+util.inspect(ret));
   },function(err){
     debug("saved parcel to datebase failed:"+util.inspect(err));
+  }).catch(function(err){
+    logger.error("database error in savePackage.");
   });
 };
 

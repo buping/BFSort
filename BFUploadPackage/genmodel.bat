@@ -1,1 +1,1 @@
-sequelize-auto -o "./models" -d bfsort -h localhost -u bfsort  -x bfsorting -e mysql
+sequelize-auto -o "./models" -d bfsort -h 192.168.16.243 -u bfsort  -x bfsorting -e mysql
