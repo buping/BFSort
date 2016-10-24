@@ -40,11 +40,15 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    EnterDirection: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     ExitPort: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    Direction: {
+    ExitDirection: {
       type: DataTypes.INTEGER,
       allowNull: true
     },

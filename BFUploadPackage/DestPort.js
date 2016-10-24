@@ -101,8 +101,6 @@ function DestPort(options, callback){
   }.bind(this));
 
   this.transport.on('data',function(data){
-    logger.info("\rReceive serial data:" + util.inspect(data));
-
     if (data && data.length>0){
       for (var i=0;i<data.length;i++){
         if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
@@ -148,6 +146,7 @@ DestPort.prototype.recieveDirect= function(){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
     util.print("\n");
+    logger.info("\rReceive serial data:" + util.inspect(this.currentBuffer));
   }
   this.sameBufferCount++;
   util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
@@ -214,14 +213,20 @@ DestPort.prototype.enqueue = function(dest){
     this.SendDestDirection(enterPort,enterDirection,serialNum,this.settings.trashPort);
   }
 
+  var workingPort = this;
+
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
-      this.SendDestDirection(enterPort, enterDirection, serialNum, this.settings.trashPort);
+      logger.info("can't find barcode in database:"+dest.scanResult+",using trash port");
+      workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
     }else{
       var site=entry.packageSite;
-      var destPort = this.settings.Port[entry.packageSite];
+      var destPort = workingPort.settings.Port[entry.packageSite];
       if (destPort !== undefined){
-        this.SendDestDirection(enterPort,enterDirection,serialNum,destPort);
+        workingPort.SendDestDirection(enterPort,enterDirection,serialNum,destPort);
+      }else{
+        workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
+        logger.error("receive site mapping not in definition: site "+entry.packageSite);
       }
     }
   })

@@ -9,6 +9,7 @@ var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
 var TriggerPort = require('./TriggerPort.js');
 var DestPort = require('./DestPort.js');
+var Vitronic = require('./vitronic.js');
 
 var logger = require('./log.js').logger;
 logger.setLevel('INFO');
@@ -119,7 +120,7 @@ if (bfConfig.Vitronic !== undefined){
 }
 
 if (bfConfig.DestPort !== undefined){
-  DestPort.working = new DestPort(bfConfig.Vitronic);
+  DestPort.working = new DestPort(bfConfig.DestPort);
   DestPort.working.Init();
 }
 

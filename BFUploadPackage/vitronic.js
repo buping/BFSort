@@ -82,10 +82,9 @@ Vitronic.prototype.start = function(){
 }
 
 Vitronic.prototype.readData = function(data){
-    console.log(util.inspect(data));
     logger.info(util.inspect(data));
     if (data[0] != Vitronic.STX || data[data.length-1] != Vitronic.CR  || data[data.length-2] != Vitronic.ETX){
-        logger.info('incorrect vitronic message format');
+        logger.error('incorrect vitronic message format');
         return;
     }
 
@@ -104,7 +103,7 @@ Vitronic.prototype.readData = function(data){
         readResult.barCodeNum = resArr[5];
         readResult.barCodes = resArr[6];
 
-        readResult.barCodeArr = barCodes.split(';');
+        readResult.barCodeArr = readResult.barCodes.split(';');
         this.receiveScanResult(readResult);
         //todo
     }else if (resArr[0] == '40'){ //heartbeat response
@@ -173,7 +172,7 @@ Vitronic.prototype.receiveScanResult = function(result){
     var packetID = parseInt(result.packetID);
     var barCode = "";
     for (var i=0;i<result.barCodeArr.length;i++){
-        if (checkBarCode(result[i])){
+        if (this.checkBarCode(result[i])){
             barCode = result[i];
             break;
         }

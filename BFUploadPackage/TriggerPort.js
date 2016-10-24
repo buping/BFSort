@@ -72,7 +72,7 @@ function TriggerPort(options, callback){
   this.receivedCount = 1;
   this.isAllowRecieved = false;
 
-  this.parcel = null;
+  this.parcel = {};
   this.loadSucc = false;
   this.employeeName = "admin";
 
@@ -102,8 +102,6 @@ function TriggerPort(options, callback){
   }.bind(this));
 
   this.transport.on('data',function(data){
-    logger.info("\rReceive serial data:" + util.inspect(data));
-
     if (data && data.length>0){
       for (var i=0;i<data.length;i++){
         if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
@@ -144,11 +142,23 @@ TriggerPort.prototype.Init=function(){
 };
 
 TriggerPort.prototype.recieveDirect= function(){
+  if( !validDirect(this.currentBuffer)){
+    util.print("指令校验失败:"+util.inspect(this.currentBuffer)+"\n");
+    logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
+    return;
+  }
+
   var now = new Date();
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
     util.print("\n");
+
+    logger.info("\rReceive serial data:" + util.inspect(this.currentBuffer));
+
+    if (this.currentBuffer[1] == RECEIVE_TRIGGER){
+      this.receiveTrigger();
+    }
   }
   this.sameBufferCount++;
   util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
@@ -158,14 +168,6 @@ TriggerPort.prototype.recieveDirect= function(){
    }
    */
   //logger.info("收到的指令:"+util.inspect(this.currentBuffer));
-  if( !validDirect(this.currentBuffer)){
-    util.print("指令校验失败:"+util.inspect(this.currentBuffer)+"\n");
-    logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
-    return;
-  }
-  if (this.currentBuffer[1] == RECEIVE_TRIGGER){
-    this.receiveTrigger();
-  }
 };
 
 TriggerPort.prototype.receiveTrigger = function() {
@@ -177,6 +179,10 @@ TriggerPort.prototype.receiveTrigger = function() {
   parcel.EnterDirection = (currentBuffer[8] & 0x02) / 2;
   parcel.ExitDirection = currentBuffer[8] % 2;
   this.respondStatus = currentBuffer[9];
+
+  if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
+    return;
+  }
 
   this.savePackage();
   this.emit('triggered',parcel);
