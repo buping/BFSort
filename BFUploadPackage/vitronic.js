@@ -7,7 +7,9 @@ var defaults = {
     //reportVersionTimeout: 5000,
     addr: "192.168.3.234",
     port: 5001,
-    station: "01"
+    station: "01",
+    maxTriggerDelay: 2500,   //max ms for scan result after trigger is received
+    minTriggerDestDelay:3000 //ms for trigger->dest delay
 };
 
 function pad(pad,str,padLeft){
@@ -168,6 +170,13 @@ Vitronic.prototype.checkBarCode=function(barCode){
     return true;
 };
 
+/*
+ * send scan result,check for time
+ */
+Vitronic.prototype.sendScanResult = function(parcel){
+    this.emit("scan", parcel);
+};
+
 Vitronic.prototype.receiveScanResult = function(result){
     var packetID = parseInt(result.packetID);
     var barCode = "";
@@ -178,13 +187,31 @@ Vitronic.prototype.receiveScanResult = function(result){
         }
     }
 
-    var dest = this.packetMapping.get(packetID);
-    if (dest !== undefined){
-        this.packetMapping.delete(packetID);
-        dest.scanResult = barCode;
-        this.emit("scan",dest);
+    if (packetID != 0) {
+        var dest = this.packetMapping.get(packetID);
+        if (dest !== undefined) {
+            this.packetMapping.delete(packetID);
+            dest.scanResult = barCode;
+            this.sendScanResult(dest);
+        } else {
+            logger.error("receive packetID not in map:" + util.inspect(result));
+        }
     }else{
-        logger.error("receive packetID not in map:" + util.inspect(result));
+        var now = Date.now();
+        var found = false;
+        this.packetMapping.forEach(function(value,key,map){
+            var elipseTime = now - value.TriggerTime;
+            if (elipseTime > maxTriggerDelay){
+                map.delete(key);
+            }else{
+                if (!found) {
+                    found = true;
+                    value.scanResult = barCode;
+                    this.sendScanResult(dest);
+                    map.delete(key);
+                }
+            }
+        });
     }
 };
 

@@ -21,7 +21,8 @@ var INSTRUCTION_LENGTH = 11;
 var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
-  sendInterval:500,
+  delayTime : 3000,
+  sendInterval:50,
   repeatSendTimes:3,	// 最多重发次数
   trashPort : "950|1",
   SerialPort: {
@@ -35,7 +36,7 @@ var defaults = {
     hupcl: true,
     dataBits: 8,
     stopBits: 1,
-    bufferSize: 256
+    parser:com.SerialPort.parsers.byteLength(11)
   }
 };
 
@@ -75,6 +76,7 @@ function DestPort(options, callback){
 
   this.parcel = null;
   this.sendBuffer = null;
+  this.sendQueue = new Array();
 
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
@@ -138,6 +140,8 @@ DestPort.prototype.Init=function(){
       this.opened = true;
     }
   }.bind(this));
+
+  this.ActualSendData();
   //todo
 };
 
@@ -184,11 +188,39 @@ DestPort.prototype.GetStatus= function(cb,res){
   //todo
 };
 
-DestPort.prototype.SendDestDirection= function(enterPort,enterDirection,serialNum,destPort){
+DestPort.prototype.QueueSend = function(buffer){
+  this.sendQueue.push(buffer);
+  //todo
+};
+
+
+DestPort.prototype.ActualSendData = function(){
+  setTimeout(this.actualSendData.bind(this), this.settings.sendInterval);
+
+  if (!this.opened)
+    return;
+
+  var now = Date.now();
+
+  if (this.sendBuffer != null && this.sendBuffer !== undefined
+     && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
+    this.transport.write(this.sendBuffer);
+  }else{
+    while (this.sendQueue.length > 0){
+      this.sendBuffer = this.sendQueue.pop();
+      if (this.sendBuffer != null && this.sendBuffer !== undefined
+        && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
+        break;
+      }
+    }
+  }
+};
+
+DestPort.prototype.SendDestDirection= function(parcel,destPort){
   var cmd = new Command(Command.PC_TO_ENTRY);
-  cmd.enterPortID = enterPort;
-  cmd.serialNumer = serialNum;
-  cmd.enterDirection = enterDirection;
+  cmd.enterPortID = parcel.EnterPort;
+  cmd.serialNumer = parcel.SerialNumber;
+  cmd.enterDirection = parcel.EnterDirection;
 
   var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
   var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
@@ -197,10 +229,11 @@ DestPort.prototype.SendDestDirection= function(enterPort,enterDirection,serialNu
   cmd.exitDirection = exitDirection;
 
   cmd.MakeBuffer();
-  this.sendBuffer = cmd.buffer;
+  var sendBuffer = cmd.buffer;
+  sendBuffer.TriggerTime = parcel.TriggerTime;
 
   if (this.opened ){
-    this.transport.write(this.sendBuffer);
+    this.QueueSend(sendBuffer);
   }
   // todo:resend?
 };
@@ -211,7 +244,7 @@ DestPort.prototype.enqueue = function(dest){
   var enterDirection = dest.EnterDirection;
 
   if (dest.scanResult == "" || dest.scanResult == "0000"){
-    this.SendDestDirection(enterPort,enterDirection,serialNum,this.settings.trashPort);
+    this.SendDestDirection(dest,this.settings.trashPort);
   }
 
   var workingPort = this;
@@ -219,17 +252,17 @@ DestPort.prototype.enqueue = function(dest){
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
       logger.info("can't find barcode in database:"+dest.scanResult+",using trash port");
-      workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
+      workingPort.SendDestDirection(dest, workingPort.settings.trashPort);
     }else{
       var site=entry.packageSite;
       siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
         if (siteExit == null) {
-          workingPort.SendDestDirection(enterPort, enterDirection, serialNum, workingPort.settings.trashPort);
+          workingPort.SendDestDirection(dest, workingPort.settings.trashPort);
           logger.error("receive site mapping not in definition: site " + site);
         } else {
           var destPort = siteExit.exitPort;
           if (destPort !== undefined) {
-            workingPort.SendDestDirection(enterPort, enterDirection, serialNum, destPort);
+            workingPort.SendDestDirection(dest, destPort);
           }
         }
       }).catch(function (err){

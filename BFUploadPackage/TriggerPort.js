@@ -34,7 +34,7 @@ var defaults = {
     hupcl: true,
     dataBits: 8,
     stopBits: 1,
-    bufferSize: 256
+    parser:com.SerialPort.parsers.byteLength(11)
   }
 };
 
@@ -159,10 +159,11 @@ TriggerPort.prototype.recieveDirect= function(){
     if (this.currentBuffer[1] == RECEIVE_TRIGGER){
       this.receiveTrigger();
     }
+  }else {
+    this.sameBufferCount++;
+    util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
   }
-  this.sameBufferCount++;
-  util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
-  /*
+    /*
    if (this.webResponse !== undefined){
    this.webResponse.send(util.inspect(this.currentBuffer));
    }
@@ -178,13 +179,17 @@ TriggerPort.prototype.receiveTrigger = function() {
   parcel.SerialNumber = currentBuffer[5] + currentBuffer[6] * 256;
   parcel.EnterDirection = (currentBuffer[8] & 0x02) / 2;
   parcel.ExitDirection = currentBuffer[8] % 2;
+
+
   this.respondStatus = currentBuffer[9];
 
   if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
     return;
   }
 
-  this.savePackage();
+
+  parcel.TriggerTime = Date.now();
+  //this.savePackage();
   this.emit('triggered',parcel);
 };
 
@@ -194,7 +199,9 @@ TriggerPort.prototype.savePackage = function(){
   parcel.IsSelect = "0";
   parcel.EmployeeName = this.employeeName;
   parcel.ScanType = "PZ";
+
   parcel.UploadDate = Date.now();
+
   scanPackageDb.create(parcel).then(function(ret){
     debug("saved parcel to datebase successful:"+util.inspect(ret));
   },function(err){
