@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>分拣系统站点出口配置</title>
+	<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="themes/demo.css">
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+</head>
+<body>
+	<h2>分拣系统站点出口配置</h2>
+	<p>点击对应行开始编辑.</p>
+	<p>出口格式为"站点号|方向",站点号为950-1000,方向为0或者1,0表示出口内侧,1表示外侧,比如"951|1",表示出口编号951的外侧</p>
+	<div style="margin:20px 0;"></div>
+	
+	<table id="dg" class="easyui-datagrid" title="出口配置" style="width:700px;height:auto"
+			data-options="
+				iconCls: 'icon-edit',
+				singleSelect: true,
+				toolbar: '#tb',
+				url: '/sortsite/list',
+				method: 'get',
+				pagination :true,
+				pageSize : 20,
+				onClickCell: onClickCell,
+				onEndEdit: onEndEdit
+			">
+		<thead>
+			<tr>
+				<th data-options="field:'id',width:80">ID</th>
+				<th data-options="field:'packageSite',width:150,editor:'numberbox'">站点编号</th>
+				<th data-options="field:'siteName',width:200,align:'right',editor:'textbox'">站点名称</th>
+				<th data-options="field:'exitPort',width:80,align:'right',editor:'textbox'">出口编号</th>
+			</tr>
+		</thead>
+	</table>
+
+	<div id="tb" style="height:auto">
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="append()">添加一行</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">删除一行</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">保存</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="reject()">放弃</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="getChanges()">变更</a>
+	</div>
+	
+	<script type="text/javascript">
+		var editIndex = undefined;
+		function endEditing(){
+			console.log("end edit");
+			if (editIndex == undefined){return true}
+			if ($('#dg').datagrid('validateRow', editIndex)){
+				$('#dg').datagrid('endEdit', editIndex);
+				//$("#dg").datagrid('acceptChanges');
+				var row = $('#dg').datagrid('getRows')[editIndex];
+				console.log(JSON.stringify(row));
+				$.ajax({
+					url:'/sortsite/save',
+					data:JSON.stringify(row),
+					type:'post',
+					dataType:'json',
+					headers:{
+						Accept:"application/json",
+						"Content-Type":"application/json"
+					},
+					processData:false,
+					cache:false
+				}).done(function (res) {
+					console.log(JSON.stringify(res));
+				});
+
+
+
+				editIndex = undefined;
+				return true;
+			} else {
+				return false;
+			}
+		}
+		function onClickCell(index, field){
+			if (editIndex != index){
+				if (endEditing()){
+					$('#dg').datagrid('selectRow', index)
+							.datagrid('beginEdit', index);
+					var ed = $('#dg').datagrid('getEditor', {index:index,field:field});
+					if (ed){
+						($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus().bind('keyup', function(e) {
+							var code = e.keyCode || e.which;
+							if (code == 13) { //Enter keycode
+								endEditing();
+							}// ;
+						});
+					}
+					editIndex = index;
+				} else {
+					setTimeout(function(){
+						$('#dg').datagrid('selectRow', editIndex);
+					},0);
+				}
+			}
+		}
+		function onEndEdit(index, row){
+			/* set dropdown box value
+			var ed = $(this).datagrid('getEditor', {
+				index: index,
+				field: 'packageSite'
+			});
+			var tar = $(ed.target);
+			var site = tar.combobox('getText')
+			row.packageSite = tar.combobox('getText');
+			*/
+		}
+		function append(){
+			if (endEditing()){
+				/*
+				var rows = $('#dg').datagrid('getRows');
+				var maxID = 0;
+				for(var i=0;i<rows.length;i++){
+					if (maxID < rows[i].id){
+						maxID = rows[i].id;
+					}
+				}
+				*/
+
+				$.ajax({
+					url:'/sortsite/nextid',
+					type:'get',
+					dataType:'json',
+					headers:{
+						Accept:"application/json",
+						"Content-Type":"application/json"
+					},
+					processData:false,
+					cache:false
+				}).done(function (res) {
+					console.log(JSON.stringify(res));
+					var maxID = res.id;
+					$('#dg').datagrid('appendRow',{id:maxID});
+					editIndex = $('#dg').datagrid('getRows').length-1;
+					$('#dg').datagrid('selectRow', editIndex)
+							.datagrid('beginEdit', editIndex);
+				});
+
+			}
+		}
+		function removeit(){
+			if (editIndex == undefined){return}
+			var row = $('#dg').datagrid('getRows')[editIndex];
+			console.log(JSON.stringify(row));
+			$.ajax({
+				url:'/sortsite/delete',
+				data:JSON.stringify(row),
+				type:'post',
+				dataType:'json',
+				headers:{
+					Accept:"application/json",
+					"Content-Type":"application/json"
+				},
+				processData:false,
+				cache:false
+			}).done(function (res) {
+				console.log(JSON.stringify(res));
+			});
+
+			$('#dg').datagrid('cancelEdit', editIndex)
+					.datagrid('deleteRow', editIndex);
+
+			editIndex = undefined;
+		}
+		function accept(){
+			if (endEditing()){
+				//$('#dg').datagrid('acceptChanges');
+				var inserted = $('#dg').datagrid('getChanges', "inserted");
+				var deleted = $('#dg').datagrid('getChanges', "deleted");
+				var updated = $('#dg').datagrid('getChanges', "updated");
+				var effectRow = {};
+				if (inserted.length) {
+					//effectRow["inserted"] = JSON.stringify(inserted);
+					effectRow.inserted = inserted;
+				}
+				if (deleted.length) {
+					//effectRow["deleted"] = JSON.stringify(deleted);
+					effectRow.deleted = deleted;
+				}
+				if (updated.length) {
+					//effectRow["updated"] = JSON.stringify(updated);
+					effectRow.updated = updated;
+				}
+				console.log(JSON.stringify(effectRow));
+
+				/*
+				$.post(
+				"/sortsite/save", effectRow, function(response) {
+					console.log(JSON.stringify(response));
+
+					if(response.status){
+						$("#dg").datagrid('acceptChanges');
+					}
+
+				}, "JSON");
+				*/
+
+				$.ajax({
+					url:'/sortsite/save',
+					data:JSON.stringify(effectRow),
+					type:'post',
+					dataType:'json',
+					headers:{
+						Accept:"application/json",
+						"Content-Type":"application/json"
+					},
+					processData:false,
+					cache:false
+				}).done(function (res) {
+					console.log(JSON.stringify(res));
+				});
+
+
+				/*
+				var rows = $('#dg').datagrid('getRows');
+				*/
+				/*
+				$.each(updated, function(i, row) {
+					$('#dg').datagrid('endEdit', i);
+					var url = '/sortsite/save';
+					$.ajax(url, {
+						type:'POST',
+						dataType: 'json',
+						data:row
+					});
+				});
+				*/
+
+
+			}
+		}
+		function reject(){
+			$('#dg').datagrid('rejectChanges');
+			editIndex = undefined;
+		}
+		function getChanges(){
+			var rows = $('#dg').datagrid('getChanges');
+			alert(rows.length+' rows are changed!');
+		}
+	</script>
+</body>
+</html>
