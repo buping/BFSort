@@ -8,7 +8,8 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var PrintJob = require('./routes/PrintJob.js');
-var batchAddSortData = require('./batchAddSortData.js'); 
+var batchAddSortData = require('./batchAddSortData.js');
+var SortSite = require('./routes/sortsite.js');
 
 var app = express();
 
@@ -24,10 +25,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+  next();
+});
+
+
 app.use('/', routes);
 app.use('/users', users);
 app.use('/autoSorting/batchAddSortData', batchAddSortData);
 app.use('/printjob', PrintJob);
+app.use('/sortsite',SortSite);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

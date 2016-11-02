@@ -12,6 +12,8 @@ var Emitter=require("events").EventEmitter;
 var Command = require('./Command.js');
 var sortDataDb = require('./models').sortdata;
 var siteExitPortDb = require('./models').siteexitport;
+var scanPackageDb = require('./models').eq_scanpackage;
+
 
 var SEND_UPLOAD = 0x01;
 var RECEIVE_UPLOAD = 0x03;
@@ -21,10 +23,11 @@ var INSTRUCTION_LENGTH = 11;
 var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
-  delayTime : 3000,
+  delayTime : 3450,
+  minDelay : 2800,
   sendInterval:50,
   repeatSendTimes:3,	// 最多重发次数
-  trashPort : "950|1",
+  trashPort : "955|1",
   SerialPort: {
     baudRate: 57600,
     autoOpen: false,
@@ -34,9 +37,9 @@ var defaults = {
     xany: false,
     rtscts: false,
     hupcl: true,
-    dataBits: 8,
-    stopBits: 1,
-    parser:com.SerialPort.parsers.byteLength(11)
+   //parser:com.SerialPort.parsers.byteLength(11)
+	dataBits: 8,
+    stopBits: 1
   }
 };
 
@@ -146,26 +149,29 @@ DestPort.prototype.Init=function(){
 };
 
 DestPort.prototype.recieveDirect= function(){
+  if( !validDirect(this.currentBuffer)){
+    //logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
+    return;
+  }
+
   var now = new Date();
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
-    util.print("\n");
-    logger.info("\rReceive serial data:" + util.inspect(this.currentBuffer));
+    //util.print("\n");
+    logger.info("read destport data:" + util.inspect(this.currentBuffer));
+	if (this.currentBuffer[5] !=0 || this.currentBuffer[6] !=0){
+		console.log("read destport data:" + util.inspect(this.currentBuffer));
+	}
   }
   this.sameBufferCount++;
-  util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
+  //util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
   /*
    if (this.webResponse !== undefined){
    this.webResponse.send(util.inspect(this.currentBuffer));
    }
    */
   //logger.info("收到的指令:"+util.inspect(this.currentBuffer));
-  if( !validDirect(this.currentBuffer)){
-    util.print("指令校验失败:"+util.inspect(this.currentBuffer)+"\n");
-    logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
-    return;
-  }
   /*
   if (this.currentBuffer[1] == RECEIVE_TRIGGER){
     this.receiveTrigger();
@@ -177,7 +183,20 @@ DestPort.prototype.receiveTrigger = function() {
 };
 
 
-DestPort.prototype.savePackage = function(){
+DestPort.prototype.savePackage = function(parcel){
+  parcel.IsSelect = "0";
+  parcel.EmployeeName = "admin";
+  parcel.ScanType = "PZ";
+
+  parcel.UploadDate = Date.now();
+
+  scanPackageDb.create(parcel).then(function(ret){
+    debug("saved parcel to datebase successful:"+util.inspect(ret));
+  },function(err){
+    debug("saved parcel to datebase failed:"+util.inspect(err));
+  }).catch(function(err){
+    logger.error("database error in savePackage.");
+  });
 };
 
 DestPort.prototype.isConnected = function(){
@@ -195,7 +214,7 @@ DestPort.prototype.QueueSend = function(buffer){
 
 
 DestPort.prototype.ActualSendData = function(){
-  setTimeout(this.actualSendData.bind(this), this.settings.sendInterval);
+  setTimeout(this.ActualSendData.bind(this), this.settings.sendInterval);
 
   if (!this.opened)
     return;
@@ -204,29 +223,42 @@ DestPort.prototype.ActualSendData = function(){
 
   if (this.sendBuffer != null && this.sendBuffer !== undefined
      && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
+    
+	//console.log("Actual send:"+util.inspect(this.sendBuffer));
     this.transport.write(this.sendBuffer);
   }else{
     while (this.sendQueue.length > 0){
-      this.sendBuffer = this.sendQueue.pop();
+      this.sendBuffer = this.sendQueue.shift();
       if (this.sendBuffer != null && this.sendBuffer !== undefined
         && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
+		this.transport.write(this.sendBuffer);
+		logger.info("send data:"+util.inspect(this.sendBuffer));
+		console.log("send data:"+util.inspect(this.sendBuffer));
         break;
       }
     }
   }
 };
 
-DestPort.prototype.SendDestDirection= function(parcel,destPort){
+DestPort.prototype.
+SendDestDirection= function(parcel,destPort){
+  console.log("send parcel "+parcel+" to port "+destPort);
+
+  var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
+  var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
+  
+  parcel.ExitPort = exitPort;
+  parcel.ExitDirection = exitDirection;
+  parcel.TrackNum = parcel.scanResult;
+
   var cmd = new Command(Command.PC_TO_ENTRY);
   cmd.enterPortID = parcel.EnterPort;
   cmd.serialNumer = parcel.SerialNumber;
   cmd.enterDirection = parcel.EnterDirection;
 
-  var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
-  var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
-
   cmd.exitPortID = exitPort;
   cmd.exitDirection = exitDirection;
+  cmd.reserved = parcel.CartID;
 
   cmd.MakeBuffer();
   var sendBuffer = cmd.buffer;
@@ -234,6 +266,7 @@ DestPort.prototype.SendDestDirection= function(parcel,destPort){
 
   if (this.opened ){
     this.QueueSend(sendBuffer);
+	this.savePackage(parcel);
   }
   // todo:resend?
 };
@@ -245,6 +278,7 @@ DestPort.prototype.enqueue = function(dest){
 
   if (dest.scanResult == "" || dest.scanResult == "0000"){
     this.SendDestDirection(dest,this.settings.trashPort);
+	return;
   }
 
   var workingPort = this;

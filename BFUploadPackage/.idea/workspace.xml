@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DestPort.js" afterPath="$PROJECT_DIR$/DestPort.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TriggerPort.js" afterPath="$PROJECT_DIR$/TriggerPort.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/vitronic.js" afterPath="$PROJECT_DIR$/vitronic.js" />
     </list>
     <ignored path="BFUploadPackage.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -123,8 +120,8 @@
       <file leaf-file-name="DestPort.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DestPort.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="198" column="2" selection-start-line="198" selection-start-column="2" selection-end-line="198" selection-end-column="2" />
+            <state relative-caret-position="377">
+              <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
               <folding>
                 <element signature="e#0#42#0" expanded="false" />
               </folding>
@@ -389,7 +386,7 @@
       <workItem from="1477236798261" duration="6356000" />
       <workItem from="1477243218270" duration="9615000" />
       <workItem from="1477360341946" duration="41000" />
-      <workItem from="1477446298804" duration="4904000" />
+      <workItem from="1477446298804" duration="6730000" />
     </task>
     <task id="LOCAL-00001" summary="add to webstorm project">
       <created>1470297823571</created>
@@ -461,11 +458,18 @@
       <option name="project" value="LOCAL" />
       <updated>1477296301572</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="add DestPort.js">
+      <created>1477451214806</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1477451214806</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="153039000" />
+    <option name="totallyTimeSpent" value="154865000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1060" extended-state="6" />
@@ -889,8 +893,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DestPort.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="198" column="2" selection-start-line="198" selection-start-column="2" selection-end-line="198" selection-end-column="2" />
+        <state relative-caret-position="377">
+          <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
           <folding>
             <element signature="e#0#42#0" expanded="false" />
           </folding>

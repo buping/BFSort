@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var debug = require('debug')('bfsort');
+var util = require('util');
 
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
@@ -126,6 +127,9 @@ if (bfConfig.DestPort !== undefined){
 
 if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
   TriggerPort.working.on("triggered",function(parcel){
+	  console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
+	  parcel.scanResult = "";
+	 // DestPort.working.enqueue(parcel);
     Vitronic.working.enqueue(parcel);
   });
   Vitronic.working.on("scan",function(dest){

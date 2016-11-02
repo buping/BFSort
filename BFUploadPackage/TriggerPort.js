@@ -32,9 +32,9 @@ var defaults = {
     xany: false,
     rtscts: false,
     hupcl: true,
-    dataBits: 8,
-    stopBits: 1,
-    parser:com.SerialPort.parsers.byteLength(11)
+ //   parser:com.SerialPort.parsers.byteLength(11),
+	dataBits: 8,
+    stopBits: 1
   }
 };
 
@@ -71,6 +71,8 @@ function TriggerPort(options, callback){
   this.sameBufferCount = 0;
   this.receivedCount = 1;
   this.isAllowRecieved = false;
+  this.lastSerialNum = 0;
+  this.lastEnterPort = 0;
 
   this.parcel = {};
   this.loadSucc = false;
@@ -103,6 +105,7 @@ function TriggerPort(options, callback){
 
   this.transport.on('data',function(data){
     if (data && data.length>0){
+		//console.log("got data,len is "+data.length);
       for (var i=0;i<data.length;i++){
         if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
           receivedCount = 1;
@@ -143,25 +146,24 @@ TriggerPort.prototype.Init=function(){
 
 TriggerPort.prototype.recieveDirect= function(){
   if( !validDirect(this.currentBuffer)){
-    util.print("指令校验失败:"+util.inspect(this.currentBuffer)+"\n");
-    logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
+    //logger.error("指令校验失败:"+util.inspect(this.currentBuffer));
     return;
   }
 
+   
   var now = new Date();
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
-    util.print("\n");
-
-    logger.info("\rReceive serial data:" + util.inspect(this.currentBuffer));
+	console.log("trigger:" + util.inspect(this.currentBuffer));
+    logger.info("trigger:" + util.inspect(this.currentBuffer));
 
     if (this.currentBuffer[1] == RECEIVE_TRIGGER){
       this.receiveTrigger();
     }
   }else {
     this.sameBufferCount++;
-    util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
+    //util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
   }
     /*
    if (this.webResponse !== undefined){
@@ -173,19 +175,30 @@ TriggerPort.prototype.recieveDirect= function(){
 
 TriggerPort.prototype.receiveTrigger = function() {
   var currentBuffer = this.currentBuffer;
-  var parcel = this.parcel;
+  var parcel = {};
   parcel.ExitPort = currentBuffer[2] + currentBuffer[3] * 256;
   parcel.EnterPort = currentBuffer[4];
   parcel.SerialNumber = currentBuffer[5] + currentBuffer[6] * 256;
   parcel.EnterDirection = (currentBuffer[8] & 0x02) / 2;
   parcel.ExitDirection = currentBuffer[8] % 2;
 
-
+  parcel.CartID = currentBuffer[7];
   this.respondStatus = currentBuffer[9];
+  
+  this.parcel = parcel;
 
   if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
     return;
   }
+  
+  /*
+  if (parcel.SerialNumber == this.lastSerialNum && parcel.EnterPort == this.lastEnterPort){
+	return;
+  }
+  */
+  
+  this.lastSerialNum = parcel.SerialNumber;
+  this.lastEnterPort = parcel.EnterPort;
 
 
   parcel.TriggerTime = Date.now();

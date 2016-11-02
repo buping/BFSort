@@ -24,6 +24,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+	CartID: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     ChannelCode: {
       type: DataTypes.STRING,
       allowNull: true

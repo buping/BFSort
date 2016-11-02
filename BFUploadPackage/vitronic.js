@@ -8,8 +8,8 @@ var defaults = {
     addr: "192.168.3.234",
     port: 5001,
     station: "01",
-    maxTriggerDelay: 2500,   //max ms for scan result after trigger is received
-    minTriggerDestDelay:3000 //ms for trigger->dest delay
+    maxTriggerDelay: 4000,   //max ms for scan result after trigger is received
+    minTriggerDelay:1000 //ms for trigger->dest delay
 };
 
 function pad(pad,str,padLeft){
@@ -84,7 +84,6 @@ Vitronic.prototype.start = function(){
 }
 
 Vitronic.prototype.readData = function(data){
-    logger.info(util.inspect(data));
     if (data[0] != Vitronic.STX || data[data.length-1] != Vitronic.CR  || data[data.length-2] != Vitronic.ETX){
         logger.error('incorrect vitronic message format');
         return;
@@ -93,19 +92,24 @@ Vitronic.prototype.readData = function(data){
     this.lastData = data;
 
     var str = data.toString('ascii',1,data.length-2);
+    
     var resArr = str.split('|');
-    logger.info('message body:'+str);
 
     if (resArr[0] == '30'){  //data response
+	//data : '30|01|0000|00|01|14;test1610210019|321231010|X-0000|'
+		this.emit('data',str);
         var readResult = {};
         readResult.tunnelID = resArr[1];
         readResult.packetID = resArr[2];
-        readResult.volumeData = resArr[3];
-        readResult.parcelCenter = resArr[4];
-        readResult.barCodeNum = resArr[5];
-        readResult.barCodes = resArr[6];
-
+        readResult.unknown = resArr[3];
+		readResult.barCodeNum = resArr[4];
+        readResult.barCodes = resArr[5];
+		readResult.volumeData = resArr[6];
+        readResult.parcelCenter = resArr[7];
+     
         readResult.barCodeArr = readResult.barCodes.split(';');
+		console.log("scan result:"+str);
+		logger.info(str);
         this.receiveScanResult(readResult);
         //todo
     }else if (resArr[0] == '40'){ //heartbeat response
@@ -132,7 +136,7 @@ Vitronic.prototype.writeData = function(data){
 
 //todo
 Vitronic.prototype.receiveHeartbeat = function(diagnostic){
-    logger.info('receive heartbeat message:'+diagnostic);
+    //logger.info('receive heartbeat message:'+diagnostic);
     this.status = diagnostic;
 };
 
@@ -158,7 +162,7 @@ Vitronic.prototype.sendIdentifier = function(packetID){
 Vitronic.prototype.enqueue = function(parcel){
     this.packetMapping.set(this.packetID,parcel);
     this.sendIdentifier(this.packetID);
-
+	logger.info("send packet id "+this.packetID+" for parcel:"+parcel.SerialNumber+","+parcel.EnterPort);
     this.packetID++;
     if (this.packetID >= 10000){
         this.packetID = 1;
@@ -180,12 +184,24 @@ Vitronic.prototype.sendScanResult = function(parcel){
 Vitronic.prototype.receiveScanResult = function(result){
     var packetID = parseInt(result.packetID);
     var barCode = "";
-    for (var i=0;i<result.barCodeArr.length;i++){
-        if (this.checkBarCode(result[i])){
-            barCode = result[i];
+    for (var i=0;i<result.barCodeNum;i++){
+		var codeLen = result.barCodeArr[2*i];
+		code = result.barCodeArr[2*i+1];
+        if (this.checkBarCode(code)){
+            barCode = code;
             break;
         }
     }
+	
+	var now = Date.now();
+	var maxTriggerDelay = this.settings.maxTriggerDelay;
+	var vitro = this;
+    this.packetMapping.forEach(function(value,key,map){
+		var elipseTime = now - value.TriggerTime;
+        if (elipseTime > maxTriggerDelay){
+			map.delete(key);
+        }
+	});
 
     if (packetID != 0) {
         var dest = this.packetMapping.get(packetID);
@@ -193,24 +209,22 @@ Vitronic.prototype.receiveScanResult = function(result){
             this.packetMapping.delete(packetID);
             dest.scanResult = barCode;
             this.sendScanResult(dest);
+			logger.info("scan result found in map by packetID:"+util.inspect(dest));
         } else {
-            logger.error("receive packetID not in map:" + util.inspect(result));
+            logger.error("receive packetID not in map:" + packetID + ",scan result:"+barCode);
         }
     }else{
-        var now = Date.now();
         var found = false;
+		var vitro = this;
         this.packetMapping.forEach(function(value,key,map){
-            var elipseTime = now - value.TriggerTime;
-            if (elipseTime > maxTriggerDelay){
-                map.delete(key);
-            }else{
-                if (!found) {
+			var elapsed = now-value.TriggerTime
+                if (!found  && elapsed<vitro.settings.maxTriggerDelay && elapsed>vitro.settings.minTriggerDelay) {
                     found = true;
                     value.scanResult = barCode;
-                    this.sendScanResult(dest);
+                    vitro.sendScanResult(value);
+					logger.info("scan result found in map by shift:"+util.inspect(value));
                     map.delete(key);
                 }
-            }
         });
     }
 };
