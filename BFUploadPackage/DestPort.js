@@ -81,9 +81,9 @@ function DestPort(options, callback){
   this.parcel = null;
   this.sendBuffer = null;
   this.sendQueue = new Array();
-  this.fusionFailed = new Array();
-  
+
   this.packetMapping = new Map();
+  this.currentPacketID = 0;
 
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
@@ -259,23 +259,11 @@ DestPort.prototype.MakeRewriteBuff= function(){
   var now = Date.now();
   
   //not receive vitronic response in time
-  if (destPort === undefined || destPort === null){
-	  destPort = this.settings.trashPort;
-	  parcel.Logs = "receive no vitronic response";
-
-	for (let fail of this.fusionFailed) {
-		if (now - fail.FailTime > 4000){
-			this.fusionFailed.pop(fail);
-		}else if (fail.FailTime - parcel.TriggerTime > 500 && fail.FailTime - parcel.TriggerTime < 3000  && fail.destPort !== undefined){
-			logger.info("guess fusion result for parcel:"+parcel.packetID+",using port:"+fail.destPort);
-			this.fusionFailed.pop(fail);
-			destPort = fail.destPort;
-			parcel.TrackNum = fail.TrackNum;
-			parcel.Logs = "using guess fusion";
-		}
-	  }
-	  
+  if (destPort === undefined || destPort === null) {
+    destPort = this.settings.trashPort;
+    parcel.Logs = "receive no vitronic response";
   }
+
   logger.info("send parcel "+parcel.packetID+" to port "+destPort);
 
   var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
@@ -304,14 +292,15 @@ DestPort.prototype.MakeRewriteBuff= function(){
 DestPort.prototype.receiveScan = function(result){
 	var id = parseInt(result.packetID);
 	if (id == 0) {
-		var failed = {};
-		failed.FailTime = Date.now();
-		failed.scanResult =  result.validBarCodes;
-		this.fusionFailed.push(failed);
-		this.findExitPort(failed);
-		logger.error("packetID fusion failed:"+result.str);
-		return;
+	  id = this.currentPacketID+1;
+		if (id>=10000){
+		id = 1;
+		}
+	   logger.info("fusion faile,using guess packetID:"+id);
 	}
+
+	this.currentPacketID = id;
+
 	var dest = this.packetMapping.get(id);
     if (dest === undefined || dest === null) {
 		logger.error("packetID "+ result.packetID +" not found in packetMap");
@@ -342,7 +331,7 @@ DestPort.prototype.findExitPort = function(dest){
 	  dest.TrackNum = entry.packageBarcode;
       siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
         if (siteExit == null) {
-          dest.destPort = workingPort.settings.trashPort;
+          dest.destPort = "969|1";
 		  dest.Logs = "siteExitPort find no result:"+site;
           logger.error("receive site mapping not in definition: site " + site);
         } else {

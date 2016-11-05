@@ -158,6 +158,10 @@ Vitronic.prototype.sendIdentifier = function(packetID){
 
     var identifierMsg = '20|'+this.stationID+'|'+idStr4+'|'+idStr10;
     this.writeData(identifierMsg);
+
+	setTimeout(this.writeData.bind(this,identifierMsg),10);
+	setTimeout(this.writeData.bind(this,identifierMsg),60);
+	
 };
 
 Vitronic.prototype.enqueue = function(parcel){
@@ -165,8 +169,6 @@ Vitronic.prototype.enqueue = function(parcel){
     this.sendIdentifier(parcel.packetID);
 	logger.info("send packet id "+parcel.packetID+" for parcel:"+parcel.SerialNumber+","+parcel.EnterPort);
 	//resend after 100 ms
-	setTimeout(this.sendIdentifier.bind(this,parcel.packetID),10);
-	setTimeout(this.sendIdentifier.bind(this,parcel.packetID),30);
     /*
 	this.packetID++;
     if (this.packetID >= 10000){
