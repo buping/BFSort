@@ -13,6 +13,7 @@ var Command = require('./Command.js');
 var sortDataDb = require('./models').sortdata;
 var siteExitPortDb = require('./models').siteexitport;
 var scanPackageDb = require('./models').eq_scanpackage;
+var scanFeedback = require('./ScanFeedback.js');
 
 
 var SEND_UPLOAD = 0x01;
@@ -23,8 +24,8 @@ var INSTRUCTION_LENGTH = 11;
 var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
-  delayTime : 3450,
-  minDelay : 2800,
+  delayTime : 3550,
+  minDelay : 3100,
   sendInterval:50,
   repeatSendTimes:3,	// 最多重发次数
   trashPort : "955|1",
@@ -80,6 +81,9 @@ function DestPort(options, callback){
   this.parcel = null;
   this.sendBuffer = null;
   this.sendQueue = new Array();
+  this.fusionFailed = new Array();
+  
+  this.packetMapping = new Map();
 
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
@@ -189,6 +193,7 @@ DestPort.prototype.savePackage = function(parcel){
   parcel.ScanType = "PZ";
 
   parcel.UploadDate = Date.now();
+  
 
   scanPackageDb.create(parcel).then(function(ret){
     debug("saved parcel to datebase successful:"+util.inspect(ret));
@@ -197,6 +202,11 @@ DestPort.prototype.savePackage = function(parcel){
   }).catch(function(err){
     logger.error("database error in savePackage.");
   });
+
+  if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
+	  scanFeedback(parcel.TrackNum);
+  }
+
 };
 
 DestPort.prototype.isConnected = function(){
@@ -224,32 +234,56 @@ DestPort.prototype.ActualSendData = function(){
   if (this.sendBuffer != null && this.sendBuffer !== undefined
      && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
     
-	//console.log("Actual send:"+util.inspect(this.sendBuffer));
-    this.transport.write(this.sendBuffer);
-  }else{
-    while (this.sendQueue.length > 0){
-      this.sendBuffer = this.sendQueue.shift();
-      if (this.sendBuffer != null && this.sendBuffer !== undefined
-        && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
-		this.transport.write(this.sendBuffer);
-		logger.info("send data:"+util.inspect(this.sendBuffer));
-		console.log("send data:"+util.inspect(this.sendBuffer));
-        break;
-      }
-    }
+    this.transport.write(this.sendBuffer.rewriteBuffer);
+  }else{	  
+	  for (var [nextParcelID,nextParcel] of this.packetMapping){
+		if (nextParcel === undefined || nextParcel === null){
+			this.packetMapping.delete(nextParcelID);
+		}else if (now - nextParcel.TriggerTime > this.settings.delayTime){
+			this.packetMapping.delete(nextParcelID);
+		}else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay){
+			  this.sendBuffer = nextParcel;
+			  this.MakeRewriteBuff();
+			  logger.info("send rewrite buffer:"+util.inspect(this.sendBuffer.rewriteBuffer));
+			  this.transport.write(this.sendBuffer.rewriteBuffer);
+			  this.packetMapping.delete(nextParcelID);
+			  break;
+		  }
+	  }
   }
 };
 
-DestPort.prototype.
-SendDestDirection= function(parcel,destPort){
-  console.log("send parcel "+parcel+" to port "+destPort);
+DestPort.prototype.MakeRewriteBuff= function(){
+  var parcel = this.sendBuffer;
+  var destPort = parcel.destPort;
+  var now = Date.now();
+  
+  //not receive vitronic response in time
+  if (destPort === undefined || destPort === null){
+	  destPort = this.settings.trashPort;
+	  parcel.Logs = "receive no vitronic response";
+
+	for (let fail of this.fusionFailed) {
+		if (now - fail.FailTime > 4000){
+			this.fusionFailed.pop(fail);
+		}else if (fail.FailTime - parcel.TriggerTime > 500 && fail.FailTime - parcel.TriggerTime < 3000  && fail.destPort !== undefined){
+			logger.info("guess fusion result for parcel:"+parcel.packetID+",using port:"+fail.destPort);
+			this.fusionFailed.pop(fail);
+			destPort = fail.destPort;
+			parcel.TrackNum = fail.TrackNum;
+			parcel.Logs = "using guess fusion";
+		}
+	  }
+	  
+  }
+  logger.info("send parcel "+parcel.packetID+" to port "+destPort);
 
   var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
   var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
   
   parcel.ExitPort = exitPort;
   parcel.ExitDirection = exitDirection;
-  parcel.TrackNum = parcel.scanResult;
+  //parcel.TrackNum = parcel.scanResult;
 
   var cmd = new Command(Command.PC_TO_ENTRY);
   cmd.enterPortID = parcel.EnterPort;
@@ -261,50 +295,74 @@ SendDestDirection= function(parcel,destPort){
   cmd.reserved = parcel.CartID;
 
   cmd.MakeBuffer();
-  var sendBuffer = cmd.buffer;
-  sendBuffer.TriggerTime = parcel.TriggerTime;
+  parcel.rewriteBuffer = cmd.buffer;
 
-  if (this.opened ){
-    this.QueueSend(sendBuffer);
-	this.savePackage(parcel);
-  }
+  this.savePackage(parcel);
   // todo:resend?
 };
 
-DestPort.prototype.enqueue = function(dest){
-  var enterPort = dest.EnterPort;
-  var serialNum = dest.SerialNumber;
-  var enterDirection = dest.EnterDirection;
+DestPort.prototype.receiveScan = function(result){
+	var id = parseInt(result.packetID);
+	if (id == 0) {
+		var failed = {};
+		failed.FailTime = Date.now();
+		failed.scanResult =  result.validBarCodes;
+		this.fusionFailed.push(failed);
+		this.findExitPort(failed);
+		logger.error("packetID fusion failed:"+result.str);
+		return;
+	}
+	var dest = this.packetMapping.get(id);
+    if (dest === undefined || dest === null) {
+		logger.error("packetID "+ result.packetID +" not found in packetMap");
+		return;
+	}
+    
+	dest.scanResult = result.validBarCodes;
+	this.findExitPort(dest);
+};
 
-  if (dest.scanResult == "" || dest.scanResult == "0000"){
-    this.SendDestDirection(dest,this.settings.trashPort);
-	return;
-  }
-
+DestPort.prototype.findExitPort = function(dest){
   var workingPort = this;
-
+	
+  if (dest.scanResult.length ==0) {
+	  dest.Logs = "Scan return 0 elements";
+      dest.destPort = workingPort.settings.trashPort;
+	  return;
+  }
+  
+  logger.info("find in sortData for scan result:"+util.inspect(dest.scanResult));
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
       logger.info("can't find barcode in database:"+dest.scanResult+",using trash port");
-      workingPort.SendDestDirection(dest, workingPort.settings.trashPort);
+	  dest.Logs = "invalid scan result:"+util.inspect(dest.scanResult);
+      dest.destPort = workingPort.settings.trashPort;
     }else{
       var site=entry.packageSite;
+	  dest.TrackNum = entry.packageBarcode;
       siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
         if (siteExit == null) {
-          workingPort.SendDestDirection(dest, workingPort.settings.trashPort);
+          dest.destPort = workingPort.settings.trashPort;
+		  dest.Logs = "siteExitPort find no result:"+site;
           logger.error("receive site mapping not in definition: site " + site);
         } else {
           var destPort = siteExit.exitPort;
           if (destPort !== undefined) {
-            workingPort.SendDestDirection(dest, destPort);
+			dest.destPort = destPort;
+            dest.ChannelCode = siteExit.siteName;
           }
         }
       }).catch(function (err){
-        logger.error("database error in find sortData"+err);
+        logger.error("database error in find site:"+err);
       });
     }
   }).catch(function (err){
-    logger.error("database error in find sortData"+err);
+    logger.error("database error in find sortData:"+err);
   });
 };
+
+DestPort.prototype.enqueue = function(parcel){
+	this.packetMapping.set(parcel.packetID,parcel);
+};
+
 module.exports = DestPort;

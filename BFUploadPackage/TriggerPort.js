@@ -73,6 +73,7 @@ function TriggerPort(options, callback){
   this.isAllowRecieved = false;
   this.lastSerialNum = 0;
   this.lastEnterPort = 0;
+  this.packetID = 1;
 
   this.parcel = {};
   this.loadSucc = false;
@@ -183,9 +184,15 @@ TriggerPort.prototype.receiveTrigger = function() {
   parcel.ExitDirection = currentBuffer[8] % 2;
 
   parcel.CartID = currentBuffer[7];
+  //packetID,use cartID maybe;
+  parcel.packetID = this.packetID;
+  this.packetID++;
+  if (this.packetID>=10000){
+	  this.packetID = 1;
+  }
   this.respondStatus = currentBuffer[9];
   
-  this.parcel = parcel;
+  //this.parcel = parcel;
 
   if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
     return;
@@ -207,8 +214,8 @@ TriggerPort.prototype.receiveTrigger = function() {
 };
 
 
-TriggerPort.prototype.savePackage = function(){
-  var parcel = this.parcel;
+TriggerPort.prototype.savePackage = function(parcel){
+  
   parcel.IsSelect = "0";
   parcel.EmployeeName = this.employeeName;
   parcel.ScanType = "PZ";

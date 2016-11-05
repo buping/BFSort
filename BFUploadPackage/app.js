@@ -128,13 +128,12 @@ if (bfConfig.DestPort !== undefined){
 if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
   TriggerPort.working.on("triggered",function(parcel){
 	  console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
-	  parcel.scanResult = "";
-	 // DestPort.working.enqueue(parcel);
-    Vitronic.working.enqueue(parcel);
+	 DestPort.working.enqueue(parcel);
+     Vitronic.working.enqueue(parcel);
   });
   Vitronic.working.on("scan",function(dest){
     if (DestPort.working !== undefined){
-      DestPort.working.enqueue(dest);
+      DestPort.working.receiveScan(dest);
     }
   });
 }

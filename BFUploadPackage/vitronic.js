@@ -99,6 +99,7 @@ Vitronic.prototype.readData = function(data){
 	//data : '30|01|0000|00|01|14;test1610210019|321231010|X-0000|'
 		this.emit('data',str);
         var readResult = {};
+		readResult.str = str;
         readResult.tunnelID = resArr[1];
         readResult.packetID = resArr[2];
         readResult.unknown = resArr[3];
@@ -160,13 +161,18 @@ Vitronic.prototype.sendIdentifier = function(packetID){
 };
 
 Vitronic.prototype.enqueue = function(parcel){
-    this.packetMapping.set(this.packetID,parcel);
-    this.sendIdentifier(this.packetID);
-	logger.info("send packet id "+this.packetID+" for parcel:"+parcel.SerialNumber+","+parcel.EnterPort);
-    this.packetID++;
+    //this.packetMapping.set(this.packetID,parcel);
+    this.sendIdentifier(parcel.packetID);
+	logger.info("send packet id "+parcel.packetID+" for parcel:"+parcel.SerialNumber+","+parcel.EnterPort);
+	//resend after 100 ms
+	setTimeout(this.sendIdentifier.bind(this,parcel.packetID),10);
+	setTimeout(this.sendIdentifier.bind(this,parcel.packetID),30);
+    /*
+	this.packetID++;
     if (this.packetID >= 10000){
         this.packetID = 1;
     }
+	*/
 };
 
 Vitronic.prototype.checkBarCode=function(barCode){
@@ -177,22 +183,22 @@ Vitronic.prototype.checkBarCode=function(barCode){
 /*
  * send scan result,check for time
  */
-Vitronic.prototype.sendScanResult = function(parcel){
-    this.emit("scan", parcel);
+Vitronic.prototype.sendScanResult = function(result){
+    this.emit("scan", result);
 };
 
 Vitronic.prototype.receiveScanResult = function(result){
-    var packetID = parseInt(result.packetID);
-    var barCode = "";
+    result.validBarCodes = [];
     for (var i=0;i<result.barCodeNum;i++){
 		var codeLen = result.barCodeArr[2*i];
-		code = result.barCodeArr[2*i+1];
+		var code = result.barCodeArr[2*i+1];
         if (this.checkBarCode(code)){
-            barCode = code;
-            break;
+            result.validBarCodes.push(code);
         }
     }
-	
+	this.sendScanResult(result);
+
+	/*
 	var now = Date.now();
 	var maxTriggerDelay = this.settings.maxTriggerDelay;
 	var vitro = this;
@@ -217,7 +223,7 @@ Vitronic.prototype.receiveScanResult = function(result){
         var found = false;
 		var vitro = this;
         this.packetMapping.forEach(function(value,key,map){
-			var elapsed = now-value.TriggerTime
+			var elapsed = now-value.TriggerTime;
                 if (!found  && elapsed<vitro.settings.maxTriggerDelay && elapsed>vitro.settings.minTriggerDelay) {
                     found = true;
                     value.scanResult = barCode;
@@ -227,6 +233,7 @@ Vitronic.prototype.receiveScanResult = function(result){
                 }
         });
     }
+	*/
 };
 
 module.exports = Vitronic;
