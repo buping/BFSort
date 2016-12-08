@@ -8,6 +8,7 @@ var util = require('util');
 
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
+var ExitButton = require("./ExitButton.js");
 var TriggerPort = require('./TriggerPort.js');
 var DestPort = require('./DestPort.js');
 var Vitronic = require('./vitronic.js');
@@ -94,6 +95,10 @@ SerialPort.list(function (err, ports) {
   });
 });
 
+var bfstatus = require('./BFStatus.js');
+
+bfstatus.StartHeartBeat('shengbanghangzhou','exit1');
+
 var bfConfig = require ('./config/bfconfig.json');
 
 
@@ -107,6 +112,11 @@ if (bfConfig.EnterPort !== undefined){
 if (bfConfig.ExitPort !== undefined){
  ExitPort.working = new ExitPort(bfConfig.ExitPort);
  ExitPort.working.Init();
+}
+
+if (bfConfig.ExitButton !== undefined){
+ ExitButton.working = new ExitButton(bfConfig.ExitButton);
+ ExitButton.working.Init();
 }
 
 

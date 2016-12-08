@@ -3,21 +3,21 @@
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
-    "host": "192.168.100.243",
+    "host": "192.168.16.243",
     "dialect": "mysql"
   },
   "test": {
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
-    "host": "192.168.100.243",
+    "host": "192.168.16.243",
     "dialect": "mysql"
   },
   "production": {
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
-    "host": "192.168.100.243",
+    "host": "192.168.16.243",
     "dialect": "mysql"
   }
 }

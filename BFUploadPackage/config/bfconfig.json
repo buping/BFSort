@@ -1,20 +1,20 @@
 {
-  "TriggerPort":{
+
+  "ExitPort":{
     "SerialName":"COM3",
     "SerialPort":{
-      "baudRate":57600
-    }
+      "baudRate":115200
+    },
+    "Boards":[
+      {"Id":950,"Direction":0},
+      {"Id":951,"Direction":0}
+    ]
   },
-  "DestPort":{
+  "ExitButton":{
     "SerialName":"COM4",
     "SerialPort":{
-      "baudRate":57600
+      "baudRate":115200
     },
-    "trashPort":"950|1",
-  },
-  "Vitronic":{
-    "addr":"192.168.3.234",
-    "port":5001,
-    "station":"01"
+	"BoardID":0
   }
 }

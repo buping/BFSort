@@ -167,7 +167,7 @@ ExitPort.prototype.QueryOne = function(){
     }
     var board = this.queryBoards[this.currentQueryIdx];
     this.transport.write(board.SendCmd.buffer);
-    console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
+    //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
 
     this.currentQueryIdx++;
     if (this.currentQueryIdx >= this.queryBoards.length){

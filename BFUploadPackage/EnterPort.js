@@ -8,6 +8,7 @@ var com = require("./com.js");
 var logger = require('./log.js').logger;
 var util= require('util');
 var debug = require('debug')('bfsort');
+var sunyouApi = require('./SunyouRequest.js');
 
 var Emitter=require("events").EventEmitter;
 var scanPackageDb = require('./models').eq_scanpackage;
@@ -34,13 +35,13 @@ var defaults = {
         dataBits: 8,
         stopBits: 1,
         bufferSize: 256
-    }
+    },
 };
 
 var RESPONSE_FUNC = {};
 RESPONSE_FUNC[RECEIVE_UPLOAD] = function (board){
 
-};
+}
 
 function validDirect(direct){
     var totalSum = 0;
@@ -79,6 +80,7 @@ function EnterPort(options, callback){
     this.sendCount = 0;
     this.receivedCount = 1;
     this.isAllowRecieved = false;
+    this.lastSerial = 0;
 
     this.parcel = null;
     this.loadDeviceId = 0;
@@ -116,7 +118,7 @@ function EnterPort(options, callback){
     }.bind(this));
 
     this.transport.on('data',function(data){
-        logger.info("\rReceive serial data:" + util.inspect(data));
+        //logger.info("\rReceive serial data:" + util.inspect(data));
 
         if (data && data.length>0){
             for (var i=0;i<data.length;i++){
@@ -188,7 +190,7 @@ EnterPort.prototype.receiveUpload = function(){
     var respondExitPort = currentBuffer[2] + currentBuffer[3] * 256;
     var respondEnterPort = currentBuffer[4];
     var respondSerialNum = currentBuffer[5] + currentBuffer[6] * 256;
-    var respondEnterDirection = (currentBuffer[8] & 0x02)/ 2;
+    var respondEnterDirection = (currentBuffer[8] & 0x02) / 2;
     var respondExitDirection = currentBuffer[8] % 2;
     var respondStatus = currentBuffer[9];
 
@@ -196,7 +198,7 @@ EnterPort.prototype.receiveUpload = function(){
     if (respondStatus == 0x00){
         this.isReady = true;
     }
-    if (!this.isLoading || this.parcel === undefined){
+    if (!this.isLoading || this.parcel === undefined || this.parcel === null){
         return;
     }
     if (respondExitPort == parcel.ExitPort && respondEnterPort == parcel.EnterPort
@@ -272,19 +274,37 @@ EnterPort.prototype.enqueue = function(fjData){
     var exitDirection = parseInt(outPortWhole.substr(outPortWhole.indexOf('|')+1));
     parcel.ExitPort = exitPort;
     parcel.ExitDirection = exitDirection;
+    parcel.Direction = exitDirection;
 
-    var enterPort = parcel.EnterPort;
+    var enterPort = parcel.EnterPort;    
+	
+	logger.info("send package:"+util.inspect(parcel));
+	this.isLoading = true;
+	
+	if (this.lastSerial == 0){
 
     scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}})
         .then(function(max) {
             if (isNaN(max)){
                 max=0;
-            }
+            }            
             parcel.SerialNumber = (max + 1)%65536;
+            if (parcel.SerialNumber == 0)
+            	parcel.SerialNumber=1;
+            this.lastSerial = parcel.SerialNumber;
+            
             debug("using serialnum:"+parcel.SerialNumber);
             this.sendPackage(parcel);
         }.bind(this)
     );
+  }else{
+  	this.lastSerial++;
+  	if (this.lastSerial==0 || this.lastSerial >= 65536){
+  		this.lastSerial=1;
+  	}
+  	parcel.SerialNumber = (this.lastSerial)%65536;
+  	this.sendPackage(parcel);
+  }
 };
 
 EnterPort.prototype.savePackage = function(){
@@ -307,6 +327,13 @@ EnterPort.prototype.isConnected = function(){
 EnterPort.prototype.GetStatus= function(cb,res){
     //todo
     return this.respondStatus;
+};
+
+EnterPort.prototype.GetScan = function(scan){
+    //todo
+    sunyouApi.getPackageInfo(scan,function(scanObj){
+    	if (scanObj.
+    }
 };
 
 module.exports = EnterPort;

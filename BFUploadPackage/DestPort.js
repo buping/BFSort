@@ -14,6 +14,9 @@ var sortDataDb = require('./models').sortdata;
 var siteExitPortDb = require('./models').siteexitport;
 var scanPackageDb = require('./models').eq_scanpackage;
 var scanFeedback = require('./ScanFeedback.js');
+var bfstatus = require('./BFStatus.js');
+var searchBarcode = require('./SearchBarcode.js');
+
 
 
 var SEND_UPLOAD = 0x01;
@@ -206,6 +209,24 @@ DestPort.prototype.savePackage = function(parcel){
   if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
 	  scanFeedback(parcel.TrackNum);
   }
+  
+  if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
+	bfstatus.RealtimeScan('shengbanghangzhou',0,parcel.TrackNum+parcel.ChannelCode);
+  }else{
+	  var volumeData = parcel.volumeData;
+	  if (volumeData == undefined || volumeData == null)
+		  volumeData = "";
+	  var height = parseInt(volumeData.substr(6,3));
+	  if (height>15){
+		  var msg={};
+		  msg.id = parcel.packetID;
+		  msg.scan = parcel.scanResult;
+		bfstatus.RealtimeScan('shengbanghangzhou',2,JSON.stringify(msg));
+	  }else{
+		bfstatus.RealtimeScan('shengbanghangzhou',1,'empty cart');
+	  }
+	 
+  }
 
 };
 
@@ -308,7 +329,40 @@ DestPort.prototype.receiveScan = function(result){
 	}
     
 	dest.scanResult = result.validBarCodes;
+	dest.volumeData = result.volumeData;
 	this.findExitPort(dest);
+};
+
+DestPort.prototype.tryOnlineSearch = function(dest){
+	var workingPort = this;
+	for (let oneBarcode of dest.scanResult){
+		searchBarcode(oneBarcode,function(site){
+			dest.TrackNum = oneBarcode;
+			dest.Logs = oneBarcode + " found using online search";
+			workingPort.findOutPort(dest,site);			
+		});
+	}
+};
+
+DestPort.prototype.findOutPort = function(dest,site){
+	var defaultPort  = this.settings.trashPort;
+    siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
+        if (siteExit == null) {
+          dest.destPort = defaultPort;
+		  dest.Logs = "siteExitPort find no result:"+site;
+          logger.error("receive site mapping not in definition: site " + site);
+        } else {
+          var destPort = siteExit.exitPort;
+          if (destPort !== undefined) {
+			dest.destPort = destPort;
+            dest.ChannelCode = siteExit.siteName;			
+          }else{
+			 dest.destPort = defaultPort;
+		  }
+        }
+	}).catch(function (err){
+        logger.error("database error in find site:"+err);
+    });	
 };
 
 DestPort.prototype.findExitPort = function(dest){
@@ -323,27 +377,14 @@ DestPort.prototype.findExitPort = function(dest){
   logger.info("find in sortData for scan result:"+util.inspect(dest.scanResult));
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
-      logger.info("can't find barcode in database:"+dest.scanResult+",using trash port");
+      logger.info("can't find barcode in database:"+dest.scanResult+",try online search");
 	  dest.Logs = "invalid scan result:"+util.inspect(dest.scanResult);
       dest.destPort = workingPort.settings.trashPort;
+	  workingPort.tryOnlineSearch(dest);
     }else{
       var site=entry.packageSite;
 	  dest.TrackNum = entry.packageBarcode;
-      siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
-        if (siteExit == null) {
-          dest.destPort = "969|1";
-		  dest.Logs = "siteExitPort find no result:"+site;
-          logger.error("receive site mapping not in definition: site " + site);
-        } else {
-          var destPort = siteExit.exitPort;
-          if (destPort !== undefined) {
-			dest.destPort = destPort;
-            dest.ChannelCode = siteExit.siteName;
-          }
-        }
-      }).catch(function (err){
-        logger.error("database error in find site:"+err);
-      });
+	  workingPort.findOutPort(dest,site);
     }
   }).catch(function (err){
     logger.error("database error in find sortData:"+err);

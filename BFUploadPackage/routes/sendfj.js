@@ -44,6 +44,14 @@ router.get('/', function(req, res, next){
         res.json(retJson);
 				return;
     }
+    
+  var ports = portNumber.split('|');
+  if (ports.length != 2){
+  	retJson.sendfjresult = "ERROR";
+    res.json(retJson);
+    return;
+  }
+  
 	
 	var received = new FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
 	debug("received sunyou message:"+util.inspect(received));
@@ -51,7 +59,9 @@ router.get('/', function(req, res, next){
 
 
 	
-		if (enterPort.respondStatus != 0){
+		if (!enterPort.opened){
+			retJson.sendfjresult = "DISCONNECT";
+		}else if (enterPort.respondStatus != 0 || enterPort.isLoading){
 			retJson.sendfjresult = "BUSY";
 		}else {
 			enterPort.enqueue(received);
@@ -87,9 +97,33 @@ router.status = function (req,res,next){
 	var cb=req.query.cb;
 	var enterPort = EnterPort.working;
 	var mystatus = enterPort.respondStatus;
-
+	
+	if (!enterPort.opened){
+		mystatus=-1;
+	}
+	
+	if (mystatus == 0 && enterPort.isLoading){
+		mystatus = 1;
+	}
+	
 	res.json({status:mystatus});
+};
+
+
+router.getscan = function (req,res,next){
+	var scan=req.query.scan;
+	var enterPort = EnterPort.working;
+	var mystatus = enterPort.respondStatus;
+	
+	var retJson = {};
+	retJson.barcode = barcode;
+	retJson.sendfjresult = "OK";
+	
+	enterPort.GetScan(scan);
+	
+	res.json(retJson);
 }
+
 
 
 module.exports = router;

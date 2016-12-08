@@ -13,6 +13,7 @@ var scanPackageDb = require('./models').eq_scanpackage;
 var defaults = {
   //reportVersionTimeout: 5000,
   Interval: 100,
+  BoardID : 0,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数
@@ -44,9 +45,11 @@ function ExitButton(options, callback) {
 
   this.settings = Object.assign({}, defaults, options);
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
+  
+  
+ 
+  this.QueryBuffer = this.MakeQueryBufer();
 
-  this.queryBoards = this.settings.Boards;
-  this.currentQueryIdx = 0;
 
   this.opened = false;
   this.currentRecvCmd = new Command(Command.BUTTON_TO_PC);
@@ -84,6 +87,7 @@ function ExitButton(options, callback) {
 
 ExitButton.prototype.Init = function() {
   this.Open();
+  this.StartQuery();
 };
 
 ExitButton.prototype.Open = function() {
@@ -103,7 +107,7 @@ ExitButton.prototype.RecvCompleteCmd = function(){
   var cmd=this.currentRecvCmd.Clone();
   this.currentRecvCmd.Clear();
   if (cmd.instructionId != Command.EXIT_TO_BUTTON){
-    logger.err("Recv unknown com message:"+util.inspect(cmd.buffer));
+    logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
     return;
   }
 
@@ -148,7 +152,8 @@ ExitButton.prototype.RecvCompleteCmd = function(){
 ExitButton.prototype.RelayToExitPort = function(cmd){
   //todo relay button cmd to eixtport;
   var currentExitPort = require('./ExitPort.js').working;
-  currentExitPort.RelayCmd(cmd);
+  if (currentExitPort !== undefined)
+	currentExitPort.RelayCmd(cmd);
 };
 
 ExitButton.prototype.Print = function(cmd){
@@ -175,15 +180,25 @@ ExitButton.prototype.QueryOne = function(){
   if (!this.opened){
     return;
   }
-  var board = this.queryBoards[this.currentQueryIdx];
-  this.transport.write(board.SendCmd.buffer);
-  console.log("ExitButton sending buffer:"+util.inspect(board.SendCmd.buffer));
+  
+  this.transport.write(this.queryBuffer);
+  console.log("ExitButton sending buffer:"+util.inspect(this.queryBuffer));
+};
 
-  this.currentQueryIdx++;
-  if (this.currentQueryIdx >= this.queryBoards.length){
-    this.currentQueryIdx = 0;
-  }
-}
+ExitButton.prototype.MakeQueryBufer = function(){
+  var boardID = this.settings.BoardID;
+  var cmd = new Command(Command.PC_TO_BUTTON);
+  cmd.exitPortID = 0;
+  cmd.enterPortID = boardID;
+  cmd.serialNumer = 0;
+  cmd.reserved = 0;
+  cmd.enterDirection = 0;
+  cmd.exitDirection = 0;
+  cmd.status =0;
+  cmd.MakeBuffer();
+  
+  this.queryBuffer = cmd.buffer;
+};
 
 module.exports = ExitButton;
 

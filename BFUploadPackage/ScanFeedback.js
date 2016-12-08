@@ -1,7 +1,7 @@
 var util= require('util');
 var rest = require('restler');
 var crypto = require('crypto');
-var feedbackUrl = 'http://121.43.59.233:8099/beifen/cb';
+var feedbackUrl = 'http://114.55.134.122:8099/beifen/cb';
 var secretKey = 'njcb@1234';
 var logger = require('./log.js').logger;
 
@@ -16,7 +16,7 @@ function ScanFeedback(barCode){
 	
 	var getUrl = feedbackUrl + "?o_no=" + barCode + "&sign=" + calsig + "&timestamp=" + timestamp;
 	
-	console.log(getUrl);
+	//console.log(getUrl);
 	rest.get(getUrl,{parser:rest.parsers.json}).on('complete',function(result){
 		if (result instanceof Error) {
 			logger.info("scan feedback of "+barCode+" error:"+result.message);

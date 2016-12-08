@@ -11,10 +11,10 @@ log4js.configure({
         {
             type: "file",
             filename: 'logs/log.log',
-            pattern: "_yyyy-MM-dd",
+            pattern: "_MM-dd",
             maxLogSize: 20480000,
             backups: 3,
-            category: 'dateFileLog'
+            category: 'd'
 
         }//日期文件格式
     ],
@@ -26,7 +26,7 @@ log4js.configure({
 });
 
 
-var dateFileLog = log4js.getLogger('dateFileLog');
+var dateFileLog = log4js.getLogger('d');
 var consoleLog = log4js.getLogger('console');
 //exports.logger = consoleLog;
 exports.logger = dateFileLog;
