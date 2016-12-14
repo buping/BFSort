@@ -13,7 +13,7 @@ var prevData={};
 var sendfj = {};
 
 function FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber){
-    this.TrackNum=barcode;
+	this.TrackNum=barcode;
 	this.ChannelCode=channelCode;
 	this.CountryCode=countryCode;
 	this.CountryCnName=countryCnName;
@@ -24,61 +24,62 @@ function FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,port
 }
 
 router.get('/', function(req, res, next){
-    var barcode=req.query.barcode;
-    var channelCode=req.query.channelCode;
-    var countryCode=req.query.countryCode;
-    var countryCnName=req.query.countryCnName;
-    var packageWeight=req.query.packageWeight;
-    var portNumber=req.query.portNumber;
+	var barcode=req.query.barcode;
+	var channelCode=req.query.channelCode;
+	var countryCode=req.query.countryCode;
+	var countryCnName=req.query.countryCnName;
+	var packageWeight=req.query.packageWeight;
+	var portNumber=req.query.portNumber;
 
 	var retJson = {};
 	retJson.barcode = barcode;
 	retJson.sendfjresult = "OK";
 
-  if (barcode === undefined || channelCode === undefined ||
-        countryCnName === undefined || countryCode === undefined || packageWeight === undefined ||
-        portNumber === undefined) {
-        debug("incomplete parameters");
-				retJson.sendfjresult = "ERROR";
-        res.json(retJson);
-				return;
-    }
-    
-  var ports = portNumber.split('|');
-  if (ports.length != 2){
-  	retJson.sendfjresult = "ERROR";
-    res.json(retJson);
-    return;
-  }
-  
-	
+	if (barcode === undefined || channelCode === undefined ||
+		countryCnName === undefined || countryCode === undefined || packageWeight === undefined ||
+		portNumber === undefined) {
+		debug("incomplete parameters");
+		retJson.sendfjresult = "ERROR";
+		res.json(retJson);
+		return;
+	}
+
+	var ports = portNumber.split('|');
+	if (ports.length != 2){
+		retJson.sendfjresult = "ERROR";
+		res.json(retJson);
+		return;
+	}
+
+
 	var received = new FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
 	debug("received sunyou message:"+util.inspect(received));
 	var enterPort = EnterPort.working;
 
 
-	
-		if (!enterPort.opened){
-			retJson.sendfjresult = "DISCONNECT";
-		}else if (enterPort.respondStatus != 0 || enterPort.isLoading){
-			retJson.sendfjresult = "BUSY";
-		}else {
-			enterPort.enqueue(received);
-			retJson.sendfjresult = "OK";
-		}
 
-	    /*
-		models.eq_scanpackage.max('ScanPackageID').then(function (max){
-		    debug("current max id is "+max);
-            received.ScanPackageID = max+1;
-            received.IsSelect = "0";
-            received.EmployeeName = "admin";
-            received.ScanType = "EQ";
-            received.SerialNumber =
-		});
-		*/
-		//Parse(received);
-		//res.json("sendFJCallbacks['"+cb+"']('"+cb+"|SUCCESS);");
+	if (!enterPort.opened){
+		retJson.sendfjresult = "DISCONNECT";
+	}else if (  (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)
+		|| enterPort.isLoading){
+		retJson.sendfjresult = "BUSY";
+	}else {
+		enterPort.enqueue(received);
+		retJson.sendfjresult = "OK";
+	}
+
+	/*
+	 models.eq_scanpackage.max('ScanPackageID').then(function (max){
+	 debug("current max id is "+max);
+	 received.ScanPackageID = max+1;
+	 received.IsSelect = "0";
+	 received.EmployeeName = "admin";
+	 received.ScanType = "EQ";
+	 received.SerialNumber =
+	 });
+	 */
+	//Parse(received);
+	//res.json("sendFJCallbacks['"+cb+"']('"+cb+"|SUCCESS);");
 	debug("return sucess");
 	res.json(retJson);
 });
@@ -96,15 +97,15 @@ router.status = function (req,res,next){
 	var cb=req.query.cb;
 	var enterPort = EnterPort.working;
 	var mystatus = enterPort.respondStatus;
-	
+
 	if (!enterPort.opened){
 		mystatus=1;
 	}
-	
+
 	if (mystatus == 0 && enterPort.isLoading){
 		mystatus = 1;
 	}
-	
+
 	res.json({status:mystatus});
 };
 
@@ -113,7 +114,7 @@ router.getscan = function (req,res,next){
 	var barcode=req.query.barcode;
 	var enterPort = EnterPort.working;
 	var mystatus = enterPort.respondStatus;
-	
+
 	var enterPort = EnterPort.working;
 
 	var retJson = {};
@@ -121,18 +122,17 @@ router.getscan = function (req,res,next){
 	retJson.sendfjresult = "OK";
 
 
-			enterPort.GetScan(barcode);
-	
-		if (!enterPort.opened){
-			retJson.sendfjresult = "DISCONNECT";
-		}else if (enterPort.respondStatus != 0 || enterPort.isLoading){
-			retJson.sendfjresult = "BUSY";
-		}else {
-			enterPort.GetScan(barcode);
-			retJson.sendfjresult = "OK";
-		}
-		
-		res.json(retJson);
+	if (!enterPort.opened){
+		retJson.sendfjresult = "DISCONNECT";
+	}else if ( (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)
+		|| enterPort.isLoading){
+		retJson.sendfjresult = "BUSY";
+	}else {
+		enterPort.GetScan(barcode);
+		retJson.sendfjresult = "OK";
+	}
+
+	res.json(retJson);
 }
 
 

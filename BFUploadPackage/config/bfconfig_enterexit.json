@@ -1,0 +1,47 @@
+{
+  /*
+  "EnterPort":{
+    "PortID": 6,
+    "Direction": 0,
+    "SerialName":"COM4",
+    "SerialPort":{
+      "baudRate":57600
+    }
+  },
+  */
+  /*
+  "ExitPort":{
+    "Boards":[
+      {"Id":950,"Direction":1},
+      {"Id":951,"Direction":1}
+    ],
+    "SerialName":"COM1",
+    "SerialPort":{
+      "baudRate":115200
+    }
+
+  },
+  */
+  "TriggerPort":{
+    "SerialName":"COM4",
+    "SerialPort":{
+      "baudRate":57600
+    }
+  },
+  "DestPort":{
+    "SerialName":"COM3",
+    "SerialPort":{
+      "baudRate":57600
+    },
+    "trashPort":"950|1",
+    "Port":{
+      "6911064":"951|0",
+      "6911065":"951|1"
+    }
+  },
+  "Vitronic":{
+    "addr":"192.168.3.234",
+    "port":5001,
+    "station":"01"
+  }
+}
