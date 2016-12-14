@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/jsLinters/jslint.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CLodopfuncs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" />
+    <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="add print support">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Command.js" afterPath="$PROJECT_DIR$/Command.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DestPort.js" afterPath="$PROJECT_DIR$/DestPort.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/EnterPort.js" afterPath="$PROJECT_DIR$/EnterPort.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ExitButton.js" afterPath="$PROJECT_DIR$/ExitButton.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
     </list>
     <ignored path="BFUploadPackage.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SunyouRequest.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SunyouRequest.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SunyouRequest.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="252" column="41" selection-start-line="252" selection-start-column="41" selection-end-line="252" selection-end-column="41" />
+            <state relative-caret-position="522">
+              <caret line="254" column="9" selection-start-line="254" selection-start-column="9" selection-end-line="254" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -94,11 +86,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EnterPort.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="EnterPort.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/EnterPort.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="116">
-              <caret line="22" column="25" selection-start-line="22" selection-start-column="25" selection-end-line="22" selection-end-column="25" />
+            <state relative-caret-position="256">
+              <caret line="324" column="30" selection-start-line="324" selection-start-column="30" selection-end-line="324" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -205,8 +197,8 @@
         <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/BFStatus.js" />
         <option value="$PROJECT_DIR$/Command.js" />
-        <option value="$PROJECT_DIR$/EnterPort.js" />
         <option value="$PROJECT_DIR$/SunyouRequest.js" />
+        <option value="$PROJECT_DIR$/EnterPort.js" />
       </list>
     </option>
   </component>
@@ -488,7 +480,7 @@
       <workItem from="1478335163251" duration="4945000" />
       <workItem from="1481166493585" duration="34498000" />
       <workItem from="1481682267860" duration="1807000" />
-      <workItem from="1481684091460" duration="14385000" />
+      <workItem from="1481684091460" duration="14639000" />
     </task>
     <task id="LOCAL-00001" summary="add to webstorm project">
       <created>1470297823571</created>
@@ -595,11 +587,18 @@
       <option name="project" value="LOCAL" />
       <updated>1481703695521</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="add print support">
+      <created>1481704341476</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1481704341476</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="210500000" />
+    <option name="totallyTimeSpent" value="210754000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1060" extended-state="6" />
@@ -607,7 +606,7 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11666667" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32686085" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32686085" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33261105" sideWeight="0.46041667" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32908458" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1032,14 +1031,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/EnterPort.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="22" column="25" selection-start-line="22" selection-start-column="25" selection-end-line="22" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/testonline.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="58">
@@ -1050,8 +1041,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SunyouRequest.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="252" column="41" selection-start-line="252" selection-start-column="41" selection-end-line="252" selection-end-column="41" />
+        <state relative-caret-position="522">
+          <caret line="254" column="9" selection-start-line="254" selection-start-column="9" selection-end-line="254" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EnterPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="256">
+          <caret line="324" column="30" selection-start-line="324" selection-start-column="30" selection-end-line="324" selection-end-column="30" />
           <folding />
         </state>
       </provider>

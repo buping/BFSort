@@ -12,7 +12,6 @@ var sunyouApi = require('./SunyouRequest.js');
 
 var Emitter=require("events").EventEmitter;
 var scanPackageDb = require('./models').eq_scanpackage;
-var workingPort;
 
 var SEND_UPLOAD = 0x01;
 var RECEIVE_UPLOAD = 0x03;
@@ -22,7 +21,7 @@ var defaults = {
     //reportVersionTimeout: 5000,
     receiveInterval: 100,
     sendInterval:500,
-    repeatSendTimes:3,	// 最多重发次数
+    repeatSendTimes:30,	// 最多重发次数
     SerialPort: {
         baudRate: 57600,
         autoOpen: false,
@@ -35,13 +34,13 @@ var defaults = {
         dataBits: 8,
         stopBits: 1,
         bufferSize: 256
-    },
+    }
 };
 
 var RESPONSE_FUNC = {};
 RESPONSE_FUNC[RECEIVE_UPLOAD] = function (board){
 
-}
+};
 
 function validDirect(direct){
     var totalSum = 0;
@@ -83,11 +82,8 @@ function EnterPort(options, callback){
     this.lastSerial = 0;
 
     this.parcel = null;
-    this.loadDeviceId = 0;
-    this.loadDirection = 0;
     this.loadSucc = false;
     this.isLoading = false;
-    this.isSending = false;
     this.employeeName = "admin";
     this.respondStatus = 0;
 
@@ -246,8 +242,8 @@ EnterPort.prototype.sendPackage = function(postPackage) {
 };
 
 EnterPort.prototype.actualSendData = function() {
-    if (! this.loadSucc  ) {
-        //&& !this.sendConfirmed){
+    if (! this.loadSucc
+        && !this.sendConfirmed){
         util.print("\nsending data:" + util.inspect(this.sendBuffer) + "\n");
         this.transport.write(this.sendBuffer);
         this.sendCount++;
