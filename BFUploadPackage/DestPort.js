@@ -296,7 +296,7 @@ DestPort.prototype.MakeRewriteBuff= function(){
 
   var cmd = new Command(Command.PC_TO_ENTRY);
   cmd.enterPortID = parcel.EnterPort;
-  cmd.serialNumer = parcel.SerialNumber;
+  cmd.serialNumber = parcel.SerialNumber;
   cmd.enterDirection = parcel.EnterDirection;
 
   cmd.exitPortID = exitPort;

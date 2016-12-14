@@ -4,7 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('pr_serialnumber', {
     SerialNumber: {
       type: DataTypes.INTEGER(11),
-      allowNull: true
+      primaryKey: true,
+      allowNull: false
     }
   }, {
     tableName: 'pr_serialnumber'

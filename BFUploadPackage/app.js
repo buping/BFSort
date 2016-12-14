@@ -9,9 +9,6 @@ var util = require('util');
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
 var ExitButton = require("./ExitButton.js");
-var TriggerPort = require('./TriggerPort.js');
-var DestPort = require('./DestPort.js');
-var Vitronic = require('./vitronic.js');
 
 var logger = require('./log.js').logger;
 logger.setLevel('INFO');
@@ -20,6 +17,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var sendfj = require('./routes/sendfj');
 var admin = require('./routes/admin');
+var exitportdata = require('./routes/exitportdata');
 
 var app = express();
 
@@ -44,9 +42,11 @@ app.all('*', function(req, res, next) {
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/exitportdata', exitportdata);
 app.use('/sendfj',sendfj);
 app.use('/ping',sendfj.ping);
 app.use('/status',sendfj.status);
+app.use('/getscan',sendfj.getscan);
 app.use('/admin',admin);
 
 // catch 404 and forward to error handler
@@ -121,30 +121,40 @@ if (bfConfig.ExitButton !== undefined){
 
 
 if (bfConfig.TriggerPort !== undefined){
+	
+	var TriggerPort = require('./TriggerPort.js');
+
   TriggerPort.working = new TriggerPort(bfConfig.TriggerPort);
   TriggerPort.working.Init();
 }
 
 if (bfConfig.Vitronic !== undefined){
+	var Vitronic = require('./vitronic.js');
+
+
   Vitronic.working = new Vitronic(bfConfig.Vitronic);
   Vitronic.working.Init();
 }
 
 if (bfConfig.DestPort !== undefined){
+	var DestPort = require('./DestPort.js');
+
   DestPort.working = new DestPort(bfConfig.DestPort);
   DestPort.working.Init();
+
+	if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
+	  TriggerPort.working.on("triggered",function(parcel){
+		  console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
+		 DestPort.working.enqueue(parcel);
+	     Vitronic.working.enqueue(parcel);
+	  });
+	  Vitronic.working.on("scan",function(dest){
+	    if (DestPort.working !== undefined){
+	      DestPort.working.receiveScan(dest);
+	    }
+	  });
+	}
+
 }
 
-if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
-  TriggerPort.working.on("triggered",function(parcel){
-	  console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
-	 DestPort.working.enqueue(parcel);
-     Vitronic.working.enqueue(parcel);
-  });
-  Vitronic.working.on("scan",function(dest){
-    if (DestPort.working !== undefined){
-      DestPort.working.receiveScan(dest);
-    }
-  });
-}
 module.exports = app;

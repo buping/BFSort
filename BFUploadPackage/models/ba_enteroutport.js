@@ -4,7 +4,9 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('ba_enteroutport', {
     EnterOutPortID: {
       type: DataTypes.INTEGER(11),
-      allowNull: true
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     IsSelect: {
       type: DataTypes.STRING,
@@ -15,11 +17,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     EnterOutPortCode: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     Direction: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     EnterOutPortType: {
@@ -47,7 +49,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     RunStatus: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     Warning: {

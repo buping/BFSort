@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>
+        扫描出仓
+    </title>
+    <meta name="Author" content="360Chain Team" />
+    <meta name="Copyright" content="360Chain" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link href="/xms_hly/template/admin/css/base.css" rel="stylesheet" type="text/css" />
+    <link href="/xms_hly/template/admin/css/admin.css" rel="stylesheet" type="text/css" />
+    <link href="/xms_hly/template/common/css/progress-bar.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/xms_hly/template/common/js/jquery.js"></script>
+    <script type="text/javascript" src="/xms_hly/template/common/js/dialog/artDialog.wrapper.js"></script>
+    <script type="text/javascript" src="/xms_hly/template/common/js/select2/select2.wrapper.js"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/base.js?v=V201602"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/admin.js?v=V201602"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/common.js?v=V201602"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/eScale.js"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/sound.js"></script>
+    <script type="text/javascript" src="/xms_hly/template/admin/js/checkPutBagCH.js?v=V201602A1"></script>
+    <script type="text/javascript" src="/xms_hly/template/common/js/mask/mask.js?v=V201602"></script>
+    <script type="text/javascript">
+        var errorAlertType = 1; //常规异常提示类型
+        var NORMAL_ISSUE = 0; /*问题类型=正常*/
+        var NORMAL_ISSUE_TEXT = "";/*问题类型=正常*/
+        var billCount = 0; /*订单数量*/
+        var wnoMap = {};
+        var productTypeList = [{value:"1", text:"包裹"},{value:"2", text:"PAK袋"},{value:"4", text:"文件"}];
+        var issueList = [{value:"0", text:"正常"},{value:"2", text:"当天问题"},{value:"3", text:"内部问题"},{value:"4", text:"客户扣件"},{value:"5", text:"偏远"},{value:"6", text:"不通邮"},{value:"7", text:"电池"},{value:"8", text:"违禁品"},{value:"9", text:"重量不符"},{value:"10", text:"国家不符"},{value:"11", text:"没预报"},{value:"12", text:"没发票"},{value:"13", text:"仿牌"},{value:"14", text:"中转问题"},{value:"15", text:"安检不合格"},{value:"255", text:"其他"}];
+        var channelList = [{value:"1100000091", text:"荷兰小包平邮"},{value:"1100000090", text:"test"},{value:"1100000089", text:"夏浦(邮政平邮)"},{value:"1100000088", text:"DHL小包平邮（带电池）"},{value:"1100000094", text:"DHL小包样式"},{value:"1100000093", text:"台湾邮政"},{value:"1100000092", text:"e速宝(api)"},{value:"1100000087", text:"DHL小包平邮"},{value:"1100000086", text:"一体化样式"},{value:"1100000085", text:"DHL小包挂号（带电池）"},{value:"1100000084", text:"一体化样式2"},{value:"1100000048", text:"香港平邮挂号"},{value:"1100000078", text:"CNUPS蓝单"},{value:"1100000056", text:"香港仓DHL"},{value:"1000000020", text:"4PX专线优选"},{value:"1000000004", text:"香港DHL代理价"},{value:"1000000016", text:"香港DHL-美国代理价"},{value:"1100000060", text:"香港DHL-A价"},{value:"1000000127", text:"香港DHL-H"},{value:"1000000011", text:"DHL小包裹"},{value:"1000000120", text:"敦豪包裹特惠"},{value:"1100000059", text:"大陆DHL"},{value:"1000000015", text:"大陆DHL小货促销价"},{value:"1100000037", text:"香港TOLL"},{value:"1100000055", text:"香港UPS欧美-F价"},{value:"1000000018", text:"香港UPS代理价"},{value:"1000000021", text:"香港UPS美国代理促销价"},{value:"1000000029", text:"大陆联邦IE"},{value:"1000000026", text:"大陆联邦IP"},{value:"1000000025", text:"香港联邦IE代理价"},{value:"1000000027", text:"香港联邦IP代理价"},{value:"1100000058", text:"香港联邦-F价"},{value:"1000000030", text:"香港联邦IE超大、超重件"},{value:"1000000031", text:"香港联邦IP超大、超重件"},{value:"1000000072", text:"香港ARAMEX"},{value:"1000000108", text:"4PX-ARAMEX专线服务报价"},{value:"1000000034", text:"深圳EMS"},{value:"1000000044", text:"广东EMS"},{value:"1000000041", text:"北京EMS"},{value:"1100000053", text:"E速宝"},{value:"1100000052", text:"美国E包裹"},{value:"1100000051", text:"E特快"},{value:"1000000035", text:"监管中心-DXEMS"},{value:"1100000057", text:"香港仓EMS"},{value:"1000000033", text:"中速TNT"},{value:"1100000040", text:"线下E邮宝(美国)"},{value:"1000000045", text:"e邮宝"},{value:"1000000046", text:"e邮宝(广州)"},{value:"1100000041", text:"线下E邮宝(澳洲)"},{value:"1000000047", text:"澳洲E邮宝"},{value:"1100000042", text:"线下E邮宝(英国)"},{value:"1000000048", text:"英国E邮宝"},{value:"1100000009", text:"香港E邮宝"},{value:"1100000043", text:"线下e邮宝(加拿大)"},{value:"1000000121", text:"加拿大E邮宝"},{value:"1100000044", text:"线下e邮宝(法国)"},{value:"1000000126", text:"法国E邮宝"},{value:"1100000046", text:"线上e邮宝(俄罗斯)"},{value:"1100000047", text:"线下e邮宝(俄罗斯)"},{value:"1100000062", text:"马来西亚邮政EMS"},{value:"1000000038", text:"新加坡EMS"},{value:"1000000050", text:"香港EMS"},{value:"1000000058", text:"DX香港大包裹"},{value:"1100000006", text:"香港万用箱服务"},{value:"1000000049", text:"香港邮政大包裹"},{value:"1000000053", text:"香港邮政大包裹平邮"},{value:"1000000052", text:"香港本地包裹服务"},{value:"1100000034", text:"中国邮政航空大包(广州)"},{value:"1000000054", text:"中国邮政航空大包"},{value:"1100000035", text:"中国邮政水陆路大包(广州)"},{value:"1000000057", text:"中国邮政水陆路大包"},{value:"1100000036", text:"中国邮政空运水陆大包(广州)"},{value:"1000000056", text:"中国邮政空运水陆大包"},{value:"1000000064", text:"中国邮政航空小包挂号"},{value:"1000000067", text:"中国邮政平邮小包特价"},{value:"1100000011", text:"中国邮政平邮小包特价(广东)"},{value:"1000000065", text:"中国邮政航空小包挂号(广东)"},{value:"1100000067", text:"中国邮政航空小包挂号(上海)"},{value:"1100000068", text:"中国邮政平邮小包特价(上海)"},{value:"1100000069", text:"中国邮政航空小包挂号(武汉)"},{value:"1100000080", text:"巴西小包平邮"},{value:"1100000079", text:"巴西小包挂号"},{value:"1000000063", text:"中国邮政航空小包挂号(浙江)"},{value:"1000000019", text:"中国邮政平邮小包特价(浙江)"},{value:"1100000049", text:"天津中邮小包挂号"},{value:"1000000022", text:"天津中邮小包平邮"},{value:"1000000100", text:"美国专线"},{value:"1000000051", text:"澳洲专线(挂号)"},{value:"1000000040", text:"澳洲专线(平邮)"},{value:"1000000070", text:"互联易专线"},{value:"1000000055", text:"俄罗斯专线"},{value:"1100000012", text:"香港小包挂号"},{value:"1100000004", text:"马来西亚小包平邮"},{value:"1100000003", text:"马来西亚小包挂号"},{value:"1100000063", text:"马邮(海邮)"},{value:"1100000020", text:"瑞典小包挂号"},{value:"1100000001", text:"荷兰小包"},{value:"1000000105", text:"俄罗斯小包挂号"},{value:"1100000066", text:"俄罗斯小包(新疆)"},{value:"1100000002", text:"俄罗斯专线小包"},{value:"1000000104", text:"DLEMS"},{value:"1100000061", text:"香港进口E特快"},{value:"1100000074", text:"香港快件进口(经济快递)"},{value:"1100000072", text:"香港快件进口(深圳)"},{value:"1100000073", text:"香港快件进口(省内)"},{value:"1100000071", text:"香港快件进口(标快)"},{value:"1100000054", text:"香港TNT-F价"},{value:"1100000064", text:"深圳TNT"},{value:"1000000124", text:"深圳TNT纯电池A价"},{value:"1000000073", text:"顺风"},{value:"1000000075", text:"中港快件"},{value:"1000000074", text:"国外仓储快件"},{value:"1100000005", text:"空运航线一"},{value:"1100000077", text:"香港顺丰"},{value:"1100000038", text:"香港一级挂号(一区)"},{value:"1100000039", text:"香港一级挂号(二区)"},{value:"1100000076", text:"HKPOST平邮(中国内地及台湾)"},{value:"1000000080", text:"香港大量投寄空邮平邮"},{value:"1000000079", text:"HKPOST平邮(一区)"},{value:"1000000078", text:"HKPOST平邮(二区)"},{value:"1100000065", text:"HKPOST平邮(三区)"},{value:"1100000075", text:"HKPOST平邮(四区)"},{value:"1000000086", text:"瑞士平邮(一区)"},{value:"1100000030", text:"瑞士平邮(二区)"},{value:"1100000031", text:"瑞士平邮(三区)"},{value:"1100000032", text:"瑞士平邮(四区)"},{value:"1100000050", text:"瑞士挂号(一区)-A"},{value:"1100000082", text:"22"},{value:"1000000082", text:"瑞士挂号(一区)-B"},{value:"1100000029", text:"瑞士挂号(二区)"},{value:"1000000084", text:"瑞士挂号(一区)(CH)"},{value:"1000000083", text:"瑞士挂号(三区)"},{value:"1000000085", text:"瑞士挂号(四区)"},{value:"1000000099", text:"新小包平邮(一区)(单重&gt;100G)"},{value:"1000000096", text:"新小包平邮(二区)(单重&gt;100G)"},{value:"1100000013", text:"新小包平邮(三区)(单重&gt;100G)"},{value:"1000000095", text:"新小包平邮(四区)(单重&gt;100G)"},{value:"1000000088", text:"新小包平邮(五区)(单重&gt;100G)"},{value:"1000000094", text:"新小包平邮(六区)(单重&gt;100G)"},{value:"1100000081", text:"11"},{value:"1000000089", text:"新小包挂号(一区)(SG)"},{value:"1000000091", text:"新小包挂号(一区)"},{value:"1000000090", text:"新小包挂号(二区)"},{value:"1000000093", text:"新小包挂号(三区)"},{value:"1000000092", text:"新小包挂号(四区)"},{value:"1000000097", text:"新小包挂号(五区)"},{value:"1000000087", text:"新小包挂号(六区)"},{value:"1100000033", text:"香港投寄易"},{value:"1100000010", text:"欧洲专线(停用)"},{value:"1000000062", text:"中国邮政航空小包挂号(广州)"},{value:"1000000013", text:"香港DHL代理价(测试)"},{value:"1000000014", text:"香港DHL美国ESI(代理)价"},{value:"1000000010", text:"香港DHL配套电池价"},{value:"1100000083", text:"瑞士挂号"},{value:"1000000028", text:"香港联邦配套电池价"},{value:"1100000045", text:"澳洲优速"},{value:"1000000042", text:"4PX-新加坡邮政EMS服务"},{value:"1100000070", text:"中国邮政平邮小包特价(武汉)"},{value:"1000000068", text:"中国邮政平邮小包特价(北京)"},{value:"1000000059", text:"中国邮政航空小包挂号(北京)"},{value:"1000000069", text:"中国邮政航空小包挂号(福建)"},{value:"1000000061", text:"中国邮政平邮小包特价(福建)"},{value:"1000000125", text:"俄罗斯小包平邮"},{value:"1100000028", text:"瑞典小包挂号(九区)(停用)"},{value:"1100000027", text:"瑞典小包挂号(八区)(停用)"},{value:"1100000026", text:"瑞典小包挂号(七区)(停用)"},{value:"1100000025", text:"瑞典小包挂号(六区)(停用)"},{value:"1100000024", text:"瑞典小包挂号(五区)(停用)"},{value:"1100000023", text:"瑞典小包挂号(四区)(停用)"},{value:"1100000022", text:"瑞典小包挂号(三区)(停用)"},{value:"1100000021", text:"瑞典小包挂号(二区)(停用)"},{value:"1100000008", text:"香港联邦IP特惠价(停用)"},{value:"1100000007", text:"香港联邦IE特惠价(停用)"},{value:"1000000081", text:"HKPOST挂号(阿根廷、巴西、墨西哥、卢森堡)(停用)"},{value:"1000000066", text:"中国邮政平邮小包特价(广州)"},{value:"1000000077", text:"HKPOST双挂号(停用)"},{value:"1000000037", text:"顺丰国际快件(停用)"},{value:"1000000012", text:"香港仓DHL-美国"}];
+        var publicChannelList = channelList;
+        var countryList = [{value:"AD", text:"安道尔"},{value:"AE", text:"阿联酋"},{value:"AF", text:"阿富汗"},{value:"AG", text:"安提瓜及巴布达"},{value:"AI", text:"安圭拉岛"},{value:"AL", text:"阿尔巴尼亚"},{value:"AM", text:"亚美尼亚"},{value:"AN", text:"荷属安的列斯群岛"},{value:"AO", text:"安哥拉"},{value:"AQ", text:"南极洲"},{value:"AR", text:"阿根廷"},{value:"AS", text:"萨摩亚(美国属土)"},{value:"AT", text:"奥地利"},{value:"ATS", text:"阿陀斯山(希腊)"},{value:"AU", text:"澳大利亚"},{value:"AW", text:"阿鲁巴"},{value:"AZ", text:"阿塞拜疆"},{value:"BA", text:"波斯尼亚-黑塞哥维那"},{value:"BB", text:"巴巴多斯"},{value:"BBA", text:"巴布达岛"},{value:"BD", text:"孟加拉国"},{value:"BE", text:"比利时"},{value:"BF", text:"布基纳法索"},{value:"BG", text:"保加利亚"},{value:"BH", text:"巴林"},{value:"BI", text:"布隆迪"},{value:"BJ", text:"贝宁"},{value:"BKK", text:"曼谷"},{value:"BLR", text:"伯拉鲁斯"},{value:"BM", text:"百慕达"},{value:"BN", text:"文莱"},{value:"BO", text:"玻利维亚"},{value:"BOM", text:"印度-孟买"},{value:"BON", text:"博内尔岛"},{value:"BR", text:"巴西"},{value:"BS", text:"巴哈马"},{value:"BT", text:"不丹"},{value:"BUG", text:"布辛根(德国)"},{value:"BV", text:"布维岛"},{value:"BVS", text:"英属处女群岛"},{value:"BW", text:"博茨瓦纳"},{value:"BY", text:"白俄罗斯"},{value:"BZ", text:"伯利兹"},{value:"CA", text:"加拿大"},{value:"CC", text:"科科斯群岛"},{value:"CD", text:"刚果(民主共和国)"},{value:"CF", text:"中非共和国"},{value:"CG", text:"刚果"},{value:"CH", text:"瑞士"},{value:"CI", text:"科特迪瓦(象牙海岸)"},{value:"CIJ", text:"拿鲁岛"},{value:"CK", text:"库克群岛"},{value:"CL", text:"智利"},{value:"CLL", text:"坎皮奥内/卢加诺湖（意大利）"},{value:"CM", text:"喀麦隆"},{value:"CO", text:"哥伦比亚"},{value:"CR", text:"哥斯达黎加"},{value:"CRC", text:"库拉索"},{value:"CTA", text:"休达(西班牙)"},{value:"CU", text:"古巴"},{value:"CV", text:"佛得角群岛"},{value:"CX", text:"圣诞岛"},{value:"CY", text:"塞浦路斯"},{value:"CZ", text:"捷克"},{value:"DAI", text:"荷属安提尔群岛"},{value:"DB", text:"迪拜"},{value:"DE", text:"德国"},{value:"DEL", text:"新德里"},{value:"DJ", text:"吉布提"},{value:"DK", text:"丹麦"},{value:"DM", text:"多米尼克"},{value:"DO", text:"多米尼加共和国"},{value:"DZ", text:"阿尔及利亚"},{value:"EC", text:"厄瓜多尔"},{value:"EE", text:"爱沙尼亚"},{value:"EG", text:"埃及"},{value:"EH", text:"西撒哈拉"},{value:"ER", text:"厄立特里亚"},{value:"ES", text:"西班牙"},{value:"ET", text:"埃塞俄比亚"},{value:"FAI", text:"法鲁岛"},{value:"FI", text:"芬兰"},{value:"FJ", text:"斐济"},{value:"FK", text:"福克兰群岛"},{value:"FM", text:"密克罗尼西亚"},{value:"FO", text:"法罗群岛"},{value:"FR", text:"法国"},{value:"FRP", text:"法属玻里尼西亚"},{value:"FX", text:"法属美特罗波利坦"},{value:"GA", text:"加蓬"},{value:"GB", text:"英国"},{value:"GD", text:"格林纳达"},{value:"GE", text:"格鲁吉亚"},{value:"GEO", text:"乔治亚"},{value:"GF", text:"法属圭亚那"},{value:"GG", text:"根西岛"},{value:"GH", text:"加纳"},{value:"GI", text:"直布罗陀"},{value:"GL", text:"格陵兰岛"},{value:"GM", text:"冈比亚"},{value:"GN", text:"几内亚"},{value:"GP", text:"瓜德罗普岛"},{value:"GQ", text:"赤道几内亚"},{value:"GR", text:"希腊"},{value:"GS", text:"南乔治亚岛和南桑德韦奇岛"},{value:"GT", text:"危地马拉"},{value:"GU", text:"关岛"},{value:"GW", text:"几内亚比绍"},{value:"GY", text:"圭亚那"},{value:"HK", text:"香港"},{value:"HLD", text:"黑尔格兰(德国)"},{value:"HM", text:"赫德岛和麦克唐岛"},{value:"HN", text:"洪都拉斯"},{value:"HR", text:"克罗地亚"},{value:"HT", text:"海地"},{value:"HU", text:"匈牙利"},{value:"ICT", text:"象牙海岸"},{value:"ID", text:"印度尼西亚"},{value:"IE", text:"爱尔兰"},{value:"IL", text:"以色列"},{value:"IN", text:"印度"},{value:"IO", text:"英属印度洋地区"},{value:"IQ", text:"伊拉克"},{value:"IR", text:"伊朗"},{value:"IS", text:"冰岛"},{value:"IT", text:"意大利"},{value:"JM", text:"牙买加"},{value:"JO", text:"约旦"},{value:"JP", text:"日本"},{value:"KE", text:"肯尼亚"},{value:"KG", text:"吉尔吉斯斯坦"},{value:"KH", text:"柬埔寨"},{value:"KI", text:"基里巴斯"},{value:"KM", text:"科摩罗"},{value:"KN", text:"圣基茨和尼维斯"},{value:"KNS", text:"肯尼西亚（前吉尔吉斯斯坦）"},{value:"KOS", text:"属密克来西亚岛"},{value:"KP", text:"北韩"},{value:"KR", text:"韩国"},{value:"KRC", text:"基利巴提共和国"},{value:"KT", text:"科特迪瓦共和国"},{value:"KUL", text:"马来西亚-吉隆坡"},{value:"KW", text:"科威特"},{value:"KY", text:"开曼群岛"},{value:"KZ", text:"哈萨克斯坦"},{value:"LA", text:"老挝"},{value:"LB", text:"黎巴嫩"},{value:"LC", text:"圣卢西亚"},{value:"LGO", text:"利维尼奥（意大利）"},{value:"LI", text:"列支敦士登"},{value:"LIB", text:"利比瑞亚"},{value:"LK", text:"斯里兰卡"},{value:"LR", text:"利比里亚"},{value:"LS", text:"莱索托"},{value:"LT", text:"立陶宛"},{value:"LU", text:"卢森堡"},{value:"LV", text:"拉脱维亚"},{value:"LY", text:"利比亚"},{value:"MA", text:"摩洛哥"},{value:"MAI", text:"马约群岛"},{value:"MC", text:"摩纳哥"},{value:"MD", text:"摩尔多瓦"},{value:"MDR", text:"马德拉群岛（葡萄牙）"},{value:"ME", text:"黑山"},{value:"MG", text:"马达加斯加"},{value:"MH", text:"马绍尔群岛"},{value:"MK", text:"马其顿"},{value:"ML", text:"马里"},{value:"MLA", text:"梅利利亚（西班牙）"},{value:"MM", text:"缅甸"},{value:"MN", text:"蒙古"},{value:"MO", text:"澳门"},{value:"MP", text:"马里亚纳群岛 (北)"},{value:"MQ", text:"马提尼克岛"},{value:"MR", text:"毛里塔尼亚"},{value:"MS", text:"蒙特塞拉特"},{value:"MSB", text:"莫桑比亚"},{value:"MT", text:"马耳他"},{value:"MU", text:"毛里求斯"},{value:"MV", text:"马尔代夫"},{value:"MW", text:"马拉维"},{value:"MX", text:"墨西哥"},{value:"MY", text:"马来西亚"},{value:"MZ", text:"莫桑比克"},{value:"NA", text:"纳米比亚"},{value:"NC", text:"新喀里多尼亚"},{value:"NE", text:"尼日尔"},{value:"NF", text:"诺福克岛"},{value:"NG", text:"尼日利亚"},{value:"NHI", text:"北爱尔兰(英国)"},{value:"NI", text:"尼加拉瓜"},{value:"NL", text:"荷兰"},{value:"NO", text:"挪威"},{value:"NP", text:"尼泊尔"},{value:"NR", text:"瑙鲁"},{value:"NU", text:"纽埃"},{value:"NVS", text:"AAAAAAA"},{value:"NZ", text:"新西兰"},{value:"OM", text:"阿曼"},{value:"PA", text:"巴拿马"},{value:"PE", text:"秘鲁"},{value:"PF", text:"法属波利尼西亚"},{value:"PG", text:"巴布亚新几内亚"},{value:"PH", text:"菲律宾"},{value:"PK", text:"巴基斯坦"},{value:"PL", text:"波兰"},{value:"PM", text:"圣皮埃尔和密克隆群岛"},{value:"PN", text:"皮特凯恩岛"},{value:"PON", text:"波纳佩岛（密克罗尼西亚联邦）"},{value:"PR", text:"波多黎各"},{value:"PS", text:"巴勒斯坦"},{value:"PT", text:"葡萄牙"},{value:"PY", text:"巴拉圭"},{value:"QA", text:"卡塔尔"},{value:"RE", text:"留尼汪岛"},{value:"RO", text:"罗马尼亚"},{value:"RON", text:"瑙鲁共和国"},{value:"ROT", text:"罗塔岛(北马里亚纳群岛)"},{value:"RS", text:"塞尔维亚"},{value:"RU", text:"俄罗斯"},{value:"RW", text:"卢旺达"},{value:"SA", text:"沙特阿拉伯"},{value:"SAB", text:"萨巴岛"},{value:"SB", text:"所罗门群岛"},{value:"SBM", text:"圣巴夫林米"},{value:"SC", text:"塞舌尔"},{value:"SCR", text:"圣克鲁斯"},{value:"SD", text:"苏丹"},{value:"SE", text:"瑞典"},{value:"SES", text:"圣尤斯达求斯"},{value:"SG", text:"新加坡"},{value:"SH", text:"圣赫勒拿岛"},{value:"SI", text:"斯洛文尼亚"},{value:"SJ", text:"斯匹次卑尔根群岛"},{value:"SK", text:"斯洛伐克"},{value:"SL", text:"塞拉里昂"},{value:"SM", text:"圣马力诺"},{value:"SML", text:"BBBBB"},{value:"SN", text:"塞内加尔"},{value:"SO", text:"索马里"},{value:"SPN", text:"塞班岛"},{value:"SR", text:"苏里南"},{value:"ST", text:"圣多美和普林西比"},{value:"STC", text:"圣克里斯多佛群岛"},{value:"STE", text:"圣俄斯塔金斯岛"},{value:"STG", text:"DDDDDD"},{value:"STH", text:"圣托马斯群岛"},{value:"STI", text:"圣马藤岛"},{value:"STJ", text:"圣约翰群岛"},{value:"STK", text:"圣基茨"},{value:"SV", text:"萨尔瓦多"},{value:"SY", text:"阿拉伯叙利亚共和国(叙利亚)"},{value:"SZ", text:"斯威士兰"},{value:"TAH", text:"塔希提"},{value:"TAT", text:"塔溪地"},{value:"TC", text:"特克斯和凯科斯群岛"},{value:"TD", text:"乍得"},{value:"TF", text:"法属南部领土"},{value:"TG", text:"多哥"},{value:"TH", text:"泰国"},{value:"TIN", text:"天宁岛(北马里亚纳群岛)"},{value:"TJ", text:"塔吉克"},{value:"TK", text:"托克劳"},{value:"TM", text:"土库曼"},{value:"TN", text:"突尼斯"},{value:"TO", text:"汤加"},{value:"TP", text:"东帝汶"},{value:"TR", text:"土耳其"},{value:"TT", text:"千里达和多巴哥"},{value:"TUK", text:"特鲁克群岛"},{value:"TV", text:"图瓦卢"},{value:"TW", text:"中国台湾"},{value:"TZ", text:"坦桑尼亚"},{value:"UA", text:"乌克兰"},{value:"UG", text:"乌干达"},{value:"UM", text:"美国本土外小岛屿"},{value:"UNI", text:"联合群岛(圣文森特)"},{value:"US", text:"美国"},{value:"UVA", text:"上沃尔特"},{value:"UY", text:"乌拉圭"},{value:"UZ", text:"乌兹别克斯坦"},{value:"VA", text:"梵蒂冈"},{value:"VC", text:"圣文森特和格林纳丁斯"},{value:"VE", text:"委内瑞拉"},{value:"VG", text:"托尔托拉岛(英属处女群岛)"},{value:"VI", text:"美属处女群岛"},{value:"VN", text:"越南"},{value:"VU", text:"瓦努阿图"},{value:"WAL", text:"威尔士"},{value:"WF", text:"瓦利斯群岛和富图纳群岛"},{value:"WS", text:"西萨摩亚"},{value:"XA", text:"加那利群岛"},{value:"XB", text:"特里斯坦-达库尼亚岛"},{value:"XC", text:"海峡群岛"},{value:"XD", text:"阿森松"},{value:"XE", text:"加沙及汗尤尼斯"},{value:"XF", text:"科西嘉岛"},{value:"XG", text:"北非西班牙属土"},{value:"XH", text:"亚速尔"},{value:"XI", text:"马德拉"},{value:"XJ", text:"巴利阿里群岛"},{value:"XK", text:"加罗林群岛(帕劳)"},{value:"XL", text:"新西兰属土岛屿(库克群岛)"},{value:"XM", text:"威克岛"},{value:"XO", text:"科索沃"},{value:"YAP", text:"雅浦（密克罗尼西亚联邦）"},{value:"YE", text:"也门"},{value:"YT", text:"马约特"},{value:"YU", text:"南斯拉夫"},{value:"ZA", text:"南非"},{value:"ZAI", text:"扎伊尔"},{value:"ZM", text:"赞比亚"},{value:"ZR", text:"1"},{value:"ZW", text:"津巴布韦"},{value:"CN", text:"中国"},{value:"CAH", text:"安徽"},{value:"BEIJIN", text:"北京"},{value:"CCQ", text:"重庆"},{value:"DW", text:"东莞"},{value:"CFJ", text:"福建"},{value:"GANSU", text:"甘肃"},{value:"GAOMIN", text:"高明"},{value:"GUDO", text:"广东"},{value:"GUGOYW", text:"广东省以外的省"},{value:"CGX", text:"广西"},{value:"GUZH", text:"广州"},{value:"CGZ", text:"贵州"},{value:"CHNN", text:"海南"},{value:"HEBEI", text:"河北"},{value:"HLJ", text:"黑龙江"},{value:"CHN", text:"河南"},{value:"CHB", text:"湖北"},{value:"HUIDO", text:"惠东"},{value:"HUIYA", text:"惠阳"},{value:"HUIZHO", text:"惠州"},{value:"CHUN", text:"湖南"},{value:"JIAMEN", text:"江门"},{value:"CJS", text:"江苏"},{value:"CJX", text:"江西"},{value:"JILING", text:"吉林"},{value:"KAIPIN", text:"开平"},{value:"LIAONI", text:"辽宁"},{value:"LONMEN", text:"龙门"},{value:"NANHA", text:"南海"},{value:"NINXIA", text:"宁夏"},{value:"NUIMEN", text:"内蒙古"},{value:"QINHAI", text:"青海"},{value:"SHANDO", text:"山东"},{value:"CSH", text:"上海"},{value:"SHANXI", text:"山西"},{value:"SANXI", text:"陕西"},{value:"SNZHE", text:"深圳"},{value:"CSC", text:"四川"},{value:"TAISHA", text:"台山"},{value:"TIAJIN", text:"天津"},{value:"XINJIA", text:"新疆"},{value:"XINHUI", text:"新会"},{value:"XIZANG", text:"西藏"},{value:"CYN", text:"云南"},{value:"ZECHEN", text:"增城"},{value:"CZJ", text:"浙江"},{value:"ZHONSH", text:"中山"},{value:"ZHUHAI", text:"珠海"},{value:"AX", text:"奥兰群岛"},{value:"BL", text:"圣巴泰勒米岛"},{value:"IM", text:"马恩岛"},{value:"JE", text:"泽西岛"},{value:"MF", text:"圣马丁"},{value:"PW", text:"帛琉(帕劳)"},{value:"SSD", text:"EEEE"},{value:"po", text:"po"},{value:"XN", text:"尼维斯"},{value:"XS", text:"索马里兰"},{value:"XY", text:"圣巴特勒米岛"},{value:"SS", text:"南苏丹"}];
+        /* 获取下拉列表的文本 */
+        function getOptionText(value, list){
+            for(var i = 0; i < list.length; i++){
+                var item = list[i];
+                if( value == item.value ){
+                    return item.text;
+                }
+            }
+            return value;
+        }
+        /** 分拣线对接地址 */
+        var sortLineStatusUrl = "http://127.0.0.1:27405/status"; //上件状态地址
+        var sortLineUptoUrl = "http://127.0.0.1:27405/sendfj"; //上件地址
+        /** 分拣区格口Map */
+        var sortingCellMap = {"1100000012BR":"9500","1100000012US":"9510","1100000012GB":"9520","1100000012CH":"9530","1100000012JP":"9540","1100000012DE":"9550","1100000012FR":"9560","1100000012RU":"9570","1100000012CA":"9580","1100000012CL":"9590","1100000012ES":"9600","1100000012FI":"9610","1100000012EG":"9620","1100000012HU":"9630","1100000012IL":"9640","1100000012IN":"9650","1100000012IS":"9660","1100000012IT":"9670","1100000012KR":"9680","1100000012LA":"9690","1100000012NL":"9700","1100000012PT":"9710","1100000012AD":"9720","1100000012AE":"9730","1100000012AG":"9750","1100000012AI":"9760","1100000012AL":"9770","1100000012AM":"9780","1100000012AN":"9790","1100000012AQ":"9810","1100000012AR":"9820","1100000012AS":"9830","1100000012AT":"9840","1100000012AU":"9850","1100000012AZ":"9870","1100000012BA":"9880","1100000012BB":"9890","1100000012BD":"9900","1100000012BE":"9910","1100000012BH":"9940","1100000012BI":"9950","1100000012BJ":"9960","1100000012BM":"9970","1100000012BN":"9980","1000000064BR":"9501","1000000064US":"9511","1000000064CH":"9531","1000000064JP":"9541","1000000064DE":"9551","1000000064FR":"9561","1000000064RU":"9571","1000000064CL":"9591","1000000064ES":"9601","1000000064FI":"9611","1000000064EG":"9621","1000000064HU":"9631","1000000064IN":"9651","1000000064IS":"9661","1000000064IT":"9671","1000000064KR":"9681","1000000064LA":"9691","1000000064NL":"9701","1000000064PT":"9711","1000000064AD":"9721","1000000064AE":"9731","1000000064AF":"9741","1000000064AG":"9751","1000000064AI":"9761","1000000064AL":"9771","1000000064AM":"9781","1000000064AN":"9791","1000000064AO":"9801","1000000064AQ":"9811","1000000064AR":"9821","1000000064AS":"9831","1000000064AT":"9841","1000000064AU":"9851","1000000064AW":"9861","1000000064AZ":"9871","1000000064BA":"9881","1000000064BB":"9891","1000000064BD":"9901","1000000064BE":"9911","1000000064BF":"9921","1000000064BG":"9931","1000000064BH":"9941","1000000064BI":"9951","1000000064BJ":"9961","1000000064BM":"9971","1000000064BN":"9981"};
+        function getSortCell(channel, rountry){
+            var value = sortingCellMap[channel + rountry];
+            if( value == null )
+                value = sortingCellMap[channel];
+            if( value == null)
+                value = "10001"; //无效格口
+            value = value.substring(0, value.length-1) + "|" + value.substring(value.length-1);
+            return value;
+        }
+        $().ready(function(){
+//监控分拣线状态。是否可上件
+            listenSoringLine();
+            var $wno = $("#wno");
+            $wno.get(0).focus();
+            NORMAL_ISSUE_TEXT = getOptionText(0, issueList);
+            funPlaceholder($wno);
+        });
+        /*运单计数*/
+        function countBill(step){
+            billCount += step;
+            if( billCount > 1 ) return;
+        }
+        function wnoChanged(obj){
+            var wno = $(obj).val();
+            if( wno == wnoMap[wno] ){
+                alert("运单号[" + wno + "]重复上件!");
+                obj.value = "";
+                obj.focus();
+                return false;
+            }
+            var param = $("#validateForm").serialize();
+            $.ajax({
+                url : "ws_sp_order!checkbill8wno2.action",
+                type : "post",
+                dataType : "json",
+                data: param,
+                success : function(result) {
+                    if(result.status=='success') {
+                        fillForm(result);
+                        addItem(result, false);
+//上件
+                        var portNumber = getSortCell(result.channel, result.rcountry);
+// alert(result.wno + ", " + result.channel + ", " + result.rcountry + ", " + countryMap[result.rcountry] + ", " + result.weight + ", " + portNumber);
+                        uptoSortingLine(result.wno, result.channel, result.rcountry, countryMap[result.rcountry], result.weight, portNumber);
+                    } else if(result.status=='error'){
+                        errorAlert(result);
+                        resetForm();
+                        $("#wno").select();
+                    }
+                }, error : function(result) {
+                    alert("请求失败!");
+                    $("#wno").select();
+                }
+            });
+        }
+        function errorAlert(obj){
+//语音提示
+            if( errorAlertType == 1){
+                if( obj.locked == 1 ){
+                    playWarn(WARN_LOCKED);
+                }
+                else if( obj.issue != 0 ){
+                    playWarn(WARN_ISSUE);
+                }else{
+                    alert(obj.message);
+                }
+            }
+//弹出窗口提示
+            else{
+                alert(obj.message);
+            }
+        }
+        var itemLength = 1;
+        function addItem(bill, update){
+            wnoMap[bill.wno] = bill.wno; //存入缓存
+            var shortProductName = bill.productName.length > 4 ? bill.productName.substring(0,4)+"..." : bill.productName;
+            var productTypeText = getOptionText(bill.productType, productTypeList);
+            var channelText = getOptionText(bill.channel, channelList);
+            var rcountryText = getOptionText(bill.rcountry, countryList);
+            var trhtml = '<tr class="billItem" id="' + bill.id + ' "> <td style="font-size:13px;" id="uptostatus' + bill.wno + '"></td> <td style="color:blue;font-size:14px;">' + bill.wno + '</td> <td>' + rcountryText + '</td> <td class="weightD" style="font-size:14px;font-weight:bold;">' + bill.weightD + '</td> <td>' + bill.vweightD + '</td> <td>' + bill.bweightD + '</td> <td>' + productTypeText + '</td> <td title="' + bill.productName + '">' + shortProductName + '</td> <td class="packageNum">' + bill.packageNum + '</td> <td>' + channelText + '</td> <td>' + bill.memo + '</td> <td> <input type="hidden" name="ids" value="' + bill.id + '" /> </td> </tr>'; if( update ){
+                $("#" + bill.id).replaceWith(trhtml);
+            }else{
+                $("#blankBillTr").after(trhtml);
+            }
+            $("#wno").val("").get(0).focus();
+        }
+        /* 填充后台的订单数据 */
+        function fillForm(result){
+            $("#rwid").val(result.rwid);
+            $("#wno").val(result.tno);
+            $("#rcountry").val(result.rcountry);
+        }
+        /* 重置表单 */
+        function resetForm(){
+            $("#rwid").val("");
+            $("#wno").val("");
+            $("#rcountry").val("");
+        }
+        function validateField(field){
+            var error = "";
+            if( field == null ) return "";
+            var fieldName = field.id;
+            var fieldValue = field.value;
+            if( fieldName == "wno" ){
+                if( fieldValue.length > 32 )
+                    error = "运单号.长度不能大于32";
+            }
+            if(error != ""){
+                alert(error);
+                field.select();
+            }
+            return error;
+        }
+        /*语音警告。如：扣件、运费为0*/
+        function playAlert(result){
+            var warnType = "";
+            if( result.locked == 1 ) warnType = WARN_LOCKED;
+//else if ( result.transSum == 0 ) warnType = WARN_NOPRICE;
+            if(warnType != "") playWarn(warnType);
+        }
+        var countryMap = {AD: "安道尔",AE: "阿联酋",AF: "阿富汗",AG: "安提瓜及巴布达",AI: "安圭拉岛",AL: "阿尔巴尼亚",AM: "亚美尼亚",AN: "荷属安的列斯群岛",AO: "安哥拉",AQ: "南极洲",AR: "阿根廷",AS: "萨摩亚(美国属土)",AT: "奥地利",ATS: "阿陀斯山(希腊)",AU: "澳大利亚",AW: "阿鲁巴",AZ: "阿塞拜疆",BA: "波斯尼亚-黑塞哥维那",BB: "巴巴多斯",BBA: "巴布达岛",BD: "孟加拉国",BE: "比利时",BF: "布基纳法索",BG: "保加利亚",BH: "巴林",BI: "布隆迪",BJ: "贝宁",BKK: "曼谷",BLR: "伯拉鲁斯",BM: "百慕达",BN: "文莱",BO: "玻利维亚",BOM: "印度-孟买",BON: "博内尔岛",BR: "巴西",BS: "巴哈马",BT: "不丹",BUG: "布辛根(德国)",BV: "布维岛",BVS: "英属处女群岛",BW: "博茨瓦纳",BY: "白俄罗斯",BZ: "伯利兹",CA: "加拿大",CC: "科科斯群岛",CD: "刚果(民主共和国)",CF: "中非共和国",CG: "刚果",CH: "瑞士",CI: "科特迪瓦(象牙海岸)",CIJ: "拿鲁岛",CK: "库克群岛",CL: "智利",CLL: "坎皮奥内/卢加诺湖（意大利）",CM: "喀麦隆",CO: "哥伦比亚",CR: "哥斯达黎加",CRC: "库拉索",CTA: "休达(西班牙)",CU: "古巴",CV: "佛得角群岛",CX: "圣诞岛",CY: "塞浦路斯",CZ: "捷克",DAI: "荷属安提尔群岛",DB: "迪拜",DE: "德国",DEL: "新德里",DJ: "吉布提",DK: "丹麦",DM: "多米尼克",DO: "多米尼加共和国",DZ: "阿尔及利亚",EC: "厄瓜多尔",EE: "爱沙尼亚",EG: "埃及",EH: "西撒哈拉",ER: "厄立特里亚",ES: "西班牙",ET: "埃塞俄比亚",FAI: "法鲁岛",FI: "芬兰",FJ: "斐济",FK: "福克兰群岛",FM: "密克罗尼西亚",FO: "法罗群岛",FR: "法国",FRP: "法属玻里尼西亚",FX: "法属美特罗波利坦",GA: "加蓬",GB: "英国",GD: "格林纳达",GE: "格鲁吉亚",GEO: "乔治亚",GF: "法属圭亚那",GG: "根西岛",GH: "加纳",GI: "直布罗陀",GL: "格陵兰岛",GM: "冈比亚",GN: "几内亚",GP: "瓜德罗普岛",GQ: "赤道几内亚",GR: "希腊",GS: "南乔治亚岛和南桑德韦奇岛",GT: "危地马拉",GU: "关岛",GW: "几内亚比绍",GY: "圭亚那",HK: "香港",HLD: "黑尔格兰(德国)",HM: "赫德岛和麦克唐岛",HN: "洪都拉斯",HR: "克罗地亚",HT: "海地",HU: "匈牙利",ICT: "象牙海岸",ID: "印度尼西亚",IE: "爱尔兰",IL: "以色列",IN: "印度",IO: "英属印度洋地区",IQ: "伊拉克",IR: "伊朗",IS: "冰岛",IT: "意大利",JM: "牙买加",JO: "约旦",JP: "日本",KE: "肯尼亚",KG: "吉尔吉斯斯坦",KH: "柬埔寨",KI: "基里巴斯",KM: "科摩罗",KN: "圣基茨和尼维斯",KNS: "肯尼西亚（前吉尔吉斯斯坦）",KOS: "属密克来西亚岛",KP: "北韩",KR: "韩国",KRC: "基利巴提共和国",KT: "科特迪瓦共和国",KUL: "马来西亚-吉隆坡",KW: "科威特",KY: "开曼群岛",KZ: "哈萨克斯坦",LA: "老挝",LB: "黎巴嫩",LC: "圣卢西亚",LGO: "利维尼奥（意大利）",LI: "列支敦士登",LIB: "利比瑞亚",LK: "斯里兰卡",LR: "利比里亚",LS: "莱索托",LT: "立陶宛",LU: "卢森堡",LV: "拉脱维亚",LY: "利比亚",MA: "摩洛哥",MAI: "马约群岛",MC: "摩纳哥",MD: "摩尔多瓦",MDR: "马德拉群岛（葡萄牙）",ME: "黑山",MG: "马达加斯加",MH: "马绍尔群岛",MK: "马其顿",ML: "马里",MLA: "梅利利亚（西班牙）",MM: "缅甸",MN: "蒙古",MO: "澳门",MP: "马里亚纳群岛 (北)",MQ: "马提尼克岛",MR: "毛里塔尼亚",MS: "蒙特塞拉特",MSB: "莫桑比亚",MT: "马耳他",MU: "毛里求斯",MV: "马尔代夫",MW: "马拉维",MX: "墨西哥",MY: "马来西亚",MZ: "莫桑比克",NA: "纳米比亚",NC: "新喀里多尼亚",NE: "尼日尔",NF: "诺福克岛",NG: "尼日利亚",NHI: "北爱尔兰(英国)",NI: "尼加拉瓜",NL: "荷兰",NO: "挪威",NP: "尼泊尔",NR: "瑙鲁",NU: "纽埃",NVS: "AAAAAAA",NZ: "新西兰",OM: "阿曼",PA: "巴拿马",PE: "秘鲁",PF: "法属波利尼西亚",PG: "巴布亚新几内亚",PH: "菲律宾",PK: "巴基斯坦",PL: "波兰",PM: "圣皮埃尔和密克隆群岛",PN: "皮特凯恩岛",PON: "波纳佩岛（密克罗尼西亚联邦）",PR: "波多黎各",PS: "巴勒斯坦",PT: "葡萄牙",PY: "巴拉圭",QA: "卡塔尔",RE: "留尼汪岛",RO: "罗马尼亚",RON: "瑙鲁共和国",ROT: "罗塔岛(北马里亚纳群岛)",RS: "塞尔维亚",RU: "俄罗斯",RW: "卢旺达",SA: "沙特阿拉伯",SAB: "萨巴岛",SB: "所罗门群岛",SBM: "圣巴夫林米",SC: "塞舌尔",SCR: "圣克鲁斯",SD: "苏丹",SE: "瑞典",SES: "圣尤斯达求斯",SG: "新加坡",SH: "圣赫勒拿岛",SI: "斯洛文尼亚",SJ: "斯匹次卑尔根群岛",SK: "斯洛伐克",SL: "塞拉里昂",SM: "圣马力诺",SML: "BBBBB",SN: "塞内加尔",SO: "索马里",SPN: "塞班岛",SR: "苏里南",ST: "圣多美和普林西比",STC: "圣克里斯多佛群岛",STE: "圣俄斯塔金斯岛",STG: "DDDDDD",STH: "圣托马斯群岛",STI: "圣马藤岛",STJ: "圣约翰群岛",STK: "圣基茨",SV: "萨尔瓦多",SY: "阿拉伯叙利亚共和国(叙利亚)",SZ: "斯威士兰",TAH: "塔希提",TAT: "塔溪地",TC: "特克斯和凯科斯群岛",TD: "乍得",TF: "法属南部领土",TG: "多哥",TH: "泰国",TIN: "天宁岛(北马里亚纳群岛)",TJ: "塔吉克",TK: "托克劳",TM: "土库曼",TN: "突尼斯",TO: "汤加",TP: "东帝汶",TR: "土耳其",TT: "千里达和多巴哥",TUK: "特鲁克群岛",TV: "图瓦卢",TW: "中国台湾",TZ: "坦桑尼亚",UA: "乌克兰",UG: "乌干达",UM: "美国本土外小岛屿",UNI: "联合群岛(圣文森特)",US: "美国",UVA: "上沃尔特",UY: "乌拉圭",UZ: "乌兹别克斯坦",VA: "梵蒂冈",VC: "圣文森特和格林纳丁斯",VE: "委内瑞拉",VG: "托尔托拉岛(英属处女群岛)",VI: "美属处女群岛",VN: "越南",VU: "瓦努阿图",WAL: "威尔士",WF: "瓦利斯群岛和富图纳群岛",WS: "西萨摩亚",XA: "加那利群岛",XB: "特里斯坦-达库尼亚岛",XC: "海峡群岛",XD: "阿森松",XE: "加沙及汗尤尼斯",XF: "科西嘉岛",XG: "北非西班牙属土",XH: "亚速尔",XI: "马德拉",XJ: "巴利阿里群岛",XK: "加罗林群岛(帕劳)",XL: "新西兰属土岛屿(库克群岛)",XM: "威克岛",XO: "科索沃",YAP: "雅浦（密克罗尼西亚联邦）",YE: "也门",YT: "马约特",YU: "南斯拉夫",ZA: "南非",ZAI: "扎伊尔",ZM: "赞比亚",ZR: "1",ZW: "津巴布韦",CN: "中国",CAH: "安徽",BEIJIN: "北京",CCQ: "重庆",DW: "东莞",CFJ: "福建",GANSU: "甘肃",GAOMIN: "高明",GUDO: "广东",GUGOYW: "广东省以外的省",CGX: "广西",GUZH: "广州",CGZ: "贵州",CHNN: "海南",HEBEI: "河北",HLJ: "黑龙江",CHN: "河南",CHB: "湖北",HUIDO: "惠东",HUIYA: "惠阳",HUIZHO: "惠州",CHUN: "湖南",JIAMEN: "江门",CJS: "江苏",CJX: "江西",JILING: "吉林",KAIPIN: "开平",LIAONI: "辽宁",LONMEN: "龙门",NANHA: "南海",NINXIA: "宁夏",NUIMEN: "内蒙古",QINHAI: "青海",SHANDO: "山东",CSH: "上海",SHANXI: "山西",SANXI: "陕西",SNZHE: "深圳",CSC: "四川",TAISHA: "台山",TIAJIN: "天津",XINJIA: "新疆",XINHUI: "新会",XIZANG: "西藏",CYN: "云南",ZECHEN: "增城",CZJ: "浙江",ZHONSH: "中山",ZHUHAI: "珠海",AX: "奥兰群岛",BL: "圣巴泰勒米岛",IM: "马恩岛",JE: "泽西岛",MF: "圣马丁",PW: "帛琉(帕劳)",SSD: "EEEE",po: "po",XN: "尼维斯",XS: "索马里兰",XY: "圣巴特勒米岛",SS: "南苏丹"};
+        var countryMap2 = {"安道尔": "AD","阿联酋": "AE","阿富汗": "AF","安提瓜及巴布达": "AG","安圭拉岛": "AI","阿尔巴尼亚": "AL","亚美尼亚": "AM","荷属安的列斯群岛": "AN","安哥拉": "AO","南极洲": "AQ","阿根廷": "AR","萨摩亚(美国属土)": "AS","奥地利": "AT","阿陀斯山(希腊)": "ATS","澳大利亚": "AU","阿鲁巴": "AW","阿塞拜疆": "AZ","波斯尼亚-黑塞哥维那": "BA","巴巴多斯": "BB","巴布达岛": "BBA","孟加拉国": "BD","比利时": "BE","布基纳法索": "BF","保加利亚": "BG","巴林": "BH","布隆迪": "BI","贝宁": "BJ","曼谷": "BKK","伯拉鲁斯": "BLR","百慕达": "BM","文莱": "BN","玻利维亚": "BO","印度-孟买": "BOM","博内尔岛": "BON","巴西": "BR","巴哈马": "BS","不丹": "BT","布辛根(德国)": "BUG","布维岛": "BV","英属处女群岛": "BVS","博茨瓦纳": "BW","白俄罗斯": "BY","伯利兹": "BZ","加拿大": "CA","科科斯群岛": "CC","刚果(民主共和国)": "CD","中非共和国": "CF","刚果": "CG","瑞士": "CH","科特迪瓦(象牙海岸)": "CI","拿鲁岛": "CIJ","库克群岛": "CK","智利": "CL","坎皮奥内/卢加诺湖（意大利）": "CLL","喀麦隆": "CM","哥伦比亚": "CO","哥斯达黎加": "CR","库拉索": "CRC","休达(西班牙)": "CTA","古巴": "CU","佛得角群岛": "CV","圣诞岛": "CX","塞浦路斯": "CY","捷克": "CZ","荷属安提尔群岛": "DAI","迪拜": "DB","德国": "DE","新德里": "DEL","吉布提": "DJ","丹麦": "DK","多米尼克": "DM","多米尼加共和国": "DO","阿尔及利亚": "DZ","厄瓜多尔": "EC","爱沙尼亚": "EE","埃及": "EG","西撒哈拉": "EH","厄立特里亚": "ER","西班牙": "ES","埃塞俄比亚": "ET","法鲁岛": "FAI","芬兰": "FI","斐济": "FJ","福克兰群岛": "FK","密克罗尼西亚": "FM","法罗群岛": "FO","法国": "FR","法属玻里尼西亚": "FRP","法属美特罗波利坦": "FX","加蓬": "GA","英国": "GB","格林纳达": "GD","格鲁吉亚": "GE","乔治亚": "GEO","法属圭亚那": "GF","根西岛": "GG","加纳": "GH","直布罗陀": "GI","格陵兰岛": "GL","冈比亚": "GM","几内亚": "GN","瓜德罗普岛": "GP","赤道几内亚": "GQ","希腊": "GR","南乔治亚岛和南桑德韦奇岛": "GS","危地马拉": "GT","关岛": "GU","几内亚比绍": "GW","圭亚那": "GY","香港": "HK","黑尔格兰(德国)": "HLD","赫德岛和麦克唐岛": "HM","洪都拉斯": "HN","克罗地亚": "HR","海地": "HT","匈牙利": "HU","象牙海岸": "ICT","印度尼西亚": "ID","爱尔兰": "IE","以色列": "IL","印度": "IN","英属印度洋地区": "IO","伊拉克": "IQ","伊朗": "IR","冰岛": "IS","意大利": "IT","牙买加": "JM","约旦": "JO","日本": "JP","肯尼亚": "KE","吉尔吉斯斯坦": "KG","柬埔寨": "KH","基里巴斯": "KI","科摩罗": "KM","圣基茨和尼维斯": "KN","肯尼西亚（前吉尔吉斯斯坦）": "KNS","属密克来西亚岛": "KOS","北韩": "KP","韩国": "KR","基利巴提共和国": "KRC","科特迪瓦共和国": "KT","马来西亚-吉隆坡": "KUL","科威特": "KW","开曼群岛": "KY","哈萨克斯坦": "KZ","老挝": "LA","黎巴嫩": "LB","圣卢西亚": "LC","利维尼奥（意大利）": "LGO","列支敦士登": "LI","利比瑞亚": "LIB","斯里兰卡": "LK","利比里亚": "LR","莱索托": "LS","立陶宛": "LT","卢森堡": "LU","拉脱维亚": "LV","利比亚": "LY","摩洛哥": "MA","马约群岛": "MAI","摩纳哥": "MC","摩尔多瓦": "MD","马德拉群岛（葡萄牙）": "MDR","黑山": "ME","马达加斯加": "MG","马绍尔群岛": "MH","马其顿": "MK","马里": "ML","梅利利亚（西班牙）": "MLA","缅甸": "MM","蒙古": "MN","澳门": "MO","马里亚纳群岛 (北)": "MP","马提尼克岛": "MQ","毛里塔尼亚": "MR","蒙特塞拉特": "MS","莫桑比亚": "MSB","马耳他": "MT","毛里求斯": "MU","马尔代夫": "MV","马拉维": "MW","墨西哥": "MX","马来西亚": "MY","莫桑比克": "MZ","纳米比亚": "NA","新喀里多尼亚": "NC","尼日尔": "NE","诺福克岛": "NF","尼日利亚": "NG","北爱尔兰(英国)": "NHI","尼加拉瓜": "NI","荷兰": "NL","挪威": "NO","尼泊尔": "NP","瑙鲁": "NR","纽埃": "NU","AAAAAAA": "NVS","新西兰": "NZ","阿曼": "OM","巴拿马": "PA","秘鲁": "PE","法属波利尼西亚": "PF","巴布亚新几内亚": "PG","菲律宾": "PH","巴基斯坦": "PK","波兰": "PL","圣皮埃尔和密克隆群岛": "PM","皮特凯恩岛": "PN","波纳佩岛（密克罗尼西亚联邦）": "PON","波多黎各": "PR","巴勒斯坦": "PS","葡萄牙": "PT","巴拉圭": "PY","卡塔尔": "QA","留尼汪岛": "RE","罗马尼亚": "RO","瑙鲁共和国": "RON","罗塔岛(北马里亚纳群岛)": "ROT","塞尔维亚": "RS","俄罗斯": "RU","卢旺达": "RW","沙特阿拉伯": "SA","萨巴岛": "SAB","所罗门群岛": "SB","圣巴夫林米": "SBM","塞舌尔": "SC","圣克鲁斯": "SCR","苏丹": "SD","瑞典": "SE","圣尤斯达求斯": "SES","新加坡": "SG","圣赫勒拿岛": "SH","斯洛文尼亚": "SI","斯匹次卑尔根群岛": "SJ","斯洛伐克": "SK","塞拉里昂": "SL","圣马力诺": "SM","BBBBB": "SML","塞内加尔": "SN","索马里": "SO","塞班岛": "SPN","苏里南": "SR","圣多美和普林西比": "ST","圣克里斯多佛群岛": "STC","圣俄斯塔金斯岛": "STE","DDDDDD": "STG","圣托马斯群岛": "STH","圣马藤岛": "STI","圣约翰群岛": "STJ","圣基茨": "STK","萨尔瓦多": "SV","阿拉伯叙利亚共和国(叙利亚)": "SY","斯威士兰": "SZ","塔希提": "TAH","塔溪地": "TAT","特克斯和凯科斯群岛": "TC","乍得": "TD","法属南部领土": "TF","多哥": "TG","泰国": "TH","天宁岛(北马里亚纳群岛)": "TIN","塔吉克": "TJ","托克劳": "TK","土库曼": "TM","突尼斯": "TN","汤加": "TO","东帝汶": "TP","土耳其": "TR","千里达和多巴哥": "TT","特鲁克群岛": "TUK","图瓦卢": "TV","中国台湾": "TW","坦桑尼亚": "TZ","乌克兰": "UA","乌干达": "UG","美国本土外小岛屿": "UM","联合群岛(圣文森特)": "UNI","美国": "US","上沃尔特": "UVA","乌拉圭": "UY","乌兹别克斯坦": "UZ","梵蒂冈": "VA","圣文森特和格林纳丁斯": "VC","委内瑞拉": "VE","托尔托拉岛(英属处女群岛)": "VG","美属处女群岛": "VI","越南": "VN","瓦努阿图": "VU","威尔士": "WAL","瓦利斯群岛和富图纳群岛": "WF","西萨摩亚": "WS","加那利群岛": "XA","特里斯坦-达库尼亚岛": "XB","海峡群岛": "XC","阿森松": "XD","加沙及汗尤尼斯": "XE","科西嘉岛": "XF","北非西班牙属土": "XG","亚速尔": "XH","马德拉": "XI","巴利阿里群岛": "XJ","加罗林群岛(帕劳)": "XK","新西兰属土岛屿(库克群岛)": "XL","威克岛": "XM","科索沃": "XO","雅浦（密克罗尼西亚联邦）": "YAP","也门": "YE","马约特": "YT","南斯拉夫": "YU","南非": "ZA","扎伊尔": "ZAI","赞比亚": "ZM","1": "ZR","津巴布韦": "ZW","中国": "CN","安徽": "CAH","北京": "BEIJIN","重庆": "CCQ","东莞": "DW","福建": "CFJ","甘肃": "GANSU","高明": "GAOMIN","广东": "GUDO","广东省以外的省": "GUGOYW","广西": "CGX","广州": "GUZH","贵州": "CGZ","海南": "CHNN","河北": "HEBEI","黑龙江": "HLJ","河南": "CHN","湖北": "CHB","惠东": "HUIDO","惠阳": "HUIYA","惠州": "HUIZHO","湖南": "CHUN","江门": "JIAMEN","江苏": "CJS","江西": "CJX","吉林": "JILING","开平": "KAIPIN","辽宁": "LIAONI","龙门": "LONMEN","南海": "NANHA","宁夏": "NINXIA","内蒙古": "NUIMEN","青海": "QINHAI","山东": "SHANDO","上海": "CSH","山西": "SHANXI","陕西": "SANXI","深圳": "SNZHE","四川": "CSC","台山": "TAISHA","天津": "TIAJIN","新疆": "XINJIA","新会": "XINHUI","西藏": "XIZANG","云南": "CYN","增城": "ZECHEN","浙江": "CZJ","中山": "ZHONSH","珠海": "ZHUHAI","奥兰群岛": "AX","圣巴泰勒米岛": "BL","马恩岛": "IM","泽西岛": "JE","圣马丁": "MF","帛琉(帕劳)": "PW","EEEE": "SSD","po": "po","尼维斯": "XN","索马里兰": "XS","圣巴特勒米岛": "XY","南苏丹": "SS"};
+        function getCountry(param){
+            var country = {};
+            var countryName = countryMap[param.toUpperCase()];
+            if( countryName == null || countryName == "undefined" ){
+                var countryCode = countryMap2[param];
+                if( countryCode != null && countryCode != "undefined" && countryCode != "" )
+                    country = {value:countryCode, text: param};
+            } else{
+                country = {value:param.toUpperCase(), text:countryName};
+            }
+            return country;
+        }
+        /*汇总*/
+        function totalItems(){
+            var totalBillNum, totalWeightD, totalPackageNum;
+            totalBillNum = totalWeightD = totalPackageNum = 0;
+            $(".billItem").each(function(){
+                var $bill = $(this);
+                var weightD = $bill.find(".weightD").text();
+                weightD = isNaN(parseFloat(weightD)) ? 0 : parseFloat(weightD);
+                var packageNum = $bill.find(".packageNum").text();
+                packageNum = isNaN(parseFloat(packageNum)) ? 0 : parseFloat(packageNum);
+                totalBillNum++;
+                totalPackageNum += packageNum;
+                totalWeightD = floatAdd(totalWeightD, weightD);
+            });
+            $("#totalBillNum").text(""+ totalBillNum);
+            $("#totalPackageNum").text(""+ totalPackageNum);
+            $("#totalWeightD").text(""+ setScale(totalWeightD,3,"roundhalfup"));
+        }
+        /***
+         * 监控是否可上件. 1s轮询一次
+         *
+         * @return true/false
+         */
+        function listenSoringLine(){
+//不可上件，轮询监控
+            setInterval( function() {
+                getSortingLineStatus();
+            }, 1000);
+        }
+        /**
+         * 获取上件状态
+         */
+        var valid4SorintLine = true;
+        var elapsedSecond = 0; //经过的秒
+        function getSortingLineStatus(){
+            var url = sortLineStatusUrl;
+            $.ajax({
+                url : url,
+                type : "GET",
+                dataType : "json",
+                data: "",
+                success : function(result) {
+                    var status = result.status;
+                    if( status == 0 ) {
+                        hideMask();
+                        elapsedSecond = 0;
+                    }else if( status == 1 )
+                        showMask("20%", "已成功接受上件指令，等待包裹放上上件台中..." + (elapsedSecond++) + "秒");
+                    else if( status == 2 )
+                        showMask("40%", "已检测到上件台上的包裹，在分拣线上寻找空闲小车中..." + (elapsedSecond++) + "秒");
+                    else if( status == 3 )
+                        showMask("60%", "已找到空闲小车，启动上件台皮带线将包裹送上分拣线中..." + (elapsedSecond++) + "秒");
+                    else if( status == 4 )
+                        showMask("80%", "已送走包裹，等待皮带停止..." + (elapsedSecond++) + "秒");
+                    if(valid4SorintLine==false && status == 0){ //提示音 当不成功转成功时提示
+//提示声音
+                        playSort("SUCCESS");
+                    }
+                    if(status!=0){
+                        playSort("BEEP");
+                    }
+                    valid4SorintLine = status == 0;
+                },
+                error : function(){
+//提示声音
+                    playSort("BEEP");
+                    if( valid4SorintLine ){
+                        showMask("100%", "获取上件状态失败!");
+                        valid4SorintLine = false;
+                    }
+                    elapsedSecond++;
+                },
+                complete : function(){
+                }
+            });
+        }
+        /**
+         * 上件
+         * @param barcode 运单号
+         * @param channelCode 渠道ID
+         * @param countryCode 国家简码
+         * @param countryCnName 国家名称
+         * @param packageWeight 重量
+         * @param portNumber 分拣设备出口编号
+         */
+        function uptoSortingLine(barcode, channelCode, countryCode, countryCnName, packageWeight, portNumber){
+            var url = sortLineUptoUrl;
+            var param = "&barcode=" + barcode +
+                    "&channelCode=" + channelCode +
+                    "&countryCode=" + countryCode +
+                    "&countryCnName=" + countryCnName +
+                    "&packageWeight=" + packageWeight +
+                    "&portNumber=" + portNumber;
+            $.ajax({
+                url : url,
+                type : "GET",
+                dataType : "json",
+                data: param,
+                success : function(result) {
+                    var status = result.sendfjresult;
+                    if( status == "OK" ) {
+                        $.message({type: "success", content: barcode + " 上件成功"});
+                        $("#uptostatus" + barcode).text("上件成功").addClass("green");
+//提示声音成功
+                        playSort("SUCCESS");
+                    }else if( status == "BUSY" ){
+                        var isConfirm = confirm("该分拣入口仍在处理上一个包裹中，请稍候...\n点击确认重新上件。");
+                        if( isConfirm )
+                            uptoSortingLine(barcode, channelCode, countryCode, countryCnName, packageWeight, portNumber);
+                    }else if( status == "ERROR" ) {
+                        $("#uptostatus" + barcode).text("上件失败").addClass("red");
+                        alert("上件失败[原因：数据解析失败]");
+                    }
+                },
+                error : function(){
+                    showMask("100%", "上件失败!");
+                    valid4SorintLine = false;
+                },
+                complete : function(){
+                }
+            });
+        }
+    </script>
+    <style type="text/css">
+        .otherInfo input, select{
+            float:left;
+        }
+        #detailTable tr:hover {
+            background-color: #f7f7f7
+        }
+        #inputTable th{font-weight: bold;}
+    </style>
+</head>
+<body class="input">
+<bgsound id="sound" loop=1/>
+    <div class="bar">
+        出仓上件
+    </div>
+    <div class="body">
+        <form id="validateForm" enctype="multipart/form-data" method="post" action="ws_sp_order!add.action">
+            <input type="hidden" name="parcel" value="false" />
+            <input type="hidden" id="issue" name="wsSpWaybill.issue" value="0"/>
+            <input type="hidden" id="rcountry" name="wsSpWaybill.rcountry" value=""/>
+            <input type="hidden" id="productName" name="wsSpWaybill.productName" value=""/>
+            <input type="hidden" id="productType" name="wsSpWaybill.productType" value="" />
+            <input type="hidden" id="rcountry" value=""/>
+            <table class="inputTable" id="inputTable">
+                <tr style="background-color:rgba(255, 0, 0, 0.13)">
+                    <th>扫描区：</th>
+                    <td colspan="3">
+                        <input style="height:26px;font-size:24px;color:blue;" type="text" id="wno" name="wsSpWaybill.wno" placeholder="运单号" title="运单号" AUTOCOMPLETE="OFF" onchange="wnoChanged(this);" />
+                    </td>
+                    <td style="width: 450px;">
+                        &nbsp;&nbsp;&nbsp;
+                        <span>实重（kg）：</span><span id="totalWeightD" style="font-size:14px;font-weight:bold;color:blue;"></span>
+                        &nbsp;&nbsp;&nbsp;
+                        <span>票数：</span><span id="totalBillNum" style="font-size:14px;font-weight:bold;color:blue;"></span>
+                        &nbsp;&nbsp;&nbsp;
+                        <span>件数：</span><span id="totalPackageNum" style="font-size:14px;font-weight:bold;color:blue;"></span>
+                        <a href="#" id="totalFresh" style="color:blue;" onclick="totalItems();">&nbsp;&nbsp;← 点击汇总</a>
+                        <input style="width:0px;" type="text" readonly="readonly" />
+                    </td>
+                </tr>
+            </table>
+            <table class="detailTable" id="detailTable">
+                <thead>
+                <tr>
+                    <th style="width:80px">上件状态</th>
+                    <th style="width:120px">运单号</th>
+                    <th style="width:60px">收货国家</th>
+                    <th style="width:60px">实重(kg)</th>
+                    <th style="width:60px">材重(kg)</th>
+                    <th style="width:60px">结重(kg)</th>
+                    <th style="width:60px">货物类型</th>
+                    <th style="width:60px">品名</th>
+                    <th style="width:50px">件数</th>
+                    <th style="width:150px">渠道</th>
+                    <th>客户备注</th>
+                    <th style="width:80px">操作</th>
+                </tr>
+                </thead>
+                <tbody id="billList" >
+                <tr id="blankBillTr" style="display: none"><td></td></tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

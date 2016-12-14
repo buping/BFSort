@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes) {
     PrintQueueID: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      defaultValue: '0',
+      autoIncrement: true,
       primaryKey: true
     },
     PrintQueueName: {
@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     SerialNumber: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER(11),
       allowNull: true
     },
     baggingBatchNumber: {

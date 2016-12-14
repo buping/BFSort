@@ -242,7 +242,7 @@ EnterPort.prototype.sendPackage = function(postPackage) {
     this.isSending = true;
     this.isLoading = true;
     this.actualSendData();
-    //this.savePackage();r
+    //this.savePackage();
 };
 
 EnterPort.prototype.actualSendData = function() {
@@ -312,7 +312,7 @@ EnterPort.prototype.savePackage = function(){
     parcel.IsSelect = "0";
     parcel.EmployeeName = this.employeeName;
     parcel.ScanType = "EQ";
-    parcel.FinishDate = Date.now();
+    parcel.UploadDate = Date.now();
     scanPackageDb.create(parcel).then(function(ret){
         debug("saved parcel to datebase successful:"+util.inspect(ret));
     },function(err){
@@ -331,9 +331,23 @@ EnterPort.prototype.GetStatus= function(cb,res){
 
 EnterPort.prototype.GetScan = function(scan){
     //todo
-    sunyouApi.getPackageInfo(scan,function(scanObj){
-    	if (scanObj.
-    }
+    console.log("get scan:"+scan);
+   sunyouApi.getPackageInfo(scan,function(scanObj){
+    	if (scanObj.sortingportnumber != undefined){
+          var fjData = {};
+          fjData.TrackNum = scan;
+          fjData.ChannelCode = scanObj.channelcnname;
+          fjData.CountryCode = scanObj.recipient_country_code;
+          fjData.CountryCnName = scanObj.countrycnname;
+          fjData.PackageWeight = scanObj.predictionweight * 1000;
+          fjData.PortNumber = scanObj.sortingportnumber;
+          fjData.isFinished = false;
+
+          console.log(fjData);
+          EnterPort.working.enqueue(fjData);
+      }
+
+    });
 };
 
 module.exports = EnterPort;

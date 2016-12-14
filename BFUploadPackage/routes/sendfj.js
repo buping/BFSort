@@ -19,7 +19,6 @@ function FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,port
 	this.CountryCnName=countryCnName;
 	this.PackageWeight=packageWeight;
 	this.PortNumber=portNumber;
-	this.UploadDate = Date.now();
 	this.isFinished=false;
 	this.FinishDate=null;
 }
@@ -99,7 +98,7 @@ router.status = function (req,res,next){
 	var mystatus = enterPort.respondStatus;
 	
 	if (!enterPort.opened){
-		mystatus=-1;
+		mystatus=1;
 	}
 	
 	if (mystatus == 0 && enterPort.isLoading){
@@ -111,17 +110,29 @@ router.status = function (req,res,next){
 
 
 router.getscan = function (req,res,next){
-	var scan=req.query.scan;
+	var barcode=req.query.barcode;
 	var enterPort = EnterPort.working;
 	var mystatus = enterPort.respondStatus;
 	
+	var enterPort = EnterPort.working;
+
 	var retJson = {};
 	retJson.barcode = barcode;
 	retJson.sendfjresult = "OK";
+
+
+			enterPort.GetScan(barcode);
 	
-	enterPort.GetScan(scan);
-	
-	res.json(retJson);
+		if (!enterPort.opened){
+			retJson.sendfjresult = "DISCONNECT";
+		}else if (enterPort.respondStatus != 0 || enterPort.isLoading){
+			retJson.sendfjresult = "BUSY";
+		}else {
+			enterPort.GetScan(barcode);
+			retJson.sendfjresult = "OK";
+		}
+		
+		res.json(retJson);
 }
 
 
