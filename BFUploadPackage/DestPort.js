@@ -41,8 +41,8 @@ var defaults = {
     xany: false,
     rtscts: false,
     hupcl: true,
-   //parser:com.SerialPort.parsers.byteLength(11)
-	dataBits: 8,
+    //parser:com.SerialPort.parsers.byteLength(11)
+    dataBits: 8,
     stopBits: 1
   }
 };
@@ -167,9 +167,9 @@ DestPort.prototype.recieveDirect= function(){
     this.currentBuffer.copy(this.lastBuffer);
     //util.print("\n");
     logger.info("read destport data:" + util.inspect(this.currentBuffer));
-	if (this.currentBuffer[5] !=0 || this.currentBuffer[6] !=0){
-		console.log("read destport data:" + util.inspect(this.currentBuffer));
-	}
+    if (this.currentBuffer[5] !=0 || this.currentBuffer[6] !=0){
+      console.log("read destport data:" + util.inspect(this.currentBuffer));
+    }
   }
   this.sameBufferCount++;
   //util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
@@ -180,10 +180,10 @@ DestPort.prototype.recieveDirect= function(){
    */
   //logger.info("收到的指令:"+util.inspect(this.currentBuffer));
   /*
-  if (this.currentBuffer[1] == RECEIVE_TRIGGER){
-    this.receiveTrigger();
-  }
-  */
+   if (this.currentBuffer[1] == RECEIVE_TRIGGER){
+   this.receiveTrigger();
+   }
+   */
 };
 
 DestPort.prototype.receiveTrigger = function() {
@@ -196,7 +196,7 @@ DestPort.prototype.savePackage = function(parcel){
   parcel.ScanType = "PZ";
 
   parcel.UploadDate = Date.now();
-  
+
 
   scanPackageDb.create(parcel).then(function(ret){
     debug("saved parcel to datebase successful:"+util.inspect(ret));
@@ -207,25 +207,25 @@ DestPort.prototype.savePackage = function(parcel){
   });
 
   if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
-	  scanFeedback(parcel.TrackNum);
+    scanFeedback(parcel.TrackNum);
   }
-  
+
   if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
-	bfstatus.RealtimeScan('shengbanghangzhou',0,parcel.TrackNum+parcel.ChannelCode);
+    bfstatus.RealtimeScan('shengbanghangzhou',0,parcel.TrackNum+parcel.ChannelCode);
   }else{
-	  var volumeData = parcel.volumeData;
-	  if (volumeData == undefined || volumeData == null)
-		  volumeData = "";
-	  var height = parseInt(volumeData.substr(6,3));
-	  if (height>15){
-		  var msg={};
-		  msg.id = parcel.packetID;
-		  msg.scan = parcel.scanResult;
-		bfstatus.RealtimeScan('shengbanghangzhou',2,JSON.stringify(msg));
-	  }else{
-		bfstatus.RealtimeScan('shengbanghangzhou',1,'empty cart');
-	  }
-	 
+    var volumeData = parcel.volumeData;
+    if (volumeData == undefined || volumeData == null)
+      volumeData = "";
+    var height = parseInt(volumeData.substr(6,3));
+    if (height>15){
+      var msg={};
+      msg.id = parcel.packetID;
+      msg.scan = parcel.scanResult;
+      bfstatus.RealtimeScan('shengbanghangzhou',2,JSON.stringify(msg));
+    }else{
+      bfstatus.RealtimeScan('shengbanghangzhou',1,'empty cart');
+    }
+
   }
 
 };
@@ -253,24 +253,24 @@ DestPort.prototype.ActualSendData = function(){
   var now = Date.now();
 
   if (this.sendBuffer != null && this.sendBuffer !== undefined
-     && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
-    
+    && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
+
     this.transport.write(this.sendBuffer.rewriteBuffer);
-  }else{	  
-	  for (var [nextParcelID,nextParcel] of this.packetMapping){
-		if (nextParcel === undefined || nextParcel === null){
-			this.packetMapping.delete(nextParcelID);
-		}else if (now - nextParcel.TriggerTime > this.settings.delayTime){
-			this.packetMapping.delete(nextParcelID);
-		}else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay){
-			  this.sendBuffer = nextParcel;
-			  this.MakeRewriteBuff();
-			  logger.info("send rewrite buffer:"+util.inspect(this.sendBuffer.rewriteBuffer));
-			  this.transport.write(this.sendBuffer.rewriteBuffer);
-			  this.packetMapping.delete(nextParcelID);
-			  break;
-		  }
-	  }
+  }else{
+    for (var [nextParcelID,nextParcel] of this.packetMapping){
+      if (nextParcel === undefined || nextParcel === null){
+        this.packetMapping.delete(nextParcelID);
+      }else if (now - nextParcel.TriggerTime > this.settings.delayTime){
+        this.packetMapping.delete(nextParcelID);
+      }else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay){
+        this.sendBuffer = nextParcel;
+        this.MakeRewriteBuff();
+        logger.info("send rewrite buffer:"+util.inspect(this.sendBuffer.rewriteBuffer));
+        this.transport.write(this.sendBuffer.rewriteBuffer);
+        this.packetMapping.delete(nextParcelID);
+        break;
+      }
+    }
   }
 };
 
@@ -278,7 +278,7 @@ DestPort.prototype.MakeRewriteBuff= function(){
   var parcel = this.sendBuffer;
   var destPort = parcel.destPort;
   var now = Date.now();
-  
+
   //not receive vitronic response in time
   if (destPort === undefined || destPort === null) {
     destPort = this.settings.trashPort;
@@ -289,7 +289,7 @@ DestPort.prototype.MakeRewriteBuff= function(){
 
   var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
   var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
-  
+
   parcel.ExitPort = exitPort;
   parcel.ExitDirection = exitDirection;
   //parcel.TrackNum = parcel.scanResult;
@@ -311,80 +311,80 @@ DestPort.prototype.MakeRewriteBuff= function(){
 };
 
 DestPort.prototype.receiveScan = function(result){
-	var id = parseInt(result.packetID);
-	if (id == 0) {
-	  id = this.currentPacketID+1;
-		if (id>=10000){
-		id = 1;
-		}
-	   logger.info("fusion faile,using guess packetID:"+id);
-	}
+  var id = parseInt(result.packetID);
+  if (id == 0) {
+    id = this.currentPacketID+1;
+    if (id>=10000){
+      id = 1;
+    }
+    logger.info("fusion faile,using guess packetID:"+id);
+  }
 
-	this.currentPacketID = id;
+  this.currentPacketID = id;
 
-	var dest = this.packetMapping.get(id);
-    if (dest === undefined || dest === null) {
-		logger.error("packetID "+ result.packetID +" not found in packetMap");
-		return;
-	}
-    
-	dest.scanResult = result.validBarCodes;
-	dest.volumeData = result.volumeData;
-	this.findExitPort(dest);
+  var dest = this.packetMapping.get(id);
+  if (dest === undefined || dest === null) {
+    logger.error("packetID "+ result.packetID +" not found in packetMap");
+    return;
+  }
+
+  dest.scanResult = result.validBarCodes;
+  dest.volumeData = result.volumeData;
+  this.findExitPort(dest);
 };
 
 DestPort.prototype.tryOnlineSearch = function(dest){
-	var workingPort = this;
-	for (let oneBarcode of dest.scanResult){
-		searchBarcode(oneBarcode,function(site){
-			dest.TrackNum = oneBarcode;
-			dest.Logs = oneBarcode + " found using online search";
-			workingPort.findOutPort(dest,site);			
-		});
-	}
+  var workingPort = this;
+  for (let oneBarcode of dest.scanResult){
+    searchBarcode(oneBarcode,function(site){
+      dest.TrackNum = oneBarcode;
+      dest.Logs = oneBarcode + " found using online search";
+      workingPort.findOutPort(dest,site);
+    });
+  }
 };
 
 DestPort.prototype.findOutPort = function(dest,site){
-	var defaultPort  = this.settings.trashPort;
-    siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
-        if (siteExit == null) {
-          dest.destPort = defaultPort;
-		  dest.Logs = "siteExitPort find no result:"+site;
-          logger.error("receive site mapping not in definition: site " + site);
-        } else {
-          var destPort = siteExit.exitPort;
-          if (destPort !== undefined) {
-			dest.destPort = destPort;
-            dest.ChannelCode = siteExit.siteName;			
-          }else{
-			 dest.destPort = defaultPort;
-		  }
-        }
-	}).catch(function (err){
-        logger.error("database error in find site:"+err);
-    });	
+  var defaultPort  = this.settings.trashPort;
+  siteExitPortDb.findOne({where:{packageSite:site}}).then(function(siteExit) {
+    if (siteExit == null) {
+      dest.destPort = defaultPort;
+      dest.Logs = "siteExitPort find no result:"+site;
+      logger.error("receive site mapping not in definition: site " + site);
+    } else {
+      var destPort = siteExit.exitPort;
+      if (destPort !== undefined) {
+        dest.destPort = destPort;
+        dest.ChannelCode = siteExit.siteName;
+      }else{
+        dest.destPort = defaultPort;
+      }
+    }
+  }).catch(function (err){
+    logger.error("database error in find site:"+err);
+  });
 };
 
 DestPort.prototype.findExitPort = function(dest){
   var workingPort = this;
-	
+
   if (dest.scanResult.length ==0) {
-	  dest.Logs = "Scan return 0 elements";
-      dest.destPort = workingPort.settings.trashPort;
-	  return;
+    dest.Logs = "Scan return 0 elements";
+    dest.destPort = workingPort.settings.trashPort;
+    return;
   }
-  
+
   logger.info("find in sortData for scan result:"+util.inspect(dest.scanResult));
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
       logger.info("can't find barcode in database:"+dest.scanResult+",try online search");
-	  dest.Logs = "invalid scan result:"+util.inspect(dest.scanResult);
+      dest.Logs = "invalid scan result:"+util.inspect(dest.scanResult);
       dest.destPort = workingPort.settings.trashPort;
-	  workingPort.tryOnlineSearch(dest);
+      workingPort.tryOnlineSearch(dest);
     }else{
       var site=entry.packageSite;
-	  dest.TrackNum = entry.packageBarcode;
-	  workingPort.findOutPort(dest,site);
+      dest.TrackNum = entry.packageBarcode;
+      workingPort.findOutPort(dest,site);
     }
   }).catch(function (err){
     logger.error("database error in find sortData:"+err);
@@ -392,7 +392,7 @@ DestPort.prototype.findExitPort = function(dest){
 };
 
 DestPort.prototype.enqueue = function(parcel){
-	this.packetMapping.set(parcel.packetID,parcel);
+  this.packetMapping.set(parcel.packetID,parcel);
 };
 
 module.exports = DestPort;

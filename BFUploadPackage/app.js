@@ -110,26 +110,26 @@ if (bfConfig.EnterPort !== undefined){
 
 
 if (bfConfig.ExitPort !== undefined){
- ExitPort.working = new ExitPort(bfConfig.ExitPort);
- ExitPort.working.Init();
+  ExitPort.working = new ExitPort(bfConfig.ExitPort);
+  ExitPort.working.Init();
 }
 
 if (bfConfig.ExitButton !== undefined){
- ExitButton.working = new ExitButton(bfConfig.ExitButton);
- ExitButton.working.Init();
+  ExitButton.working = new ExitButton(bfConfig.ExitButton);
+  ExitButton.working.Init();
 }
 
 
 if (bfConfig.TriggerPort !== undefined){
-	
-	var TriggerPort = require('./TriggerPort.js');
+
+  var TriggerPort = require('./TriggerPort.js');
 
   TriggerPort.working = new TriggerPort(bfConfig.TriggerPort);
   TriggerPort.working.Init();
 }
 
 if (bfConfig.Vitronic !== undefined){
-	var Vitronic = require('./vitronic.js');
+  var Vitronic = require('./vitronic.js');
 
 
   Vitronic.working = new Vitronic(bfConfig.Vitronic);
@@ -137,23 +137,23 @@ if (bfConfig.Vitronic !== undefined){
 }
 
 if (bfConfig.DestPort !== undefined){
-	var DestPort = require('./DestPort.js');
+  var DestPort = require('./DestPort.js');
 
   DestPort.working = new DestPort(bfConfig.DestPort);
   DestPort.working.Init();
 
-	if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
-	  TriggerPort.working.on("triggered",function(parcel){
-		  console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
-		 DestPort.working.enqueue(parcel);
-	     Vitronic.working.enqueue(parcel);
-	  });
-	  Vitronic.working.on("scan",function(dest){
-	    if (DestPort.working !== undefined){
-	      DestPort.working.receiveScan(dest);
-	    }
-	  });
-	}
+  if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
+    TriggerPort.working.on("triggered",function(parcel){
+      console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
+      DestPort.working.enqueue(parcel);
+      Vitronic.working.enqueue(parcel);
+    });
+    Vitronic.working.on("scan",function(dest){
+      if (DestPort.working !== undefined){
+        DestPort.working.receiveScan(dest);
+      }
+    });
+  }
 
 }
 

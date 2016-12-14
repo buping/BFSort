@@ -97,7 +97,7 @@ ExitButton.prototype.Init = function() {
     board.SendCmd = query;
     var response = new Command(Command.BUTTON_TO_PC);
     board.RecvCmd = response;
-     //board.
+    //board.
   }
 
   this.Open();
@@ -195,7 +195,7 @@ ExitButton.prototype.RelayToExitPort = function(cmd){
   //todo relay button cmd to eixtport;
   var currentExitPort = require('./ExitPort.js').working;
   if (currentExitPort !== undefined)
-	currentExitPort.RelayCmd(cmd);
+    currentExitPort.RelayCmd(cmd);
 };
 
 ExitButton.prototype.Print = function(port,direction){
@@ -272,7 +272,7 @@ ExitButton.prototype.MakeQueryBufer = function(){
   cmd.exitDirection = 0;
   cmd.status =0;
   cmd.MakeBuffer();
-  
+
   this.queryBuffer = cmd.buffer;
 };
 

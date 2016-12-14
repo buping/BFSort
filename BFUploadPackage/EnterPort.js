@@ -169,10 +169,10 @@ EnterPort.prototype.recieveDirect= function(){
     this.sameBufferCount++;
     util.print(now.toLocaleTimeString() +": count " +this.sameBufferCount+":"+ util.inspect(this.currentBuffer)+"\r");
     /*
-    if (this.webResponse !== undefined){
-        this.webResponse.send(util.inspect(this.currentBuffer));
-    }
-    */
+     if (this.webResponse !== undefined){
+     this.webResponse.send(util.inspect(this.currentBuffer));
+     }
+     */
     //logger.info("收到的指令:"+util.inspect(this.currentBuffer));
     if( !validDirect(this.currentBuffer)){
         util.print("指令校验失败:"+util.inspect(this.currentBuffer)+"\n");
@@ -202,8 +202,8 @@ EnterPort.prototype.receiveUpload = function(){
         return;
     }
     if (respondExitPort == parcel.ExitPort && respondEnterPort == parcel.EnterPort
-        && respondSerialNum == parcel.SerialNumber && respondEnterDirection == parcel.EnterDirection
-        && respondExitDirection == parcel.ExitDirection){
+      && respondSerialNum == parcel.SerialNumber && respondEnterDirection == parcel.EnterDirection
+      && respondExitDirection == parcel.ExitDirection){
         this.sendConfirmed = true;
         this.isSending = false;
         if (respondStatus == 0x00) {
@@ -276,35 +276,35 @@ EnterPort.prototype.enqueue = function(fjData){
     parcel.ExitDirection = exitDirection;
     parcel.Direction = exitDirection;
 
-    var enterPort = parcel.EnterPort;    
-	
-	logger.info("send package:"+util.inspect(parcel));
-	this.isLoading = true;
-	
-	if (this.lastSerial == 0){
+    var enterPort = parcel.EnterPort;
 
-    scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}})
-        .then(function(max) {
-            if (isNaN(max)){
-                max=0;
-            }            
-            parcel.SerialNumber = (max + 1)%65536;
-            if (parcel.SerialNumber == 0)
-            	parcel.SerialNumber=1;
-            this.lastSerial = parcel.SerialNumber;
-            
-            debug("using serialnum:"+parcel.SerialNumber);
-            this.sendPackage(parcel);
-        }.bind(this)
-    );
-  }else{
-  	this.lastSerial++;
-  	if (this.lastSerial==0 || this.lastSerial >= 65536){
-  		this.lastSerial=1;
-  	}
-  	parcel.SerialNumber = (this.lastSerial)%65536;
-  	this.sendPackage(parcel);
-  }
+    logger.info("send package:"+util.inspect(parcel));
+    this.isLoading = true;
+
+    if (this.lastSerial == 0){
+
+        scanPackageDb.max('SerialNumber',{where:{EnterPort:enterPort}})
+          .then(function(max) {
+                if (isNaN(max)){
+                    max=0;
+                }
+                parcel.SerialNumber = (max + 1)%65536;
+                if (parcel.SerialNumber == 0)
+                    parcel.SerialNumber=1;
+                this.lastSerial = parcel.SerialNumber;
+
+                debug("using serialnum:"+parcel.SerialNumber);
+                this.sendPackage(parcel);
+            }.bind(this)
+          );
+    }else{
+        this.lastSerial++;
+        if (this.lastSerial==0 || this.lastSerial >= 65536){
+            this.lastSerial=1;
+        }
+        parcel.SerialNumber = (this.lastSerial)%65536;
+        this.sendPackage(parcel);
+    }
 };
 
 EnterPort.prototype.savePackage = function(){
@@ -332,20 +332,20 @@ EnterPort.prototype.GetStatus= function(cb,res){
 EnterPort.prototype.GetScan = function(scan){
     //todo
     console.log("get scan:"+scan);
-   sunyouApi.getPackageInfo(scan,function(scanObj){
-    	if (scanObj.sortingportnumber != undefined){
-          var fjData = {};
-          fjData.TrackNum = scan;
-          fjData.ChannelCode = scanObj.channelcnname;
-          fjData.CountryCode = scanObj.recipient_country_code;
-          fjData.CountryCnName = scanObj.countrycnname;
-          fjData.PackageWeight = scanObj.predictionweight * 1000;
-          fjData.PortNumber = scanObj.sortingportnumber;
-          fjData.isFinished = false;
+    sunyouApi.getPackageInfo(scan,function(scanObj){
+        if (scanObj.sortingportnumber != undefined){
+            var fjData = {};
+            fjData.TrackNum = scan;
+            fjData.ChannelCode = scanObj.channelcnname;
+            fjData.CountryCode = scanObj.recipient_country_code;
+            fjData.CountryCnName = scanObj.countrycnname;
+            fjData.PackageWeight = scanObj.predictionweight * 1000;
+            fjData.PortNumber = scanObj.sortingportnumber;
+            fjData.isFinished = false;
 
-          console.log(fjData);
-          EnterPort.working.enqueue(fjData);
-      }
+            console.log(fjData);
+            EnterPort.working.enqueue(fjData);
+        }
 
     });
 };
