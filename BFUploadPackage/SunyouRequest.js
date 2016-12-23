@@ -6,7 +6,8 @@ var loginUser = 'beifen';
 var loginPass = 'sy111111';
 var loginHeader = 'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0';
 var getInfoPage = 'http://yw.sunyou.hk/admin/dailyoperation/sorting/weigh/scanPackage/getPackageInfo';
-
+var submitScanPage = 'http://yw.sunyou.hk/admin/dailyoperation/sorting/weigh/scanPackage/submitScanResult';
+var getPackagePage = 'http://yw.sunyou.hk/admin/dailyoperation/sorting/screen/getPackage';
 var loginRequest = request.defaults({jar: true});   //login every 10 minutes
 var loginSucc = false;
 
@@ -58,9 +59,87 @@ var getPackageInfo = function(barCode,cb){
 
   loginRequest(getPackageInfo,function(error,response,body){
     var infoObj = JSON.parse(body);
-    //console.log(infoObj);
     //console.log(response.headers);
+    submitScanResult(barCode,infoObj,infoObj.predictionweight);
+    cb(infoObj);
+  });
+};
 
+var submitScanResult = function (barCode,packageInfo,weight){
+  if (!loginSucc){
+    return;
+  }
+
+  //console.log(util.inspect(packageInfo));
+
+  var formData = {
+    "packageId" : packageInfo.packageid,
+    "packageCode" : packageInfo.packagecode,
+    "trackingNumber" : packageInfo.trackingnumber,
+    "companyName" : packageInfo.companyname,
+    "globalOrganizationId" : 11,
+    "companyId": packageInfo.companyId,
+    "weightFlag": 1,
+    "volumnFlag" : 0,
+    "channelCode" : packageInfo.channelcode || '',
+    "countryCode" : packageInfo.recipient_country_code,
+    "countryCnName" : packageInfo.countrycnname,
+    "portNumber" : packageInfo.sortingportnumber,
+    "packagegreaterinterceptmode" : packageInfo.packagegreaterinterceptmode || '',
+    "packagegreaterinterceptvalue" : packageInfo.packagegreaterinterceptvalue || '',
+    "packagelesserinterceptmode" : packageInfo.packagelesserinterceptmode || '',
+    "packagelesserinterceptvalue" : packageInfo.packagelesserinterceptvalue || '',
+    "printFlag" : 0,
+    "scanText" : barCode,
+    "scanValue" : barCode,
+    "weighingText" : weight,
+    "weightValue" : weight,
+    "volumeSelectLen" : 0,
+    "volumeSelectWid" : 0,
+    "volumeSelectHig" : 0
+  };
+
+  //console.log("formdata is "+util.inspect(formData));
+
+  var submitScanInfo = {
+    url : submitScanPage,
+    form: formData,
+    method: 'POST',
+    //content-type : 'application/x-www-form-urlencoded; charset=UTF-8',
+    headers: loginHeader
+  };
+
+  loginRequest(submitScanInfo,function(error,response,body){
+    var infoObj = JSON.parse(body);
+    //console.log(infoObj);
+    //console.log(response);
+    //console.log(util.inspect(response.req._header));
+      console.log("scan result:"+body);
+  });
+};
+
+
+var getWeightedPackage = function(barCode,cb){
+  if (!loginSucc){
+    cb({});
+    return;
+  }
+
+  var getPackageInfo = {
+    url : getPackagePage,
+    form: {
+      "scanValue" : barCode,
+      "channelId" : '',
+      "channelLock" : '0',
+      "labelFlag" : '0'
+    },
+    method: 'POST',
+    headers: loginHeader
+  };
+
+  loginRequest(getPackageInfo,function(error,response,body){
+    var infoObj = JSON.parse(body);
+    //console.log(response.headers);
     cb(infoObj);
   });
 };
@@ -177,6 +256,7 @@ function getNowFormatDate(){
 var printQueueDb = require('./models').ba_printqueue;
 var pr_serialDb = require('./models').pr_serialnumber;
 var scanPackageDb = require('./models').eq_scanpackage;
+var enteroutportDb = require('./models').ba_enteroutport;
 var sequelize = require('sequelize');
 var LODOP = require('./CLodopfuncs.js');
 
@@ -286,6 +366,11 @@ function GetPrintDataUsingSerial(port,direction,serialNum){
         if (printQueue != null && printQueue != undefined) {
           console.log(printQueue.PrintQueueID);
           addNewMailbag(serialNum,packageList);
+          enteroutportDb.update({CurrentCount:0},{
+            where:{
+              EnterOutPortCode:port,Direction:direction,EnterOutPortType:'OUT'
+            }
+          });
           scanPackageDb.update({PrintQueueID:printQueue.PrintQueueID},{
             where:{
               ExitPort:port,
@@ -302,6 +387,7 @@ function GetPrintDataUsingSerial(port,direction,serialNum){
 }
 
 module.exports.getPackageInfo = getPackageInfo;
+module.exports.getWeightedPackage = getWeightedPackage;
 module.exports.getMaibagInfo  = getMaibagInfo;
 module.exports.addNewMailbag  = addNewMailbag;
 module.exports.StartPrintTask = StartPrintTask;

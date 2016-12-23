@@ -44,6 +44,11 @@ function ExitPort(options, callback) {
   this.settings = Object.assign({}, defaults, options);
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
+  this.activeQuery = this.settings.ActiveQuery;
+  if (this.activeQuery == undefined){
+    this.activeQuery = false;
+  }
+
   this.queryBoards = this.settings.Boards;
   this.currentQueryIdx = 0;
   this.allExitPort = [];
@@ -77,6 +82,7 @@ function ExitPort(options, callback) {
 
   this.transport.on('data', function (data) {
     //console.log("\rExitport Receive serial data:" + util.inspect(data));
+    this.currentRecvCmd.Clear();
     this.currentRecvCmd.ReadData(data);
     if (this.currentRecvCmd.isComplete) {
       this.RecvCompleteCmd();
@@ -119,11 +125,11 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   var cmd=this.currentRecvCmd.Clone();
   this.currentRecvCmd.Clear();
   if (cmd.instructionId != Command.EXIT_TO_PC){
-    logger.err("Recv unknown com message:"+util.inspect(cmd.buffer));
+    //logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
     return;
   }
 
-  //console.log(cmd.buffer);
+  logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
 
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
   if (cmd.serialNumber ==0){
@@ -133,16 +139,23 @@ ExitPort.prototype.RecvCompleteCmd = function(){
 
   var exitPortID = cmd.exitPortID;
   var exitDirection = cmd.exitDirection;
+  var serialNumber = cmd.serialNumber;
   var packageCount = cmd.reserved;
+  /*
   if (packageCount ==0){
     return;
   }
+  */
+
+
+  //logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
 
   for (var boardIdx in this.queryBoards){
     var board = this.queryBoards[boardIdx];
-    if (exitPortID == board.Id){
+    if (exitPortID == board.Id && exitDirection == board.Direction){
       board.TotalCount = packageCount;
-      if (cmd.serialNumber != 0) {
+      if (serialNumber != 0 && board.lastSerialNum != serialNumber) {
+        board.lastSerialNum = serialNumber;
         this.SavePackage(cmd);
       }
     }

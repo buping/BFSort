@@ -10,6 +10,7 @@
 
   "ExitPort":{
     "SerialName":"COM5",
+    "ActiveQuery": true,
     "SerialPort":{
       "baudRate":115200
     },

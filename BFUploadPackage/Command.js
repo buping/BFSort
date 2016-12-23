@@ -97,10 +97,11 @@ Command.prototype.Clear = function(){
 Command.prototype.ReadData = function(data){
   if (data && data.length>0){
     for (var i=0;i<data.length;i++){
-      if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
+      if(this.isAllowRecieved == false && data[i] == INSTRUCTION_HEADER  && data[i+1] == this.instructionId  ){
         this.receivedCount = 1;
         this.isAllowRecieved = true;
         this.buffer[0] = INSTRUCTION_HEADER;
+        this.buffer[1] = this.instructionId;
       }else{
         if (this.isAllowRecieved) {
           this.buffer[this.receivedCount++] = data[i];

@@ -121,7 +121,7 @@ ExitButton.prototype.RecvCompleteCmd = function(){
   var cmd=this.currentRecvCmd.Clone();
   this.currentRecvCmd.Clear();
   if (cmd.instructionId != Command.BUTTON_TO_PC){
-    logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
+    //logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
     return;
   }
 
@@ -217,11 +217,17 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
     }
   ).then(function (outPortInfo){
     if (outPortInfo != null && outPortInfo != undefined){
-      if (status == 2 && outPortInfo.RunStatus != 2){
-        sunyouApi.DoPrint(port,direction);
+      if (status == 2){
+        if (outPortInfo.RunStatus == 0) {
+          sunyouApi.DoPrint(port, direction);
+          outPortInfo.RunStatus = 2;
+          outPortInfo.save();
+        }
+      }else if (outPortInfo.RunStatus != status) {
+        outPortInfo.RunStatus = status;
+        outPortInfo.save();
       }
-      outPortInfo.RunStatus = status;
-      outPortInfo.save();
+
     }else{
       outPortInfo = {};
       outPortInfo.IsSelect = '0';
@@ -236,8 +242,8 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
       outPortInfo.RunStatus = status;
       enteroutportDb.upsert(outPortInfo);
     }
-  }).catch(function err(){
-    console.log('data base error');
+  }).catch(function (err){
+    console.log('data base error'+err);
   });
 
 };

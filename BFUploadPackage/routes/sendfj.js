@@ -60,8 +60,7 @@ router.get('/', function(req, res, next){
 
 	if (!enterPort.opened){
 		retJson.sendfjresult = "DISCONNECT";
-	}else if (  (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)
-		|| enterPort.isLoading){
+	}else if (enterPort.respondStatus != 0 && enterPort.respondStatus != 1){
 		retJson.sendfjresult = "BUSY";
 	}else {
 		enterPort.enqueue(received);
@@ -89,7 +88,8 @@ router.ping = function(req,res,next){
 	if (enterPort.isConnected()){
 		res.send("FJStatus._onok();");
 	}else{
-		res.send("FJStatus._onerror('timeout','分拣设备连接失败');");
+		res.send("FJStatus._onok();");
+		//res.send("FJStatus._onerror('timeout','分拣设备连接失败');");
 	}
 }
 
@@ -99,11 +99,7 @@ router.status = function (req,res,next){
 	var mystatus = enterPort.respondStatus;
 
 	if (!enterPort.opened){
-		mystatus=1;
-	}
-
-	if (mystatus == 0 && enterPort.isLoading){
-		mystatus = 1;
+		mystatus=-1;
 	}
 
 	res.json({status:mystatus});
@@ -121,6 +117,7 @@ router.getscan = function (req,res,next){
 	retJson.barcode = barcode;
 	retJson.sendfjresult = "OK";
 
+	//enterPort.GetScan(barcode);
 
 	if (!enterPort.opened){
 		retJson.sendfjresult = "DISCONNECT";

@@ -4,20 +4,23 @@
     "password": "bfsorting",
     "database": "bfsort",
     "host": "192.168.2.243",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging": false
   },
   "test": {
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
     "host": "192.168.16.243",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging": false
   },
   "production": {
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
     "host": "192.168.16.243",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging": false
   }
 }

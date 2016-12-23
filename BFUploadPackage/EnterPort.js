@@ -237,12 +237,14 @@ EnterPort.prototype.sendPackage = function (postPackage) {
   this.parcel.BufStr = util.inspect(sendBuffer);
   this.isSending = true;
   this.isLoading = true;
+  this.sendConfirmed = false;
+  this.sendCount = 0;
   this.actualSendData();
   //this.savePackage();
 };
 
 EnterPort.prototype.actualSendData = function () {
-  if (!this.loadSucc && !this.sendConfirmed) {
+  if (!this.sendConfirmed) {
     util.print("\nsending data:" + util.inspect(this.sendBuffer) + "\n");
     this.transport.write(this.sendBuffer);
     this.sendCount++;
@@ -258,9 +260,10 @@ EnterPort.prototype.enqueue = function (fjData) {
   if (!this.opened) {
     return false;
   }
+  /*
   if (this.isLoading) {
     return false;
-  }
+  }*/
 
   //只有在光眼检测到包裹前才能换单
   if (this.respondStatus != 0 && this.respondStatus != 1 ){
@@ -315,6 +318,8 @@ EnterPort.prototype.savePackage = function () {
     debug("saved parcel to datebase successful:" + util.inspect(ret));
   }, function (err) {
     debug("saved parcel to datebase failed:" + util.inspect(err));
+  }).catch(function (err){
+    logger.error("database error in save package:"+err);
   });
 };
 
@@ -330,11 +335,12 @@ EnterPort.prototype.GetStatus = function (cb, res) {
 EnterPort.prototype.GetScan = function (scan) {
   //todo
   console.log("get scan:" + scan);
+  /*
   sunyouApi.getPackageInfo(scan, function (scanObj) {
     if (scanObj.sortingportnumber != undefined) {
       var fjData = {};
       fjData.TrackNum = scan;
-      fjData.ChannelCode = scanObj.channelcnname;
+      fjData.ChannelCode = scanObj.channelcode;
       fjData.CountryCode = scanObj.recipient_country_code;
       fjData.CountryCnName = scanObj.countrycnname;
       fjData.PackageWeight = scanObj.predictionweight * 1000;
@@ -344,8 +350,26 @@ EnterPort.prototype.GetScan = function (scan) {
       //console.log(fjData);
       EnterPort.working.enqueue(fjData);
     }
-
   });
+  */
+  sunyouApi.getWeightedPackage(scan, function (scanObj) {
+    if (scanObj.sortingportnumber != undefined && scanObj.level == 'w0') {
+      var fjData = {};
+      fjData.TrackNum = scan;
+      fjData.ChannelCode = scanObj.channelcode;
+      fjData.CountryCode = scanObj.countrycode;
+      fjData.CountryCnName = scanObj.countrycnname;
+      fjData.PackageWeight = scanObj.soringweight * 1000;
+      fjData.PortNumber = scanObj.sortingportnumber;
+      fjData.isFinished = false;
+
+      console.log(fjData);
+      EnterPort.working.enqueue(fjData);
+    }else{
+      logger.error("scan :"+ scan +",invalid package info:"+scanObj);
+    }
+  });
+
 };
 
 module.exports = EnterPort;
