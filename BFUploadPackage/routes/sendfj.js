@@ -40,6 +40,7 @@ router.get('/', function(req, res, next){
 		portNumber === undefined) {
 		debug("incomplete parameters");
 		retJson.sendfjresult = "ERROR";
+		retJson.errMsg = '参数不完整';
 		res.json(retJson);
 		return;
 	}
@@ -47,26 +48,31 @@ router.get('/', function(req, res, next){
 	var ports = portNumber.split('|');
 	if (ports.length != 2){
 		retJson.sendfjresult = "ERROR";
+		retJson.errMsg = '出口格式不正确:'+portNumber;
 		res.json(retJson);
 		return;
 	}
 
 
 	var received = new FjData(barcode,channelCode,countryCode,countryCnName,packageWeight,portNumber);
-	debug("received sunyou message:"+util.inspect(received));
+	console.log("received sunyou message:"+util.inspect(received));
 	var enterPort = EnterPort.working;
 
 
 
 	if (!enterPort.opened){
-		retJson.sendfjresult = "DISCONNECT";
-	}else if (enterPort.respondStatus != 0 && enterPort.respondStatus != 1){
+		retJson.sendfjresult = "ERROR";
+		retJson.errMsg = '分拣机未连接';
+		res.json(retJson);
+	}else if ( (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)){
 		retJson.sendfjresult = "BUSY";
+		retJson.errMsg = '此时不能上件';
+		res.json(retJson);
 	}else {
 		enterPort.enqueue(received);
 		retJson.sendfjresult = "OK";
+		res.json(retJson);
 	}
-
 	/*
 	 models.eq_scanpackage.max('ScanPackageID').then(function (max){
 	 debug("current max id is "+max);
@@ -79,8 +85,7 @@ router.get('/', function(req, res, next){
 	 */
 	//Parse(received);
 	//res.json("sendFJCallbacks['"+cb+"']('"+cb+"|SUCCESS);");
-	debug("return sucess");
-	res.json(retJson);
+
 });
 
 router.ping = function(req,res,next){
@@ -118,18 +123,27 @@ router.getscan = function (req,res,next){
 	retJson.sendfjresult = "OK";
 
 	//enterPort.GetScan(barcode);
-
 	if (!enterPort.opened){
-		retJson.sendfjresult = "DISCONNECT";
-	}else if ( (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)
-		|| enterPort.isLoading){
+		retJson.sendfjresult = "ERROR";
+		retJson.errMsg = '分拣机未连接';
+		res.json(retJson);
+	}else if ( (enterPort.respondStatus != 0 && enterPort.respondStatus != 1)){
 		retJson.sendfjresult = "BUSY";
+		retJson.errMsg = '此时不能上件';
+		res.json(retJson);
 	}else {
-		enterPort.GetScan(barcode);
-		retJson.sendfjresult = "OK";
-	}
+		enterPort.GetScan(barcode,function (retval,errMsg){
+			if (retval == 0){
+				retJson.sendfjresult = "OK";
+				res.json(retJson);
+			}else{
+				retJson.sendfjresult = "ERROR";
+				retJson.errMsg = errMsg;
+				res.json(retJson);
+			}
+		});
 
-	res.json(retJson);
+	}
 }
 
 

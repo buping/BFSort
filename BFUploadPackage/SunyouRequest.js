@@ -349,6 +349,7 @@ function GetPrintDataUsingSerial(port,direction,serialNum){
     if (allPackages.length>0){
       var printQueue={}
       var packageList = [];
+      var trackNumMap = new Map();
       printQueue.PrintQueueName = getNowFormatDate();
       printQueue.OutPortCmd = port;
       printQueue.Direction = direction;
@@ -357,16 +358,20 @@ function GetPrintDataUsingSerial(port,direction,serialNum){
       printQueue.Weight = 0;
       for (var i=0;i<allPackages.length;i++){
         var package = allPackages[i];
-        printQueue.Weight += allPackages[i].PackageWeight;
-        packageList.push({packageBarcode:package.TrackNum,packageSortingCode:port+'|'+direction});
+        if (!trackNumMap.has(package.TrackNum)) {
+          printQueue.Weight += allPackages[i].PackageWeight;
+          packageList.push({packageBarcode: package.TrackNum, packageSortingCode: port + '|' + direction});
+          trackNumMap.set(package.TrackNum,package);
+        }
       }
+      printQueue.Count = packageList.length;
       printQueue.Weight = printQueue.Weight/1000;
 
       printQueueDb.create(printQueue).then(function(printQueue){
         if (printQueue != null && printQueue != undefined) {
           console.log(printQueue.PrintQueueID);
           addNewMailbag(serialNum,packageList);
-          enteroutportDb.update({CurrentCount:0},{
+          enteroutportDb.update({CurrentCount:0,CurrentWeight:0},{
             where:{
               EnterOutPortCode:port,Direction:direction,EnterOutPortType:'OUT'
             }

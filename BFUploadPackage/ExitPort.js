@@ -81,7 +81,7 @@ function ExitPort(options, callback) {
   }.bind(this));
 
   this.transport.on('data', function (data) {
-    //console.log("\rExitport Receive serial data:" + util.inspect(data));
+    logger.info("Exitport Receive:" + util.inspect(data));
     this.currentRecvCmd.Clear();
     this.currentRecvCmd.ReadData(data);
     if (this.currentRecvCmd.isComplete) {
@@ -140,6 +140,8 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   var exitPortID = cmd.exitPortID;
   var exitDirection = cmd.exitDirection;
   var serialNumber = cmd.serialNumber;
+  var enterPortID = cmd.enterPortID;
+  var wholeSerial = (enterPortID << 16) + serialNumber;
   var packageCount = cmd.reserved;
   /*
   if (packageCount ==0){
@@ -148,14 +150,14 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   */
 
 
-  //logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
+  logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
 
   for (var boardIdx in this.queryBoards){
     var board = this.queryBoards[boardIdx];
     if (exitPortID == board.Id && exitDirection == board.Direction){
       board.TotalCount = packageCount;
-      if (serialNumber != 0 && board.lastSerialNum != serialNumber) {
-        board.lastSerialNum = serialNumber;
+      if (wholeSerial != 0 && board.lastSerialNum != wholeSerial ) {
+        board.lastSerialNum = wholeSerial;
         this.SavePackage(cmd);
       }
     }
@@ -180,29 +182,38 @@ ExitPort.prototype.SavePackage = function(cmd){
         //res.Logs = "err no such serial number in upload";
         foundPackage.Logs = "succ";
         foundPackage.save().then(function (ret){
-          enteroutportDb.findOne(
+          scanPackageDb.count(
             {
-              where:{EnterOutPortCode:cmd.exitPortID,Direction:cmd.exitDirection,EnterOutPortType:'OUT'}
+              where:{TrackNum:foundPackage.TrackNum,PrintQueueID:null}
             }
-          ).then(function (outPortInfo){
-            if (outPortInfo != null && outPortInfo != undefined){
-              outPortInfo.TodayCount ++;
-              outPortInfo.CurrentCount ++;
-              outPortInfo.TotalCount ++;
-              outPortInfo.CurrentWeight += foundPackage.PackageWeight;
-              outPortInfo.save();
-            }else{
-              outPortInfo = {};
-              outPortInfo.IsSelect = '0';
-              outPortInfo.EnterOutPortName = cmd.exitPortID + '|' + cmd.exitDirection;
-              outPortInfo.EnterOutPortCode = cmd.exitPortID;
-              outPortInfo.Direction = cmd.exitDirection;
-              outPortInfo.EnterOutPortType = 'OUT';
-              outPortInfo.TodayCount = 1;
-              outPortInfo.CurrentCount = 1;
-              outPortInfo.TotalCount = 1;
-              outPortInfo.CurrentWeight = foundPackage.PackageWeight;
-              enteroutportDb.upsert(outPortInfo);
+          ).then(function(count) {
+            console.log("count = "+count);
+            if (count == 1) {
+              enteroutportDb.findOne(
+                {
+                  where: {EnterOutPortCode: cmd.exitPortID, Direction: cmd.exitDirection, EnterOutPortType: 'OUT'}
+                }
+              ).then(function (outPortInfo) {
+                if (outPortInfo != null && outPortInfo != undefined) {
+                  outPortInfo.TodayCount++;
+                  outPortInfo.CurrentCount++;
+                  outPortInfo.TotalCount++;
+                  outPortInfo.CurrentWeight += foundPackage.PackageWeight;
+                  outPortInfo.save();
+                } else {
+                  outPortInfo = {};
+                  outPortInfo.IsSelect = '0';
+                  outPortInfo.EnterOutPortName = cmd.exitPortID + '|' + cmd.exitDirection;
+                  outPortInfo.EnterOutPortCode = cmd.exitPortID;
+                  outPortInfo.Direction = cmd.exitDirection;
+                  outPortInfo.EnterOutPortType = 'OUT';
+                  outPortInfo.TodayCount = 1;
+                  outPortInfo.CurrentCount = 1;
+                  outPortInfo.TotalCount = 1;
+                  outPortInfo.CurrentWeight = foundPackage.PackageWeight;
+                  enteroutportDb.upsert(outPortInfo);
+                }
+              });
             }
           });
         });
@@ -230,13 +241,15 @@ ExitPort.prototype.QueryOne = function(){
     return;
   }
 
-  var board = this.queryBoards[this.currentQueryIdx];
-  this.transport.write(board.SendCmd.buffer);
-  //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
+  if (this.activeQuery) {
+    var board = this.queryBoards[this.currentQueryIdx];
+    this.transport.write(board.SendCmd.buffer);
+    //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
 
-  this.currentQueryIdx++;
-  if (this.currentQueryIdx >= this.queryBoards.length){
-    this.currentQueryIdx = 0;
+    this.currentQueryIdx++;
+    if (this.currentQueryIdx >= this.queryBoards.length) {
+      this.currentQueryIdx = 0;
+    }
   }
 };
 

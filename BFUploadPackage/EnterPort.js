@@ -9,6 +9,7 @@ var logger = require('./log.js').logger;
 var util = require('util');
 var debug = require('debug')('bfsort');
 var sunyouApi = require('./SunyouRequest.js');
+var bfstatus = require('./BFStatus.js');
 
 var Emitter = require("events").EventEmitter;
 var scanPackageDb = require('./models').eq_scanpackage;
@@ -261,9 +262,9 @@ EnterPort.prototype.enqueue = function (fjData) {
     return false;
   }
   /*
-  if (this.isLoading) {
-    return false;
-  }*/
+   if (this.isLoading) {
+   return false;
+   }*/
 
   //只有在光眼检测到包裹前才能换单
   if (this.respondStatus != 0 && this.respondStatus != 1 ){
@@ -316,6 +317,7 @@ EnterPort.prototype.savePackage = function () {
   parcel.UploadDate = Date.now();
   scanPackageDb.create(parcel).then(function (ret) {
     debug("saved parcel to datebase successful:" + util.inspect(ret));
+    bfstatus.RealtimeScan(2,parcel.TrackNum + parcel.CountryCnName);
   }, function (err) {
     debug("saved parcel to datebase failed:" + util.inspect(err));
   }).catch(function (err){
@@ -332,12 +334,30 @@ EnterPort.prototype.GetStatus = function (cb, res) {
   return this.respondStatus;
 };
 
-EnterPort.prototype.GetScan = function (scan) {
+EnterPort.prototype.GetScan = function (scan,cb) {
   //todo
   console.log("get scan:" + scan);
   /*
+   sunyouApi.getPackageInfo(scan, function (scanObj) {
+   if (scanObj.sortingportnumber != undefined) {
+   var fjData = {};
+   fjData.TrackNum = scan;
+   fjData.ChannelCode = scanObj.channelcode;
+   fjData.CountryCode = scanObj.recipient_country_code;
+   fjData.CountryCnName = scanObj.countrycnname;
+   fjData.PackageWeight = scanObj.predictionweight * 1000;
+   fjData.PortNumber = scanObj.sortingportnumber;
+   fjData.isFinished = false;
+
+   //console.log(fjData);
+   EnterPort.working.enqueue(fjData);
+   }
+   });
+   */
+
   sunyouApi.getPackageInfo(scan, function (scanObj) {
-    if (scanObj.sortingportnumber != undefined) {
+    if (scanObj.sortingportnumber != undefined && scanObj.sortingportnumber != null &&
+      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {
       var fjData = {};
       fjData.TrackNum = scan;
       fjData.ChannelCode = scanObj.channelcode;
@@ -347,29 +367,22 @@ EnterPort.prototype.GetScan = function (scan) {
       fjData.PortNumber = scanObj.sortingportnumber;
       fjData.isFinished = false;
 
-      //console.log(fjData);
+      var outPortWhole = scanObj.sortingportnumber;
+      var exitPort = parseInt(outPortWhole.substr(0, outPortWhole.indexOf('|')));
+      if (!(exitPort > 949 && exitPort < 1024)) {
+        cb(-1, '出口配置非法：' + exitPort);
+        return -1;
+      }
+      console.log("enqueue package:" + fjData);
       EnterPort.working.enqueue(fjData);
+      cb(0, '发送上件指令成功');
+      return 0;
+    } else {
+      console.log("error getpackageinfo data:" + scanObj);
+      cb(-1, '不合法的出口配置');
+      return -1;
     }
   });
-  */
-  sunyouApi.getWeightedPackage(scan, function (scanObj) {
-    if (scanObj.sortingportnumber != undefined && scanObj.level == 'w0') {
-      var fjData = {};
-      fjData.TrackNum = scan;
-      fjData.ChannelCode = scanObj.channelcode;
-      fjData.CountryCode = scanObj.countrycode;
-      fjData.CountryCnName = scanObj.countrycnname;
-      fjData.PackageWeight = scanObj.soringweight * 1000;
-      fjData.PortNumber = scanObj.sortingportnumber;
-      fjData.isFinished = false;
-
-      console.log(fjData);
-      EnterPort.working.enqueue(fjData);
-    }else{
-      logger.error("scan :"+ scan +",invalid package info:"+scanObj);
-    }
-  });
-
 };
 
 module.exports = EnterPort;

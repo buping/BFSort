@@ -1,3 +1,5 @@
+var bfConfig = require ('./config/bfconfig.json');
+
 var mqtt = require('mqtt')
 var client  = mqtt.connect('mqtt://47.90.45.27' ,{
 		username:'beifen',
@@ -27,14 +29,25 @@ client.on('message', function (topic, message) {
 });
 
 
-var StartHeartBeat =function(project,myName){
+var projectName = bfConfig.ProjectName;
+var nodeName = bfConfig.NodeName;
+
+if (projectName == undefined || projectName == null){
+	projectName = 'unknown project';
+}
+
+if (nodeName == undefined || nodeName == null){
+	nodeName = 'unknown node'
+}
+
+
+var StartHeartBeat =function(){
 	var heartBeatMsg = {};
-	heartBeatMsg.project = project;
-	heartBeatMsg.name = myName;
+	heartBeatMsg.project = projectName;
+	heartBeatMsg.name = nodeName;
 
 	var heartBeatFunc = function(){
 		heartBeatMsg.time = Date.now();
-
 		client.publish('heartbeat',JSON.stringify(heartBeatMsg));
 	}
 
@@ -45,9 +58,10 @@ var StartHeartBeat =function(project,myName){
  *           1   emptyCart
  *           2   invalidScan
  */
-var RealtimeScan = function(project,scanType,msg){
+var RealtimeScan = function(scanType,msg){
 	var scanMsg = {};
-	scanMsg.project = project;
+	scanMsg.project = projectName;
+	scanMsg.node = nodeName;
 	scanMsg.scanType = scanType;
 	scanMsg.msg = msg;
 

@@ -1,4 +1,6 @@
 {
+  "ProjectName":"sunyou",
+  "NodeName":"enter1",
   "EnterPort":{
     "PortID": 6,
     "Direction": 0,
@@ -7,7 +9,6 @@
       "baudRate":57600
     }
   },
-
   "ExitPort":{
     "SerialName":"COM5",
     "ActiveQuery": true,

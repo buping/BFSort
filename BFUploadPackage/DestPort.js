@@ -211,7 +211,7 @@ DestPort.prototype.savePackage = function(parcel){
   }
 
   if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
-    bfstatus.RealtimeScan('shengbanghangzhou',0,parcel.TrackNum+parcel.ChannelCode);
+    bfstatus.RealtimeScan(0,parcel.TrackNum+parcel.ChannelCode);
   }else{
     var volumeData = parcel.volumeData;
     if (volumeData == undefined || volumeData == null)
@@ -221,9 +221,9 @@ DestPort.prototype.savePackage = function(parcel){
       var msg={};
       msg.id = parcel.packetID;
       msg.scan = parcel.scanResult;
-      bfstatus.RealtimeScan('shengbanghangzhou',2,JSON.stringify(msg));
+      bfstatus.RealtimeScan(2,JSON.stringify(msg));
     }else{
-      bfstatus.RealtimeScan('shengbanghangzhou',1,'empty cart');
+      bfstatus.RealtimeScan(1,'empty cart');
     }
 
   }

@@ -96,11 +96,9 @@ SerialPort.list(function (err, ports) {
 });
 
 var bfstatus = require('./BFStatus.js');
-
-bfstatus.StartHeartBeat('shengbanghangzhou','exit1');
+bfstatus.StartHeartBeat();
 
 var bfConfig = require ('./config/bfconfig.json');
-
 
 if (bfConfig.EnterPort !== undefined){
   EnterPort.working = new EnterPort(bfConfig.EnterPort);
