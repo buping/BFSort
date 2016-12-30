@@ -184,7 +184,7 @@ ExitPort.prototype.SavePackage = function(cmd){
         foundPackage.save().then(function (ret){
           scanPackageDb.count(
             {
-              where:{TrackNum:foundPackage.TrackNum,PrintQueueID:null}
+              where:{TrackNum:foundPackage.TrackNum,PrintQueueID:null,FinishDate:{ne:null}}
             }
           ).then(function(count) {
             console.log("count = "+count);

@@ -188,7 +188,7 @@ ExitButton.prototype.RecvCompleteCmd = function(){
 ExitButton.prototype.ReplyButton = function(replyCmd) {
   replyCmd.MakeBuffer();
   this.transport.write(replyCmd.buffer);
-  console.log("exitbutton:send reply "+util.inspect(replyCmd.buffer));
+  //console.log("exitbutton:send reply "+util.inspect(replyCmd.buffer));
 };
 
 ExitButton.prototype.RelayToExitPort = function(cmd){

@@ -22,7 +22,7 @@ var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
   sendInterval: 500,
-  repeatSendTimes: 30,	// 最多重发次数
+  repeatSendTimes: 50,	// 最多重发次数
   SerialPort: {
     baudRate: 57600,
     autoOpen: false,
