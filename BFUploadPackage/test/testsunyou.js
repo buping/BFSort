@@ -13,4 +13,10 @@ packageList.push({packageBarcode:'SYHKA00004778',packageSortingCode:'977|1'});
 
 //sunyouApi.getMaibagInfo('1000000123');
 
-sunyouApi.StartPrintTask('1000001892');
+//sunyouApi.StartPrintTask('1000001892');
+
+function test() {
+  sunyouApi.sunyouLogin();
+}
+
+setInterval(test,5000);

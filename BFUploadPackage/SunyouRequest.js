@@ -1,5 +1,6 @@
 var request = require('request');
 var util = require('util');
+var logger = require('./log.js').logger;
 
 var loginPage = 'http://yw.sunyou.hk/admin/login';
 var loginUser = 'beifen';
@@ -27,13 +28,16 @@ var scanCode = 'SYBAB07672838';
 
 var sunyouLogin = function(){
   loginRequest(loginOptions,function(error,response,body){
-    if (error) {
+    if (!error && response.statusCode == 302  &&
+      response.headers.location == 'http://yw.sunyou.hk/admin') {
+      logger.info('login to sunyou successful.');
+      loginSucc = true;
+      setTimeout(sunyouLogin,1000*60*30);    //relogin after 30 minutes
+    }else {
       loginSucc = false;
-      console.log('login page error');
-      return error;
+      logger.error('login to sunyou error,relogin in 5 seconds');
+      setTimeout(sunyouLogin,5000);
     }
-
-    loginSucc = true;
     //console.log(response.headers);
   });
 };
@@ -58,10 +62,14 @@ var getPackageInfo = function(barCode,cb){
   };
 
   loginRequest(getPackageInfo,function(error,response,body){
-    var infoObj = JSON.parse(body);
-    //console.log(response.headers);
-    submitScanResult(barCode,infoObj,infoObj.predictionweight);
-    cb(infoObj);
+    try {
+      var infoObj = JSON.parse(body);
+      //console.log(response.headers);
+      submitScanResult(barCode,infoObj,infoObj.predictionweight);
+      cb(infoObj);
+    }catch (e){
+      logger.error('error in login request parse json ');
+    }
   });
 };
 
@@ -110,7 +118,11 @@ var submitScanResult = function (barCode,packageInfo,weight){
   };
 
   loginRequest(submitScanInfo,function(error,response,body){
-    var infoObj = JSON.parse(body);
+    try{
+      var infoObj = JSON.parse(body);
+    }catch (e){
+      logger.error('error in submit scan parse json ');
+    }
     //console.log(infoObj);
     //console.log(response);
     //console.log(util.inspect(response.req._header));
@@ -138,9 +150,13 @@ var getWeightedPackage = function(barCode,cb){
   };
 
   loginRequest(getPackageInfo,function(error,response,body){
-    var infoObj = JSON.parse(body);
-    //console.log(response.headers);
-    cb(infoObj);
+    try {
+      var infoObj = JSON.parse(body);
+      //console.log(response.headers);
+      cb(infoObj);
+    }catch (e){
+      logger.error('error in getPackageInfo parse json ');
+    }
   });
 };
 
@@ -151,7 +167,6 @@ var test = function(){
 };
 
 sunyouLogin();
-setInterval(sunyouLogin,1000*60*10);
 
 
 //var getMailbagInfoUrl = 'http://api.sandbox.sunyou.hk/autoSorting/getMaibagInfo';
@@ -397,3 +412,4 @@ module.exports.getMaibagInfo  = getMaibagInfo;
 module.exports.addNewMailbag  = addNewMailbag;
 module.exports.StartPrintTask = StartPrintTask;
 module.exports.DoPrint  = DoPrint;
+module.exports.sunyouLogin = sunyouLogin;
