@@ -1,14 +1,14 @@
-var Vitronic = require('./vitronic.js');
+var datalogic = require('./datalogic.js');
 var util = require('util');
 
 
 var cfg={};
-cfg.addr = "192.168.3.234";
-cfg.port = "5001";
+cfg.addr = "172.24.24.1";
+cfg.port = 51236;
 var id=1;
 var startSend = false;
 
-var test = new Vitronic(cfg);
+var test = new datalogic(cfg);
 test.Init();
 
 
@@ -25,7 +25,7 @@ function SendId(){
 }
 
 test.on('data',function(data){
-    console.log(util.inspect(data));
+    console.log(data);
 	if (!startSend){
 		startSend = true;
 		SendId();

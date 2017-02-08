@@ -8,8 +8,6 @@
       "baudRate":57600
     }
   },
-  */
-  /*
   "ExitPort":{
     "Boards":[
       {"Id":950,"Direction":1},
@@ -43,5 +41,13 @@
     "addr":"192.168.3.234",
     "port":5001,
     "station":"01"
+  },
+  "WeightScale":{
+    "SerialName":"COM3",
+    "SerialPort":{
+      "baudRate":9600
+    }
   }
+
+  
 }

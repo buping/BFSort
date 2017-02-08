@@ -10,6 +10,7 @@ var util = require('util');
 var debug = require('debug')('bfsort');
 var sunyouApi = require('./SunyouRequest.js');
 var bfstatus = require('./BFStatus.js');
+var weightScale = require('./WeightScale.js');
 
 var Emitter = require("events").EventEmitter;
 var scanPackageDb = require('./models').eq_scanpackage;
@@ -22,7 +23,7 @@ var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
   sendInterval: 500,
-  repeatSendTimes: 50,	// 最多重发次数
+  repeatSendTimes: 30,	// 最多重发次数
   SerialPort: {
     baudRate: 57600,
     autoOpen: false,
@@ -334,6 +335,57 @@ EnterPort.prototype.GetStatus = function (cb, res) {
   return this.respondStatus;
 };
 
+EnterPort.prototype.GetScanNoWeight = function (scan,cb) {
+  //todo
+  console.log("get scan:" + scan);
+  /*
+   sunyouApi.getPackageInfo(scan, function (scanObj) {
+   if (scanObj.sortingportnumber != undefined) {
+   var fjData = {};
+   fjData.TrackNum = scan;
+   fjData.ChannelCode = scanObj.channelcode;
+   fjData.CountryCode = scanObj.recipient_country_code;
+   fjData.CountryCnName = scanObj.countrycnname;
+   fjData.PackageWeight = scanObj.predictionweight * 1000;
+   fjData.PortNumber = scanObj.sortingportnumber;
+   fjData.isFinished = false;
+
+   //console.log(fjData);
+   EnterPort.working.enqueue(fjData);
+   }
+   });
+   */
+
+  sunyouApi.getWeightedPackage(scan, function (scanObj) {
+    if (scanObj.sortingportnumber != undefined && scanObj.sortingportnumber != null &&
+      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {
+      var fjData = {};
+      fjData.TrackNum = scan;
+      fjData.ChannelCode = scanObj.channelcode;
+      fjData.CountryCode = scanObj.countrycode;
+      fjData.CountryCnName = scanObj.countrycnname;
+      fjData.PackageWeight = scanObj.soringweight * 1000;
+      fjData.PortNumber = scanObj.sortingportnumber;
+      fjData.isFinished = false;
+
+      var outPortWhole = scanObj.sortingportnumber;
+      var exitPort = parseInt(outPortWhole.substr(0, outPortWhole.indexOf('|')));
+      if (!(exitPort > 949 && exitPort < 1024)) {
+        cb(-1, '出口配置非法：' + exitPort);
+        return -1;
+      }
+      console.log("enqueue package:" + fjData);
+      EnterPort.working.enqueue(fjData);
+      cb(0, '发送上件指令成功');
+      return 0;
+    } else {
+      console.log("error getpackageinfo data:" + util.inspect(scanObj));
+      cb(-1, '不合法的出口配置:'+scanObj.message);
+      return -1;
+    }
+  });
+};
+
 EnterPort.prototype.GetScan = function (scan,cb) {
   //todo
   console.log("get scan:" + scan);
@@ -355,15 +407,24 @@ EnterPort.prototype.GetScan = function (scan,cb) {
    });
    */
 
-  sunyouApi.getPackageInfo(scan, function (scanObj) {
+  sunyouApi.getPackageInfo(scan, function (scanObj) {	  
     if (scanObj.sortingportnumber != undefined && scanObj.sortingportnumber != null &&
-      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {
+      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {    
+	 var weight = scanObj.predictionweight;
+	  
+	  if (weightScale.working != undefined){
+		 weight = weightScale.working.GetWeight();
+		 if (weight > 0){
+			sunyouApi.submitScanResult(scan,scanObj,weight);
+		 }
+	  }
+	  
       var fjData = {};
       fjData.TrackNum = scan;
       fjData.ChannelCode = scanObj.channelcode;
       fjData.CountryCode = scanObj.recipient_country_code;
       fjData.CountryCnName = scanObj.countrycnname;
-      fjData.PackageWeight = scanObj.predictionweight * 1000;
+      fjData.PackageWeight = weight * 1000;
       fjData.PortNumber = scanObj.sortingportnumber;
       fjData.isFinished = false;
 
@@ -373,12 +434,12 @@ EnterPort.prototype.GetScan = function (scan,cb) {
         cb(-1, '出口配置非法：' + exitPort);
         return -1;
       }
-      console.log("enqueue package:" + fjData);
+      console.log("enqueue package:" + util.inspect(fjData));
       EnterPort.working.enqueue(fjData);
       cb(0, '发送上件指令成功');
       return 0;
     } else {
-      console.log("error getpackageinfo data:" + scanObj);
+      console.log("error getpackageinfo data:" + util.inspect(scanObj));
       cb(-1, '不合法的出口配置');
       return -1;
     }

@@ -4,6 +4,7 @@ var util = require('util');
 var models = require('../models');
 var debug=require('debug')('bfsort');
 var EnterPort = require("../EnterPort.js");
+var weightScale = require('../WeightScale.js');
 
 
 /* sunyou interface. */
@@ -102,12 +103,17 @@ router.status = function (req,res,next){
 	var cb=req.query.cb;
 	var enterPort = EnterPort.working;
 	var mystatus = enterPort.respondStatus;
+	
+	var weight = 0;
+	if (weightScale.working != undefined){
+		weight = weightScale.working.GetWeight();
+	}
 
 	if (!enterPort.opened){
 		mystatus=-1;
 	}
 
-	res.json({status:mystatus});
+	res.json({status:mystatus,weight:weight});
 };
 
 

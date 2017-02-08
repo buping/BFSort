@@ -64,8 +64,8 @@ var getPackageInfo = function(barCode,cb){
   loginRequest(getPackageInfo,function(error,response,body){
     try {
       var infoObj = JSON.parse(body);
-      //console.log(response.headers);
-      submitScanResult(barCode,infoObj,infoObj.predictionweight);
+      console.log(body);
+      //submitScanResult(barCode,infoObj,infoObj.predictionweight);
       cb(infoObj);
     }catch (e){
       logger.error('error in login request parse json ');
@@ -151,8 +151,9 @@ var getWeightedPackage = function(barCode,cb){
 
   loginRequest(getPackageInfo,function(error,response,body){
     try {
+		
       var infoObj = JSON.parse(body);
-      //console.log(response.headers);
+      console.log(body);
       cb(infoObj);
     }catch (e){
       logger.error('error in getPackageInfo parse json ');
@@ -407,6 +408,7 @@ function GetPrintDataUsingSerial(port,direction,serialNum){
 }
 
 module.exports.getPackageInfo = getPackageInfo;
+module.exports.submitScanResult = submitScanResult;
 module.exports.getWeightedPackage = getWeightedPackage;
 module.exports.getMaibagInfo  = getMaibagInfo;
 module.exports.addNewMailbag  = addNewMailbag;

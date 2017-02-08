@@ -9,6 +9,7 @@ var util = require('util');
 var EnterPort = require('./EnterPort.js');
 var ExitPort = require("./ExitPort.js");
 var ExitButton = require("./ExitButton.js");
+var WeightScale = require('./WeightScale.js');
 
 var logger = require('./log.js').logger;
 logger.setLevel('INFO');
@@ -17,6 +18,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var sendfj = require('./routes/sendfj');
 var admin = require('./routes/admin');
+var weight = require('./routes/weight')
 var exitportdata = require('./routes/exitportdata');
 
 var app = express();
@@ -48,6 +50,7 @@ app.use('/ping',sendfj.ping);
 app.use('/status',sendfj.status);
 app.use('/getscan',sendfj.getscan);
 app.use('/admin',admin);
+app.use('/weight',weight);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -115,6 +118,11 @@ if (bfConfig.ExitPort !== undefined){
 if (bfConfig.ExitButton !== undefined){
   ExitButton.working = new ExitButton(bfConfig.ExitButton);
   ExitButton.working.Init();
+}
+
+if (bfConfig.WeightScale !== undefined){
+  WeightScale.working = new WeightScale(bfConfig.WeightScale);
+  WeightScale.working.Init();
 }
 
 
