@@ -407,18 +407,18 @@ EnterPort.prototype.GetScan = function (scan,cb) {
    });
    */
 
-  sunyouApi.getPackageInfo(scan, function (scanObj) {	  
+  sunyouApi.getPackageInfo(scan, function (scanObj) {
     if (scanObj.sortingportnumber != undefined && scanObj.sortingportnumber != null &&
-      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {    
-	 var weight = scanObj.predictionweight;
-	  
-	  if (weightScale.working != undefined){
-		 weight = weightScale.working.GetWeight();
-		 if (weight > 0){
-			sunyouApi.submitScanResult(scan,scanObj,weight);
-		 }
-	  }
-	  
+      scanObj.sortingportnumber != '' && scanObj.level == 'w0') {
+      var weight = scanObj.predictionweight;
+
+      if (weightScale.working != undefined){
+        weight = weightScale.working.GetWeight();
+        if (weight > 0){
+          sunyouApi.submitScanResult(scan,scanObj,weight);
+        }
+      }
+
       var fjData = {};
       fjData.TrackNum = scan;
       fjData.ChannelCode = scanObj.channelcode;
@@ -439,8 +439,12 @@ EnterPort.prototype.GetScan = function (scan,cb) {
       cb(0, '发送上件指令成功');
       return 0;
     } else {
+      var msg = '获取包裹出口信息失败:';
+      if (scanObj.message != undefined){
+        msg += scanObj.message;
+      }
       console.log("error getpackageinfo data:" + util.inspect(scanObj));
-      cb(-1, '不合法的出口配置');
+      cb(-1, msg);
       return -1;
     }
   });

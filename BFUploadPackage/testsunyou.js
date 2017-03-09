@@ -8,4 +8,4 @@ function test(){
 	});
 }
 
-setTimeout(test,2000);
+setInterval(test,2000);

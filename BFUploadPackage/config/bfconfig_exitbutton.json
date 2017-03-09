@@ -1,0 +1,12 @@
+{
+  "ExitButton":{
+    "Boards":[
+      {"Id":950,"Direction":1},
+      {"Id":951,"Direction":1}
+    ],
+    "SerialName":"COM1",
+    "SerialPort":{
+      "baudRate":115200
+    }
+  }
+}

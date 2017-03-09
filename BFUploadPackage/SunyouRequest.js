@@ -44,7 +44,7 @@ var sunyouLogin = function(){
 
 var getPackageInfo = function(barCode,cb){
   if (!loginSucc){
-    cb({});
+    cb({message:'登录后台系统中,请稍后再重新扫描.'});
     return;
   }
 
@@ -63,12 +63,20 @@ var getPackageInfo = function(barCode,cb){
 
   loginRequest(getPackageInfo,function(error,response,body){
     try {
+      if (body != undefined && body.length != undefined && body.length == 0) {
+        loginSucc = false;
+        cb({message:'登录后台系统中,请稍后再重新扫描.'});
+        sunyouLogin();
+        return;
+      }
+
       var infoObj = JSON.parse(body);
       console.log(body);
-      //submitScanResult(barCode,infoObj,infoObj.predictionweight);
+      submitScanResult(barCode,infoObj,infoObj.predictionweight);
       cb(infoObj);
     }catch (e){
-      logger.error('error in login request parse json ');
+      cb({message:'获取包裹出口失败,请重新扫描'});
+      logger.error('error in login request parse json:'+e);
     }
   });
 };
@@ -151,7 +159,13 @@ var getWeightedPackage = function(barCode,cb){
 
   loginRequest(getPackageInfo,function(error,response,body){
     try {
-		
+      if (body != undefined && body.length != undefined && body.length == 0) {
+        loginSucc = false;
+        cb({message:'登录后台系统中,请稍后再重新扫描.'});
+        sunyouLogin();
+        return;
+      }
+
       var infoObj = JSON.parse(body);
       console.log(body);
       cb(infoObj);
@@ -167,6 +181,7 @@ var test = function(){
   });
 };
 
+//setTimeout(sunyouLogin,10000);
 sunyouLogin();
 
 
