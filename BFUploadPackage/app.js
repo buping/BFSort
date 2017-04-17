@@ -142,19 +142,28 @@ if (bfConfig.Vitronic !== undefined){
   Vitronic.working.Init();
 }
 
+if (bfConfig.Datalogic !== undefined){
+  var Datalogic = require('./datalogic.js');
+
+
+  Datalogic.working = new Datalogic(bfConfig.Datalogic);
+  Datalogic.working.Init();
+}
+
+
 if (bfConfig.DestPort !== undefined){
   var DestPort = require('./DestPort.js');
 
   DestPort.working = new DestPort(bfConfig.DestPort);
   DestPort.working.Init();
 
-  if (TriggerPort.working !== undefined  && Vitronic.working !== undefined){
+  if (TriggerPort.working !== undefined  && Datalogic.working !== undefined){
     TriggerPort.working.on("triggered",function(parcel){
       console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
       DestPort.working.enqueue(parcel);
-      Vitronic.working.enqueue(parcel);
+      Datalogic.working.enqueue(parcel);
     });
-    Vitronic.working.on("scan",function(dest){
+    Datalogic.working.on("scan",function(dest){
       if (DestPort.working !== undefined){
         DestPort.working.receiveScan(dest);
       }

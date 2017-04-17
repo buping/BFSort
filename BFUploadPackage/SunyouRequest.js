@@ -219,7 +219,7 @@ function addNewMailbag(operationSerialNumber,packageList){
     }
   };
 
-  //console.log(JSON.stringify(postData));
+  console.log(JSON.stringify(postData));
   var getParam = {
     url : addNewMailbagUrl,
     body : postData,
@@ -241,6 +241,8 @@ function addNewMailbag(operationSerialNumber,packageList){
           CountryCode:data.labelData.countryCode,
           Count:data.labelData.quantity,
           Weight:data.labelData.weight,
+          ErrorMsg:body.errorMsg,
+          errPkgList:JSON.stringify(data.errorPkgList),
           PrintFlag:'1'
         },{
           where:{SerialNumber:operationSerialNumber}
@@ -257,6 +259,34 @@ function addNewMailbag(operationSerialNumber,packageList){
     }else{
       console.log('add new mailbag return null');
     }
+  });
+}
+
+function testPrint(){
+  var operationSerialNumber = 1000004654;
+  var a1 = {packageBarcode:'RQ096413845MY',packageSortingCode:'982|1'};
+  var a2 = {packageBarcode:'RQ096406331MY',packageSortingCode:'982|1'};
+  var packageList = [a1,a2];
+  var postData = {
+    "apiSortingUserToken" : apiToken,
+    "data":{
+      "operationSerialNumber": operationSerialNumber,
+      "packageList":packageList
+    }
+  };
+
+  //console.log(JSON.stringify(postData));
+  var getParam = {
+    url : addNewMailbagUrl,
+    body : postData,
+    method: 'POST',
+    json : true,
+    headers: loginHeader
+  };
+
+  console.log(JSON.stringify(postData));
+  request.post(getParam,function(error,response,body) {
+    console.log(body);
   });
 }
 
@@ -312,7 +342,7 @@ function DoPrint(port,direction){
   });
 }
 
-function postPrintData(exit_No,Dispatch_No,Bag_No,Country,Count,Weight,barCodeContent,errMsg){
+function postPrintData(exit_No,Dispatch_No,Bag_No,Country,Count,Weight,barCodeContent,errMsg,errPkgList){
   LODOP.SET_LICENSES("深圳市力得得力技术有限公司","EFBAA11B32E17DEF2AA21C83F683CA27","深圳市力得得力技術有限公司","26850A61F7A069ECABBDBA1CECCADC3B");
   LODOP.SET_LICENSES("THIRD LICENSE","","Shenzhen Leaddeal Technology Co., Ltd.","76FD901FAAAD2BD8354051606F79922D");
 
@@ -342,10 +372,20 @@ function postPrintData(exit_No,Dispatch_No,Bag_No,Country,Count,Weight,barCodeCo
   LODOP.ADD_PRINT_TEXT(110,150,300,20,Weight + ' Kg');
 
 
-  LODOP.ADD_PRINT_BARCODE(140,10,400,80,'128B',barCodeContent);
+  LODOP.ADD_PRINT_BARCODE(140,10,350,60,'128B',barCodeContent);
 
   if (errMsg != null) {
-    LODOP.ADD_PRINT_TEXT(250, 10, 400, 80, 'error:' + errMsg);
+    LODOP.NewPageA();
+    LODOP.ADD_PRINT_TEXT(10, 10, 350, 20, 'error:' + errMsg);
+    try{
+      var errList = JSON.parse(errPkgList);
+      var errPkg;
+      var height = 40;
+      for (let errPkg of errList){
+        LODOP.ADD_PRINT_TEXT(height,10,300,20,errPkg);
+        height += 20;
+      }
+    }catch(err){}
   }
   LODOP.PRINT();
 }
@@ -359,7 +399,7 @@ function StartPrintTask(operationSerialNumber){
       console.log(printTask.baggingBatchNumber);
       postPrintData(printTask.OutPortCmd + '|' + printTask.Direction, printTask.baggingBatchNumber,
         printTask.mailBagNumber,printTask.CountryCode,printTask.Count,printTask.Weight,
-        printTask.barcodeContent,printTask.ErrorMsg);
+        printTask.barcodeContent,printTask.ErrorMsg,printTask.errPkgList);
 
       printQueueDb.update({PrintFlag:2},{
         where:{SerialNumber:operationSerialNumber}
@@ -430,3 +470,4 @@ module.exports.addNewMailbag  = addNewMailbag;
 module.exports.StartPrintTask = StartPrintTask;
 module.exports.DoPrint  = DoPrint;
 module.exports.sunyouLogin = sunyouLogin;
+module.exports.testPrint = testPrint;

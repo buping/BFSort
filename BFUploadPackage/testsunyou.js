@@ -1,6 +1,6 @@
 var sunyou = require('./SunyouRequest.js');
 
-
+/*
 function test(){ 
 	var now = Date.now();
 	sunyou.getPackageInfo('SYHKA00004840',function(info){
@@ -8,4 +8,9 @@ function test(){
 	});
 }
 
+
 setInterval(test,2000);
+ */
+
+sunyou.testPrint();
+//sunyou.DoPrint(980,1);

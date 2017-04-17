@@ -73,6 +73,7 @@ Datalogic.prototype.start = function(){
   }.bind(this));
 
   this.client.on('data',function (data){
+	//console.log("datalogic:"+data);
     this.readData (data);
   }.bind(this));
 
@@ -83,7 +84,7 @@ Datalogic.prototype.start = function(){
 }
 
 Datalogic.prototype.readData = function(data){
-  console.log(data);
+  //console.log(data);
   if (data[0] != Datalogic.STX || data[data.length-1] != Datalogic.LF  || data[data.length-2] != Datalogic.CR){
     logger.error('incorrect Datalogic message format');
     return;
@@ -99,6 +100,8 @@ Datalogic.prototype.readData = function(data){
     readResult.barCodeNum = 0;
     readResult.barCodeArr = [];
   }else{
+	console.log("datalogic got barcode:"+str);
+	logger.info("valid datalogic data:" + str);
     var allCodes = str.split(';');
     readResult.barCodeNum = allCodes.length;
     readResult.barCodeArr = allCodes;

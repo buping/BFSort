@@ -17,6 +17,7 @@ var scanFeedback = require('./ScanFeedback.js');
 var bfstatus = require('./BFStatus.js');
 var searchBarcode = require('./SearchBarcode.js');
 
+var ylhd = require('./client/ylhd.js');
 
 
 var SEND_UPLOAD = 0x01;
@@ -27,11 +28,11 @@ var INSTRUCTION_LENGTH = 11;
 var defaults = {
   //reportVersionTimeout: 5000,
   receiveInterval: 100,
-  delayTime : 3550,
-  minDelay : 3100,
+  delayTime : 1800,
+  minDelay : 1500,
   sendInterval:50,
   repeatSendTimes:3,	// 最多重发次数
-  trashPort : "955|1",
+  trashPort : "999|1",
   SerialPort: {
     baudRate: 57600,
     autoOpen: false,
@@ -262,11 +263,13 @@ DestPort.prototype.ActualSendData = function(){
         this.packetMapping.delete(nextParcelID);
       }else if (now - nextParcel.TriggerTime > this.settings.delayTime){
         this.packetMapping.delete(nextParcelID);
-      }else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay){
-        this.sendBuffer = nextParcel;
-        this.MakeRewriteBuff();
-        logger.info("send rewrite buffer:"+util.inspect(this.sendBuffer.rewriteBuffer));
-        this.transport.write(this.sendBuffer.rewriteBuffer);
+      }else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay) {
+        if (nextParcel.destPort != null && nextParcel.destPort != undefined) {
+          this.sendBuffer = nextParcel;
+          this.MakeRewriteBuff();
+          logger.info("send rewrite buffer:" + util.inspect(this.sendBuffer.rewriteBuffer));
+          this.transport.write(this.sendBuffer.rewriteBuffer);
+        }
         this.packetMapping.delete(nextParcelID);
         break;
       }
@@ -283,6 +286,8 @@ DestPort.prototype.MakeRewriteBuff= function(){
   if (destPort === undefined || destPort === null) {
     destPort = this.settings.trashPort;
     parcel.Logs = "receive no vitronic response";
+	
+	  console.log("got no response in time");
   }
 
   logger.info("send parcel "+parcel.packetID+" to port "+destPort);
@@ -330,7 +335,69 @@ DestPort.prototype.receiveScan = function(result){
 
   dest.scanResult = result.validBarCodes;
   dest.volumeData = result.volumeData;
-  this.findExitPort(dest);
+  //this.findExitPort(dest);
+  this.GetExitPortOnline(dest);
+};
+
+DestPort.prototype.GetExitPortOnline = function(dest){
+	var workingPort = this;
+  if (dest.scanResult.length ==0) {
+    dest.Logs = "Scan return 0 elements";
+    return;
+  }
+  dest.destPort = "999|1";
+
+  /*
+  logger.info("get ylhd package:"+dest.scanResult[0]);
+  dest.TrackNum = dest.scanResult[0];
+
+  ylhd.getPackageInfo(dest.scanResult[0],function (data) {
+    if (data.success && data.map.dest != undefined){
+      var mapdest = data.map.dest;
+      if (mapdest.printArea){
+        logger.info('Exitport is '+ mapdest.printArea + 'for package:'+dest.TrackNum);
+		dest.destPort = mapdest.printArea;
+		dest.CountryCode = mapdest.destCode;
+		dest.ChannelCode = mapdest.channel;
+      }else{
+		dest.destPort = workingPort.settings.trashPort;
+        logger.info("server return no exitport for barcode:"+dest.TrackNum);
+      }
+
+    }else{
+		dest.destPort = workingPort.settings.trashPort;
+      logger.info("server return no exitport for barcode:"+dest.TrackNum);		
+    }
+  });
+  */
+
+  for (let oneBarcode of dest.scanResult){
+    logger.info("get ylhd package:"+oneBarcode);
+    ylhd.getPackageInfo(oneBarcode,function(data){
+      if (data != null && data != undefined) {
+        logger.info('server1 return Exitport '+ data + ' for package:'+oneBarcode);
+        dest.destPort = data;
+        dest.ChannelCode = "server1";
+      }else{
+        logger.info("server1 return no exitport for barcode:"+oneBarcode);
+      }
+    });
+
+    ylhd.getPackageInfoExtra(oneBarcode,function(data){
+      if (data != null && data != undefined) {
+        logger.info('server2 return Exitport '+ data + ' for package:'+oneBarcode);
+        if (dest.destPort == "999|1"){
+          dest.destPort = data;
+          dest.ChannelCode = "server2";
+          logger.info('server1 no result,using server2 result:'+data);
+        }
+      }else{
+        logger.info('server2 return no result for barcode:'+oneBarcode);
+      }
+    });
+  }
+
+
 };
 
 DestPort.prototype.tryOnlineSearch = function(dest){
@@ -375,6 +442,8 @@ DestPort.prototype.findExitPort = function(dest){
   }
 
   logger.info("find in sortData for scan result:"+util.inspect(dest.scanResult));
+  
+  
   sortDataDb.findOne({where:{packageBarcode:dest.scanResult}}).then(function(entry){
     if (entry == null) {
       logger.info("can't find barcode in database:"+dest.scanResult+",try online search");
@@ -389,6 +458,7 @@ DestPort.prototype.findExitPort = function(dest){
   }).catch(function (err){
     logger.error("database error in find sortData:"+err);
   });
+  
 };
 
 DestPort.prototype.enqueue = function(parcel){

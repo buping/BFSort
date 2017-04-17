@@ -60,6 +60,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true
     },
+    errPkgList: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    labelHtml: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     PrintFlag: {
       type: DataTypes.STRING,
       allowNull: true

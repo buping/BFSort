@@ -162,10 +162,13 @@ TriggerPort.prototype.recieveDirect= function(){
     if (this.currentBuffer[1] == RECEIVE_TRIGGER){
       this.receiveTrigger();
     }
+  }
+/*
   }else {
     this.sameBufferCount++;
     //util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
   }
+  */
     /*
    if (this.webResponse !== undefined){
    this.webResponse.send(util.inspect(this.currentBuffer));
@@ -194,9 +197,11 @@ TriggerPort.prototype.receiveTrigger = function() {
   
   //this.parcel = parcel;
 
+  /*
   if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
     return;
   }
+  */
   
   /*
   if (parcel.SerialNumber == this.lastSerialNum && parcel.EnterPort == this.lastEnterPort){

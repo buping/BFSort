@@ -33,19 +33,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     TodayCount: {
-      type: 'DOUBLE',
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     TotalCount: {
-      type: 'DOUBLE',
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     CurrentCount: {
-      type: 'DOUBLE',
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     CurrentWeight: {
-      type: 'DOUBLE',
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     RunStatus: {

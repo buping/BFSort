@@ -11,7 +11,7 @@ var enteroutportDb = require('./models').ba_enteroutport;
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 100,
+  Interval: 50,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数
@@ -53,7 +53,15 @@ function ExitPort(options, callback) {
   this.currentQueryIdx = 0;
   this.allExitPort = [];
   this.exitDirection = 0;
+
+
   this.relayCmd = null;
+  this.relayConfirmed = false;
+  this.relayCount = 0;
+
+  this.relayexitPortID=0;
+  this.relayisInorOut=0;
+  this.relaystopOrGo =0;
 
   this.opened = false;
   this.currentRecvCmd = new Command(Command.EXIT_TO_PC);
@@ -62,7 +70,7 @@ function ExitPort(options, callback) {
 
   this.transport.on("close", function () {
     this.opened = false;
-    this.emit("close")
+    this.emit("close");
   }.bind(this));
   //com port closed accidently,try open afterwards;
   this.transport.on("disconnect", function () {
@@ -131,6 +139,7 @@ ExitPort.prototype.RecvCompleteCmd = function(){
 
   logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
 
+  this.CheckRelayResponse(cmd);
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
   if (cmd.serialNumber ==0){
     return;
@@ -235,10 +244,18 @@ ExitPort.prototype.QueryOne = function(){
     return;
   }
 
+  //从按钮转发指令到出口板
   if (this.relayCmd != null){
-    this.transport.write(this.relayCmd);
-    this.relayCmd = null;
-    return;
+    this.relayCount++;
+    if (this.relayCount>30){
+      this.relayCmd = null;
+      logger.info("relay button to exitport,cmd "+ util.inspect(this.relayCmd) + " failed,no response in time");
+    }else {
+      logger.info("relay button to exitport,cmd "+ util.inspect(this.relayCmd)+" for "+this.relayCount + "times");
+      this.transport.write(this.relayCmd);
+      //this.relayCmd = null;
+      return;
+    }
   }
 
   if (this.activeQuery) {
@@ -253,12 +270,17 @@ ExitPort.prototype.QueryOne = function(){
   }
 };
 
-ExitPort.prototype.RelayCmd = function(cmd){
+ExitPort.prototype.RelayCmd = function(cmd,exitPortID,isInorOut,stopOrGo){
   if (!this.opened){
     return;
   }
 
   this.relayCmd = cmd.buffer;
+  this.relayConfirmed = false;
+  this.relayCount = 0;
+  this.relayexitPortID = exitPortID;
+  this.relayisInorOut = isInorOut;
+  this.relaystopOrGo = stopOrGo;
   //this.transport.write(cmd.buffer);
 };
 
@@ -271,6 +293,36 @@ ExitPort.prototype.GetExitPortData = function(cmd){
     }
   );
 };
+
+ExitPort.prototype.CheckRelayResponse = function(cmd) {
+  if (this.relayCmd == null)
+    return;
+
+  var exitPortID = cmd.exitPortID;
+
+  if (exitPortID != this.relayexitPortID){
+    return;
+  }
+  var inExitToCarEn = (cmd.status & 0x10) >> 4;  //0 内侧出口   1 外侧出口
+  var outExitToCarEn = (cmd.status & 0x20) >> 5;  //内侧出口控制 0 关闭   1开启
+
+  if (this.relayisInorOut == 0){
+    if (inExitToCarEn == this.relaystopOrGo){
+      this.relayCmd = null;
+      this.relayConfirmed = true;
+      logger.info("relay button to exitport confimed:"+this.relayexitPortID+"|"+this.relayisInorOut+" to "+
+        this.relaystopOrGo);
+    }
+  }else if (this.relayisInorOut == 1){
+    if (outExitToCarEn == this.relaystopOrGo){
+      this.relayCmd = null;
+      this.relayConfirmed = true;
+      logger.info("relay button to exitport confimed:"+this.relayexitPortID+"|"+this.relayisInorOut+" to "+
+        this.relaystopOrGo);
+    }
+  }
+};
+
 
 module.exports = ExitPort;
 

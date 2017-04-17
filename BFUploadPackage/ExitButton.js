@@ -10,6 +10,10 @@ var printQueueDb = require('./models').ba_printqueue;
 var scanPackageDb = require('./models').eq_scanpackage;
 var enteroutportDb = require('./models').ba_enteroutport;
 var sunyouApi = require('./SunyouRequest.js');
+var ylhd = require('./client/ylhd.js');
+
+
+var bfConfig = require ('./config/bfconfig.json');
 
 
 var defaults = {
@@ -187,16 +191,8 @@ ExitButton.prototype.RecvCompleteCmd = function(){
 
 ExitButton.prototype.ReplyButton = function(replyCmd) {
   replyCmd.MakeBuffer();
-  setTimeout(this.testSend.bind(this,replyCmd.buffer),10);
-  setTimeout(this.testSend.bind(this,replyCmd.buffer),50);
-  setTimeout(this.testSend.bind(this,replyCmd.buffer),100);
-  //this.transport.write(replyCmd.buffer);
-//  console.log("exitbutton:send reply "+util.inspect(replyCmd.buffer));
-};
-
-ExitButton.prototype.testSend = function(buf){
-  console.log("exitbutton:send reply "+util.inspect(buf));
-  this.transport.write(buf);
+  this.transport.write(replyCmd.buffer);
+  console.log("exitbutton:send reply "+util.inspect(replyCmd.buffer));
 };
 
 ExitButton.prototype.RelayToExitPort = function(cmd){
@@ -218,6 +214,23 @@ ExitButton.prototype.Print = function(port,direction){
 
 ExitButton.prototype.UpdateExitPort = function(port,direction,status){
   //todo update exitport status
+  
+  if (port>=966 && port<=973){
+    port = 950-(port-965);
+  }else if (port>=976 && port<=988 && direction==0){
+    port = port - 6;
+    if (port>=970 && port<=974)
+      port = port -1;
+  }else if (port>=976 && port<=988 && direction==1){
+    port = port - 7;
+	if (port == 974)
+		port = 971;
+	else if (port ==971)
+		port = 974;
+  }else if (port>=989 && port<=1014 && direction == 1){
+	  port-=8;
+  }
+  
   console.log("set port "+port+"|"+direction+" to status "+status);
   enteroutportDb.findOne(
     {
@@ -227,7 +240,7 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
     if (outPortInfo != null && outPortInfo != undefined){
       if (status == 2){
         if (outPortInfo.RunStatus == 0) {
-          sunyouApi.DoPrint(port, direction);
+          ExitButton.working.PrintExitData(port, direction);
           outPortInfo.RunStatus = 2;
           outPortInfo.save();
         }
@@ -289,6 +302,15 @@ ExitButton.prototype.MakeQueryBufer = function(){
 
   this.queryBuffer = cmd.buffer;
 };
+
+ExitButton.prototype.PrintExitData = function(port,direction){
+  if (bfConfig.ProjectName == 'sunyou') {
+    sunyouApi.DoPrint(port, direction);
+  }else if (bfConfig.ProjectName == 'ylhd'){
+    ylhd.DoPrint(port, direction);
+  }
+};
+
 
 module.exports = ExitButton;
 

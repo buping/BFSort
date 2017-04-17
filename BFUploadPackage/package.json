@@ -20,6 +20,7 @@
     "sequelize": "^3.24.1",
     "serialport": "^4.0.1",
     "serve-favicon": "~2.3.0",
+    "uuid": "^3.0.1",
     "websocket": "^1.0.23"
   }
 }

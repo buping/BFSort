@@ -57,7 +57,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     PackageWeight: {
-      type: 'DOUBLE',
+      type: DataTypes.DECIMAL,
       allowNull: true
     },
     Logs: {
