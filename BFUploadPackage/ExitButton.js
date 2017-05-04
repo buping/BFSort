@@ -2,7 +2,7 @@ var com = require("./com.js");
 
 var logger = require('./log.js').logger;
 var util= require('util');
-var Command = require('./Command.js');
+var BtnCommand = require('./BtnCommand.js');
 var Emitter=require('events').EventEmitter;
 var debug = require('debug')('bfsort');
 var enterOutPortDb = require('./models').ba_enteroutport;
@@ -10,15 +10,12 @@ var printQueueDb = require('./models').ba_printqueue;
 var scanPackageDb = require('./models').eq_scanpackage;
 var enteroutportDb = require('./models').ba_enteroutport;
 var sunyouApi = require('./SunyouRequest.js');
-var ylhd = require('./client/ylhd.js');
-
-
-var bfConfig = require ('./config/bfconfig.json');
+var bdt = require('./bdt.js');
 
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 100,
+  Interval: 30,
   BoardID : 0,
   //portDelay: 100,
   //sendInterval:500,
@@ -52,12 +49,13 @@ function ExitButton(options, callback) {
   this.settings = Object.assign({}, defaults, options);
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
-  this.queryBoards = this.settings.Boards;
+  var currentExitPort = require('./ExitPort.js').working;
+  this.queryBoards = currentExitPort.queryBoards;
   this.currentQueryIdx = 0;
 
 
   this.opened = false;
-  this.currentRecvCmd = new Command(Command.BUTTON_TO_PC);
+  this.currentRecvCmd = new BtnCommand(BtnCommand.BUTTON_TO_PC);
 
   this.transport = new com.SerialPort(options.SerialName, this.settings.SerialPort);
 
@@ -82,7 +80,8 @@ function ExitButton(options, callback) {
   }.bind(this));
 
   this.transport.on('data', function (data) {
-    //console.log("\rExitButton Receive serial data:" + util.inspect(data));
+    //logger.info("ExitButton Receive serial data:" + util.inspect(data));
+	//console.log("ExitButton:" + util.inspect(data));
     this.currentRecvCmd.ReadData(data);
     if (this.currentRecvCmd.isComplete) {
       this.RecvCompleteCmd();
@@ -91,21 +90,10 @@ function ExitButton(options, callback) {
 }
 
 ExitButton.prototype.Init = function() {
-  for (var boardIdx in this.queryBoards){
-    var board = this.queryBoards[boardIdx];
-    var query = new Command(Command.PC_TO_BUTTON);
-    query.exitPortID = 0;
-    query.exitDirection = 0;
-    query.enterPortID = board.Id;
-    query.MakeBuffer();
-    board.SendCmd = query;
-    var response = new Command(Command.BUTTON_TO_PC);
-    board.RecvCmd = response;
-    //board.
-  }
-
   this.Open();
   this.StartQuery();
+  this.GetSavedStatus();
+  
 };
 
 ExitButton.prototype.Open = function() {
@@ -124,18 +112,27 @@ ExitButton.prototype.Open = function() {
 ExitButton.prototype.RecvCompleteCmd = function(){
   var cmd=this.currentRecvCmd.Clone();
   this.currentRecvCmd.Clear();
-  if (cmd.instructionId != Command.BUTTON_TO_PC){
+  if (cmd.instructionId != BtnCommand.BUTTON_TO_PC){
     //logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
     return;
   }
 
-  var replyCmd = new Command(Command.PC_TO_BUTTON);
-  replyCmd.enterPortID = cmd.enterPortID;
+  var replyCmd = new BtnCommand(BtnCommand.PC_TO_BUTTON);
   replyCmd.exitPortID = cmd.exitPortID;
+  replyCmd.totalCount = cmd.totalCount;
+  replyCmd.totalWeight = cmd.totalWeight;
+  replyCmd.exitDirection = cmd.exitDirection;
+  replyCmd.exitStatus = cmd.exitStatus;
+  
 
-  var statusCode = cmd.status;
-  var direction = cmd.direction;
-  var exitPort = cmd.exitPort;
+  var statusCode = cmd.cmdConfirm;
+  var exitDirection = cmd.exitDirection;
+  var exitPort = cmd.exitPortID;
+  
+  
+  if (exitPort == 984){
+	  //console.log(util.inspect(cmd.buffer));
+  }
 
   var bucketFull = statusCode & 0x01;
   var resetSignal = (statusCode & 0x02) >> 1;
@@ -144,9 +141,7 @@ ExitButton.prototype.RecvCompleteCmd = function(){
 
   var recvError = (statusCode & 0x40) >> 6
 
-  var isInorOut = (direction & 0x20) >> 5;  //0 内侧出口   1 外侧出口
-  var inControl = (direction & 0x08) >> 3;  //内侧出口控制 0 关闭   1开启
-  var outControl = (direction & 0x10) >> 4; //外侧出口控制 0 关闭   1 开启
+  var isInorOut = cmd.exitDirection;  //0 内侧出口   1 外侧出口
 
   if (statusCode == 0){
     return;
@@ -154,20 +149,28 @@ ExitButton.prototype.RecvCompleteCmd = function(){
   if (recvError == 0x01){
     return;
   }
+  
+  var exitStatus = 0;
+  var cmdConfirm = 0;
 
   if (bucketFull == 0x01){
-    replyCmd.status = 0x01;
+    cmdConfirm = 0x01;
     //
   }else if(resetSignal == 0x01){
-    replyCmd.status = 0x02;
-    this.RelayToExitPort(cmd);
+    cmdConfirm = 0x02;
+	  exitStatus = 0x00;
+
+
     if (isInorOut == 0x00){
+      this.RelayToExitPort(cmd,cmd.exitPortID,isInorOut,1);
       this.UpdateExitPort(cmd.exitPortID,isInorOut,1);
     }else{
+      this.RelayToExitPort(cmd,cmd.exitPortID,isInorOut,1);
       this.UpdateExitPort(cmd.exitPortID,isInorOut,1);
     }
   }else if(printSignal == 0x01){
-    replyCmd.status = 0x04;
+    cmdConfirm = 0x04;
+	  exitStatus = 0x04;
     if (isInorOut == 0x00){
       this.UpdateExitPort(cmd.exitPortID,isInorOut,2);
     }else{
@@ -176,15 +179,35 @@ ExitButton.prototype.RecvCompleteCmd = function(){
 
     //this.Print(cmd.exitPortID,isInorOut);
   }else if(lockSignal == 0x01){
-    replyCmd.status = 0x08;
+	  exitStatus = 0x08;
+    cmdConfirm = 0x08;
     this.RelayToExitPort(cmd);
     if (isInorOut == 0x00){
+      this.RelayToExitPort(cmd,cmd.exitPortID,isInorOut,0);
       this.UpdateExitPort(cmd.exitPortID,isInorOut,0);
     }else{
+      this.RelayToExitPort(cmd,cmd.exitPortID,isInorOut,0);
       this.UpdateExitPort(cmd.exitPortID,isInorOut,0);
     }
   }
 
+
+  for (var boardIdx in this.queryBoards){
+    var board = this.queryBoards[boardIdx];
+    if (exitPort == board.Id && exitDirection == board.Direction){
+		board.ExitStatus = exitStatus;
+		board.CmdConfirm = cmdConfirm;
+/*
+		if (printSignal == 0x01){
+			board.TotalCount++;
+			board.TotalWeight+=0.1;
+		}
+		*/
+	}
+  }
+
+  replyCmd.exitStatus = exitStatus;
+  replyCmd.cmdConfirm = cmdConfirm;
   this.ReplyButton(replyCmd);
 
 };
@@ -195,11 +218,11 @@ ExitButton.prototype.ReplyButton = function(replyCmd) {
   console.log("exitbutton:send reply "+util.inspect(replyCmd.buffer));
 };
 
-ExitButton.prototype.RelayToExitPort = function(cmd){
+ExitButton.prototype.RelayToExitPort = function(cmd,exitPortID,isInorOut,stopOrGo){
   //todo relay button cmd to eixtport;
   var currentExitPort = require('./ExitPort.js').working;
   if (currentExitPort !== undefined)
-    currentExitPort.RelayCmd(cmd);
+    currentExitPort.RelayCmd(cmd,exitPortID,isInorOut,stopOrGo);
 };
 
 ExitButton.prototype.Print = function(port,direction){
@@ -214,23 +237,6 @@ ExitButton.prototype.Print = function(port,direction){
 
 ExitButton.prototype.UpdateExitPort = function(port,direction,status){
   //todo update exitport status
-  
-  if (port>=966 && port<=973){
-    port = 950-(port-965);
-  }else if (port>=976 && port<=988 && direction==0){
-    port = port - 6;
-    if (port>=970 && port<=974)
-      port = port -1;
-  }else if (port>=976 && port<=988 && direction==1){
-    port = port - 7;
-	if (port == 974)
-		port = 971;
-	else if (port ==971)
-		port = 974;
-  }else if (port>=989 && port<=1014 && direction == 1){
-	  port-=8;
-  }
-  
   console.log("set port "+port+"|"+direction+" to status "+status);
   enteroutportDb.findOne(
     {
@@ -240,7 +246,8 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
     if (outPortInfo != null && outPortInfo != undefined){
       if (status == 2){
         if (outPortInfo.RunStatus == 0) {
-          ExitButton.working.PrintExitData(port, direction);
+          //sunyouApi.DoPrint(port, direction);
+		  bdt.Print(port, direction);
           outPortInfo.RunStatus = 2;
           outPortInfo.save();
         }
@@ -252,9 +259,9 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
     }else{
       outPortInfo = {};
       outPortInfo.IsSelect = '0';
-      outPortInfo.EnterOutPortName = cmd.exitPortID + '|' + cmd.exitDirection;
-      outPortInfo.EnterOutPortCode = cmd.exitPortID;
-      outPortInfo.Direction = cmd.exitDirection;
+      outPortInfo.EnterOutPortName = port + '|' + direction;
+      outPortInfo.EnterOutPortCode = port;
+      outPortInfo.Direction = direction;
       outPortInfo.EnterOutPortType = 'OUT';
       outPortInfo.TodayCount = 0;
       outPortInfo.CurrentCount = 0;
@@ -266,7 +273,7 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
   }).catch(function (err){
     console.log('data base error'+err);
   });
-
+  
 };
 
 ExitButton.prototype.StartQuery = function(){
@@ -279,8 +286,27 @@ ExitButton.prototype.QueryOne = function(){
   }
 
   var board = this.queryBoards[this.currentQueryIdx];
-  this.transport.write(board.SendCmd.buffer);
-  //console.log("Exitbutton sending buffer:"+util.inspect(board.SendCmd.buffer));
+  
+  var query = new BtnCommand(BtnCommand.PC_TO_BUTTON);
+  query.enterPortID = 0;
+  query.exitDirection = 0;
+  query.exitPortID = board.Id;
+  query.totalCount = board.TotalCount;
+  query.totalWeight = parseInt(board.TotalWeight * 10);
+  query.exitStatus = board.ExitStatus;
+  query.cmdConfirm = board.CmdConfirm;
+  
+  if (board.CmdConfirm !=0) 
+	  board.CmdConfirm =0;
+  query.MakeBuffer();
+  board.BtnSendCmd = query;
+  
+  //console.log(query.exitStatus);
+
+	
+  this.transport.write(query.buffer);
+  //logger.info("Exitbutton sending buffer:"+util.inspect(query.buffer));d
+  //console.log("Exitbutton send:"+util.inspect(query.buffer));
 
   this.currentQueryIdx++;
   if (this.currentQueryIdx >= this.queryBoards.length){
@@ -288,29 +314,34 @@ ExitButton.prototype.QueryOne = function(){
   }
 };
 
-ExitButton.prototype.MakeQueryBufer = function(){
-  var boardID = this.settings.BoardID;
-  var cmd = new Command(Command.PC_TO_BUTTON);
-  cmd.exitPortID = 0;
-  cmd.enterPortID = boardID;
-  cmd.serialNumber = 0;
-  cmd.reserved = 0;
-  cmd.enterDirection = 0;
-  cmd.exitDirection = 0;
-  cmd.status =0;
-  cmd.MakeBuffer();
 
-  this.queryBuffer = cmd.buffer;
-};
-
-ExitButton.prototype.PrintExitData = function(port,direction){
-  if (bfConfig.ProjectName == 'sunyou') {
-    sunyouApi.DoPrint(port, direction);
-  }else if (bfConfig.ProjectName == 'ylhd'){
-    ylhd.DoPrint(port, direction);
-  }
-};
-
+ExitButton.prototype.GetSavedStatus = function(){
+	console.log('get saved status');
+	var queryBoards = this.queryBoards;
+   enteroutportDb.findAll({where:{EnterOutPortType:'OUT'}}).then(function (allret){
+	   console.log("count:"+ allret.length);
+	   console.log("board count:"+ queryBoards.length);
+	   for (let entry of allret){
+		     
+		     for (var boardIdx in queryBoards){
+				var board = queryBoards[boardIdx];
+				if (entry.EnterOutPortCode == board.Id && entry.Direction == board.Direction){
+					console.log("get save exit status for "+board.Id +"|" + board.Direction);
+					board.TotalCount = entry.CurrentCount;
+					board.TotalWeight = entry.CurrentWeight;
+					
+					var status = entry.RunStatus;
+					if (status == 1)
+						board.ExitStatus = 0x00;
+					else if (status == 2)
+						board.ExitStatus = 0x04;
+					else if (status == 0)
+						board.ExitStatus = 0x08;
+				}
+			 }
+	   }
+   });
+}
 
 module.exports = ExitButton;
 

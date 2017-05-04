@@ -1,7 +1,7 @@
 var bfConfig = require ('./config/bfconfig.json');
 
 var mqtt = require('mqtt')
-var client  = mqtt.connect('mqtt://47.90.45.27' ,{
+var client  = mqtt.connect('mqtt://mqtt.bfsort.com' ,{
 		username:'beifen',
 		password:'beifen111',
 		reconnectPeriod: 5000

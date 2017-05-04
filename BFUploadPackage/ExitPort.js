@@ -11,7 +11,7 @@ var enteroutportDb = require('./models').ba_enteroutport;
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 50,
+  Interval: 30,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数
@@ -54,7 +54,6 @@ function ExitPort(options, callback) {
   this.allExitPort = [];
   this.exitDirection = 0;
 
-
   this.relayCmd = null;
   this.relayConfirmed = false;
   this.relayCount = 0;
@@ -63,6 +62,7 @@ function ExitPort(options, callback) {
   this.relayisInorOut=0;
   this.relaystopOrGo =0;
 
+
   this.opened = false;
   this.currentRecvCmd = new Command(Command.EXIT_TO_PC);
 
@@ -70,7 +70,7 @@ function ExitPort(options, callback) {
 
   this.transport.on("close", function () {
     this.opened = false;
-    this.emit("close");
+    this.emit("close")
   }.bind(this));
   //com port closed accidently,try open afterwards;
   this.transport.on("disconnect", function () {
@@ -101,6 +101,10 @@ function ExitPort(options, callback) {
 ExitPort.prototype.Init = function() {
   for (var boardIdx in this.queryBoards){
     var board = this.queryBoards[boardIdx];
+	board.TotalCount = 0;
+	board.TotalWeight = 0;
+	board.ExitStatus = 0;
+	board.CmdConfirm = 0;
     var query = new Command(Command.PC_TO_EXIT);
     this.allExitPort.push(board.Id);
     this.exitDirection = board.Direction;
@@ -140,6 +144,7 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
 
   this.CheckRelayResponse(cmd);
+
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
   if (cmd.serialNumber ==0){
     return;
@@ -152,6 +157,14 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   var enterPortID = cmd.enterPortID;
   var wholeSerial = (enterPortID << 16) + serialNumber;
   var packageCount = cmd.reserved;
+  var inExitToCarEn = (cmd.status & 0x10) >> 4;  //0 内侧出口   1 外侧出口
+  var outExitToCarEn = (cmd.status & 0x20) >> 5;  //内侧出口控制 0 关闭   1开启
+  var exitToCarEn;
+  if (exitDirection == 0){
+    exitToCarEn = inExitToCarEn;
+  }else{
+    exitToCarEn = outExitToCarEn;
+  }
   /*
   if (packageCount ==0){
     return;
@@ -164,16 +177,23 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   for (var boardIdx in this.queryBoards){
     var board = this.queryBoards[boardIdx];
     if (exitPortID == board.Id && exitDirection == board.Direction){
-      board.TotalCount = packageCount;
+      //board.TotalCount = packageCount;
+      if (exitToCarEn == 1 && board.ExitStatus == 0x08){
+        board.ExitStatus = 0x00;
+      }
+      if (exitToCarEn == 0 && board.ExitStatus == 0x00){
+        board.ExitStatus = 0x08;
+      }
       if (wholeSerial != 0 && board.lastSerialNum != wholeSerial ) {
         board.lastSerialNum = wholeSerial;
-        this.SavePackage(cmd);
+        this.SavePackage(cmd,board);
       }
     }
   }
 };
 
-ExitPort.prototype.SavePackage = function(cmd){
+
+ExitPort.prototype.SavePackage = function(cmd,board){
   var package;
   console.log("saving receiving cmd:"+util.inspect(cmd));
   scanPackageDb.findOne(
@@ -208,6 +228,8 @@ ExitPort.prototype.SavePackage = function(cmd){
                   outPortInfo.CurrentCount++;
                   outPortInfo.TotalCount++;
                   outPortInfo.CurrentWeight += foundPackage.PackageWeight;
+				  board.TotalCount = outPortInfo.CurrentCount;
+				  board.TotalWeight = outPortInfo.CurrentWeight;
                   outPortInfo.save();
                 } else {
                   outPortInfo = {};
@@ -244,7 +266,6 @@ ExitPort.prototype.QueryOne = function(){
     return;
   }
 
-  //从按钮转发指令到出口板
   if (this.relayCmd != null){
     this.relayCount++;
     if (this.relayCount>30){
@@ -254,7 +275,7 @@ ExitPort.prototype.QueryOne = function(){
       logger.info("relay button to exitport,cmd "+ util.inspect(this.relayCmd)+" for "+this.relayCount + "times");
       this.transport.write(this.relayCmd);
       //this.relayCmd = null;
-      return;
+      //return;
     }
   }
 
@@ -262,6 +283,7 @@ ExitPort.prototype.QueryOne = function(){
     var board = this.queryBoards[this.currentQueryIdx];
     this.transport.write(board.SendCmd.buffer);
     //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
+	logger.info("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
 
     this.currentQueryIdx++;
     if (this.currentQueryIdx >= this.queryBoards.length) {
@@ -293,6 +315,7 @@ ExitPort.prototype.GetExitPortData = function(cmd){
     }
   );
 };
+
 
 ExitPort.prototype.CheckRelayResponse = function(cmd) {
   if (this.relayCmd == null)
