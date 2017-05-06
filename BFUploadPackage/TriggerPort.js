@@ -8,6 +8,8 @@ var com = require("./com.js");
 var logger = require('./log.js').logger;
 var util= require('util');
 var debug = require('debug')('bfsort');
+var bfstatus = require('./BFStatus.js');
+
 
 var Emitter=require("events").EventEmitter;
 var scanPackageDb = require('./models').eq_scanpackage;
@@ -20,6 +22,8 @@ var INSTRUCTION_HEADER = 0xAA;
 var INSTRUCTION_LENGTH = 11;
 var defaults = {
   //reportVersionTimeout: 5000,
+  CartCount:100,
+  CartWidth:0.6,
   receiveInterval: 100,
   sendInterval:500,
   repeatSendTimes:3,	// 最多重发次数
@@ -78,7 +82,10 @@ function TriggerPort(options, callback){
   this.parcel = {};
   this.loadSucc = false;
   this.employeeName = "admin";
-
+  this.cartAliveTime = new Array(this.settings.CartCount);
+  this.railSpeed = 0;
+  this.InitCartAlive();
+  setInterval(this.CheckCartAlive.bind(this),5000);
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
 
@@ -156,7 +163,7 @@ TriggerPort.prototype.recieveDirect= function(){
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
-	console.log("trigger:" + util.inspect(this.currentBuffer));
+	  console.log("trigger:" + util.inspect(this.currentBuffer));
     logger.info("trigger:" + util.inspect(this.currentBuffer));
 
     if (this.currentBuffer[1] == RECEIVE_TRIGGER){
@@ -187,6 +194,8 @@ TriggerPort.prototype.receiveTrigger = function() {
   parcel.ExitDirection = currentBuffer[8] % 2;
 
   parcel.CartID = currentBuffer[7];
+
+  this.CalSpeed(parcel.CartID);
   //packetID,use cartID maybe;
   parcel.packetID = this.packetID;
   this.packetID++;
@@ -244,5 +253,38 @@ TriggerPort.prototype.GetStatus= function(cb,res){
   //todo
   return this.respondStatus;
 };
+
+TriggerPort.prototype.InitCartAlive = function() {
+  var now = Date.now();
+  for (var i = 0; i < this.settings.CartCount; i++) {
+    this.cartAliveTime[i] = now;
+  }
+};
+
+TriggerPort.prototype.CheckCartAlive = function(){
+  if (this.railSpeed==0)
+    return;
+
+  var now = Date.now();
+
+  for (var i = 0; i < this.settings.CartCount; i++) {
+    var elapsed = (now - this.cartAliveTime[i])/1000;
+    if (elapsed > 300){
+      logger.info((i+1)+"号小车故障,请停机检修");
+      bfstatus.ReportError(2,(i+1)+"号小车故障,请停机检修");
+    }
+  }
+};
+
+TriggerPort.prototype.CalSpeed = function(cartID){
+  if (cartID <=0 || cartID> this.settings.CartCount)
+    return;
+
+  var now = Date.now();
+  if (CartID>0 && CartID<= this.settings.CartCount)
+    this.cartAliveTime[CartID-1] = Date.now();
+
+};
+
 
 module.exports = TriggerPort;

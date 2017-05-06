@@ -11,6 +11,7 @@ var scanPackageDb = require('./models').eq_scanpackage;
 var enteroutportDb = require('./models').ba_enteroutport;
 var sunyouApi = require('./SunyouRequest.js');
 var bdt = require('./bdt.js');
+var bfstatus = require('./BFStatus.js');
 
 
 var defaults = {
@@ -91,9 +92,9 @@ function ExitButton(options, callback) {
 
 ExitButton.prototype.Init = function() {
   this.Open();
-  this.StartQuery();
   this.GetSavedStatus();
-  
+  this.StartQuery();
+  setInterval(this.CheckPrintBoardAlive.bind(this),5000);
 };
 
 ExitButton.prototype.Open = function() {
@@ -129,6 +130,12 @@ ExitButton.prototype.RecvCompleteCmd = function(){
   var exitDirection = cmd.exitDirection;
   var exitPort = cmd.exitPortID;
   
+  for (var boardIdx in this.queryBoards){
+    var board = this.queryBoards[boardIdx];
+    if (exitPort == board.Id && exitDirection == board.Direction){
+	    board.PrintLastAliveTime = Date.now();
+	}
+  }
   
   if (exitPort == 984){
 	  //console.log(util.inspect(cmd.buffer));
@@ -195,8 +202,8 @@ ExitButton.prototype.RecvCompleteCmd = function(){
   for (var boardIdx in this.queryBoards){
     var board = this.queryBoards[boardIdx];
     if (exitPort == board.Id && exitDirection == board.Direction){
-		board.ExitStatus = exitStatus;
-		board.CmdConfirm = cmdConfirm;
+		  board.ExitStatus = exitStatus;
+		  board.CmdConfirm = cmdConfirm;
 /*
 		if (printSignal == 0x01){
 			board.TotalCount++;
@@ -341,7 +348,22 @@ ExitButton.prototype.GetSavedStatus = function(){
 			 }
 	   }
    });
-}
+};
+
+ExitButton.prototype.CheckPrintBoardAlive = function (){
+  var now = Date.now();
+
+  for (var boardIdx in this.queryBoards) {
+    var board = this.queryBoards[boardIdx];
+    var elapsed = (now - board.PrintLastAliveTime)/1000;
+	//console.log(board.Id+' elapsed '+elapsed);
+    if (elapsed > 10){
+      logger.info("出口控制板"+board.Id+"|"+board.Direction+"无回应,请停机检修");
+      bfstatus.ReportError(2,"出口控制板"+board.Id+"|"+board.Direction+"无回应,请停机检修");
+    }
+  }
+};
+
 
 module.exports = ExitButton;
 

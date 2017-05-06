@@ -1,17 +1,18 @@
 var com = require("./com.js");
 
 var logger = require('./log.js').logger;
-var util= require('util');
+var util = require('util');
 var Command = require('./Command.js');
-var Emitter=require('events').EventEmitter;
+var Emitter = require('events').EventEmitter;
 var debug = require('debug')('bfsort');
 var scanPackageDb = require('./models').eq_scanpackage;
 var enteroutportDb = require('./models').ba_enteroutport;
+var bfstatus = require('./BFStatus.js');
 
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 50,
+  Interval: 60,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数
@@ -45,7 +46,7 @@ function ExitPort(options, callback) {
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
   this.activeQuery = this.settings.ActiveQuery;
-  if (this.activeQuery == undefined){
+  if (this.activeQuery == undefined) {
     this.activeQuery = false;
   }
 
@@ -58,9 +59,9 @@ function ExitPort(options, callback) {
   this.relayConfirmed = false;
   this.relayCount = 0;
 
-  this.relayexitPortID=0;
-  this.relayisInorOut=0;
-  this.relaystopOrGo =0;
+  this.relayexitPortID = 0;
+  this.relayisInorOut = 0;
+  this.relaystopOrGo = 0;
 
 
   this.opened = false;
@@ -98,13 +99,13 @@ function ExitPort(options, callback) {
   }.bind(this));
 }
 
-ExitPort.prototype.Init = function() {
-  for (var boardIdx in this.queryBoards){
+ExitPort.prototype.Init = function () {
+  for (var boardIdx in this.queryBoards) {
     var board = this.queryBoards[boardIdx];
-	board.TotalCount = 0;
-	board.TotalWeight = 0;
-	board.ExitStatus = 0;
-	board.CmdConfirm = 0;
+    board.TotalCount = 0;
+    board.TotalWeight = 0;
+    board.ExitStatus = 0;
+    board.CmdConfirm = 0;
     var query = new Command(Command.PC_TO_EXIT);
     this.allExitPort.push(board.Id);
     this.exitDirection = board.Direction;
@@ -114,13 +115,17 @@ ExitPort.prototype.Init = function() {
     board.SendCmd = query;
     var response = new Command(Command.EXIT_TO_PC);
     board.RecvCmd = response;
+    board.LastAliveTime = Date.now();
+    board.PrintLastAliveTime = Date.now();
     //board.
   }
   this.Open();
   this.StartQuery();
+
+  setInterval(this.CheckBoardAlive.bind(this),5000);
 };
 
-ExitPort.prototype.Open = function() {
+ExitPort.prototype.Open = function () {
   this.transport.open(function (error) {
     if (error) {
       console.log("open com port " + this.settings.SerialName + " failed:" + error + ".try again in 5 seconds");
@@ -133,20 +138,27 @@ ExitPort.prototype.Open = function() {
   }.bind(this));
 };
 
-ExitPort.prototype.RecvCompleteCmd = function(){
-  var cmd=this.currentRecvCmd.Clone();
+ExitPort.prototype.RecvCompleteCmd = function () {
+  var cmd = this.currentRecvCmd.Clone();
   this.currentRecvCmd.Clear();
-  if (cmd.instructionId != Command.EXIT_TO_PC){
+  if (cmd.instructionId != Command.EXIT_TO_PC) {
     //logger.error("Recv unknown com message:"+util.inspect(cmd.buffer));
     return;
   }
 
-  logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
+  logger.info("receive exit package:" + cmd.exitPortID + "|" + cmd.exitDirection + ",serial is " + cmd.serialNumber);
 
   this.CheckRelayResponse(cmd);
 
+  for (var boardIdx in this.queryBoards) {
+    var board = this.queryBoards[boardIdx];
+	if (cmd.exitPortID == board.Id){
+      board.LastAliveTime = Date.now();
+	}
+  }
+
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
-  if (cmd.serialNumber ==0){
+  if (cmd.serialNumber == 0) {
     return;
   }
 
@@ -160,63 +172,64 @@ ExitPort.prototype.RecvCompleteCmd = function(){
   var inExitToCarEn = (cmd.status & 0x10) >> 4;  //0 内侧出口   1 外侧出口
   var outExitToCarEn = (cmd.status & 0x20) >> 5;  //内侧出口控制 0 关闭   1开启
   var exitToCarEn;
-  if (exitDirection == 0){
+  if (exitDirection == 0) {
     exitToCarEn = inExitToCarEn;
-  }else{
+  } else {
     exitToCarEn = outExitToCarEn;
   }
   /*
-  if (packageCount ==0){
-    return;
-  }
-  */
+   if (packageCount ==0){
+   return;
+   }
+   */
 
 
-  logger.info("receive exit package:"+cmd.exitPortID + "|"+ cmd.exitDirection+ ",serial is " +cmd.serialNumber);
+  //logger.info("receive exit package:" + cmd.exitPortID + "|" + cmd.exitDirection + ",serial is " + cmd.serialNumber);
 
-  for (var boardIdx in this.queryBoards){
+  console.log(this.queryBoards.length);
+  for (var boardIdx in this.queryBoards) {
     var board = this.queryBoards[boardIdx];
-    if (exitPortID == board.Id && exitDirection == board.Direction){
+    if (exitPortID == board.Id && exitDirection == board.Direction) {
       //board.TotalCount = packageCount;
-      if (exitToCarEn == 1 && board.ExitStatus == 0x08){
+      if (exitToCarEn == 1 && board.ExitStatus == 0x08) {
         board.ExitStatus = 0x00;
       }
-      if (exitToCarEn == 0 && board.ExitStatus == 0x00){
+      if (exitToCarEn == 0 && board.ExitStatus == 0x00) {
         board.ExitStatus = 0x08;
       }
-      if (wholeSerial != 0 && board.lastSerialNum != wholeSerial ) {
+      if (wholeSerial != 0 && board.lastSerialNum != wholeSerial) {
         board.lastSerialNum = wholeSerial;
-        this.SavePackage(cmd,board);
+        this.SavePackage(cmd, board);
       }
     }
   }
 };
 
 
-ExitPort.prototype.SavePackage = function(cmd,board){
+ExitPort.prototype.SavePackage = function (cmd, board) {
   var package;
-  console.log("saving receiving cmd:"+util.inspect(cmd));
+  console.log("saving receiving cmd:" + util.inspect(cmd));
   scanPackageDb.findOne(
     {
-      where:{SerialNumber:cmd.serialNumber,EnterPort:cmd.enterPortID,FinishDate:null},
-      order:'UploadDate DESC'
+      where: {SerialNumber: cmd.serialNumber, EnterPort: cmd.enterPortID, FinishDate: null},
+      order: 'UploadDate DESC'
     }
   ).then(
-    function (foundPackage){
-      if (foundPackage == null){
+    function (foundPackage) {
+      if (foundPackage == null) {
         logger.error("exitport receive package not in enterport,serial:"
-          +cmd.serialNumber+",enterport:"+cmd.enterPortID);
-      }else{
+          + cmd.serialNumber + ",enterport:" + cmd.enterPortID);
+      } else {
         foundPackage.FinishDate = Date.now();
         //res.Logs = "err no such serial number in upload";
         foundPackage.Logs = "succ";
-        foundPackage.save().then(function (ret){
+        foundPackage.save().then(function (ret) {
           scanPackageDb.count(
             {
-              where:{TrackNum:foundPackage.TrackNum,PrintQueueID:null,FinishDate:{ne:null}}
+              where: {TrackNum: foundPackage.TrackNum, PrintQueueID: null, FinishDate: {ne: null}}
             }
-          ).then(function(count) {
-            console.log("count = "+count);
+          ).then(function (count) {
+            console.log("count = " + count);
             if (count == 1) {
               enteroutportDb.findOne(
                 {
@@ -228,8 +241,8 @@ ExitPort.prototype.SavePackage = function(cmd,board){
                   outPortInfo.CurrentCount++;
                   outPortInfo.TotalCount++;
                   outPortInfo.CurrentWeight += foundPackage.PackageWeight;
-				  board.TotalCount = outPortInfo.CurrentCount;
-				  board.TotalWeight = outPortInfo.CurrentWeight;
+                  board.TotalCount = outPortInfo.CurrentCount;
+                  board.TotalWeight = outPortInfo.CurrentWeight;
                   outPortInfo.save();
                 } else {
                   outPortInfo = {};
@@ -250,29 +263,29 @@ ExitPort.prototype.SavePackage = function(cmd,board){
         });
       }
     }
-  ).catch(function (err){
-    logger.error("database error in find package:"+err);
+  ).catch(function (err) {
+    logger.error("database error in find package:" + err);
   });
   //todo:Post message to chengbang server
 };
 
 
-ExitPort.prototype.StartQuery = function(){
-  setInterval(this.QueryOne.bind(this),this.settings.Interval);
+ExitPort.prototype.StartQuery = function () {
+  setInterval(this.QueryOne.bind(this), this.settings.Interval);
 };
 
-ExitPort.prototype.QueryOne = function(){
-  if (!this.opened){
+ExitPort.prototype.QueryOne = function () {
+  if (!this.opened) {
     return;
   }
 
-  if (this.relayCmd != null){
+  if (this.relayCmd != null) {
     this.relayCount++;
-    if (this.relayCount>30){
+    if (this.relayCount > 30) {
       this.relayCmd = null;
-      logger.info("relay button to exitport,cmd "+ util.inspect(this.relayCmd) + " failed,no response in time");
-    }else {
-      logger.info("relay button to exitport,cmd "+ util.inspect(this.relayCmd)+" for "+this.relayCount + "times");
+      logger.info("relay button to exitport,cmd " + util.inspect(this.relayCmd) + " failed,no response in time");
+    } else {
+      logger.info("relay button to exitport,cmd " + util.inspect(this.relayCmd) + " for " + this.relayCount + "times");
       this.transport.write(this.relayCmd);
       //this.relayCmd = null;
       //return;
@@ -283,7 +296,7 @@ ExitPort.prototype.QueryOne = function(){
     var board = this.queryBoards[this.currentQueryIdx];
     this.transport.write(board.SendCmd.buffer);
     //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
-	logger.info("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
+    logger.info("Exitport sending buffer:" + util.inspect(board.SendCmd.buffer));
 
     this.currentQueryIdx++;
     if (this.currentQueryIdx >= this.queryBoards.length) {
@@ -292,8 +305,8 @@ ExitPort.prototype.QueryOne = function(){
   }
 };
 
-ExitPort.prototype.RelayCmd = function(cmd,exitPortID,isInorOut,stopOrGo){
-  if (!this.opened){
+ExitPort.prototype.RelayCmd = function (cmd, exitPortID, isInorOut, stopOrGo) {
+  if (!this.opened) {
     return;
   }
 
@@ -307,41 +320,55 @@ ExitPort.prototype.RelayCmd = function(cmd,exitPortID,isInorOut,stopOrGo){
 };
 
 
-ExitPort.prototype.GetExitPortData = function(cmd){
+ExitPort.prototype.GetExitPortData = function (cmd) {
   var working = ExitPort.working;
   return enteroutportDb.findAll({
-      where:{EnterOutPortCode:working.allExitPort,Direction:working.exitDirection,EnterOutPortType:'OUT'},
-      order:'EnterOutPortCode ASC'
+      where: {EnterOutPortCode: working.allExitPort, Direction: working.exitDirection, EnterOutPortType: 'OUT'},
+      order: 'EnterOutPortCode ASC'
     }
   );
 };
 
 
-ExitPort.prototype.CheckRelayResponse = function(cmd) {
+ExitPort.prototype.CheckRelayResponse = function (cmd) {
   if (this.relayCmd == null)
     return;
 
   var exitPortID = cmd.exitPortID;
 
-  if (exitPortID != this.relayexitPortID){
+  if (exitPortID != this.relayexitPortID) {
     return;
   }
   var inExitToCarEn = (cmd.status & 0x10) >> 4;  //0 内侧出口   1 外侧出口
   var outExitToCarEn = (cmd.status & 0x20) >> 5;  //内侧出口控制 0 关闭   1开启
 
-  if (this.relayisInorOut == 0){
-    if (inExitToCarEn == this.relaystopOrGo){
+  if (this.relayisInorOut == 0) {
+    if (inExitToCarEn == this.relaystopOrGo) {
       this.relayCmd = null;
       this.relayConfirmed = true;
-      logger.info("relay button to exitport confimed:"+this.relayexitPortID+"|"+this.relayisInorOut+" to "+
+      logger.info("relay button to exitport confimed:" + this.relayexitPortID + "|" + this.relayisInorOut + " to " +
         this.relaystopOrGo);
     }
-  }else if (this.relayisInorOut == 1){
-    if (outExitToCarEn == this.relaystopOrGo){
+  } else if (this.relayisInorOut == 1) {
+    if (outExitToCarEn == this.relaystopOrGo) {
       this.relayCmd = null;
       this.relayConfirmed = true;
-      logger.info("relay button to exitport confimed:"+this.relayexitPortID+"|"+this.relayisInorOut+" to "+
+      logger.info("relay button to exitport confimed:" + this.relayexitPortID + "|" + this.relayisInorOut + " to " +
         this.relaystopOrGo);
+    }
+  }
+};
+
+ExitPort.prototype.CheckBoardAlive = function (){
+  var now = Date.now();
+
+  for (var boardIdx in this.queryBoards) {
+    var board = this.queryBoards[boardIdx];
+    var elapsed = (now - board.LastAliveTime)/1000;
+	//console.log(board.Id +" elapsed "+ elapsed);
+    if (elapsed > 10){
+      logger.info("出口板"+board.Id+"无回应,请停机检修");
+      bfstatus.ReportError(2,"出口板"+board.Id+"无回应,请停机检修");
     }
   }
 };
