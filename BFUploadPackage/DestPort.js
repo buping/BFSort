@@ -18,6 +18,7 @@ var bfstatus = require('./BFStatus.js');
 var searchBarcode = require('./SearchBarcode.js');
 
 var ylhd = require('./client/ylhd.js');
+var bdt = require('./testbdt.js');
 
 
 var SEND_UPLOAD = 0x01;
@@ -89,6 +90,7 @@ function DestPort(options, callback){
   this.packetMapping = new Map();
   this.currentPacketID = 0;
 
+  this.noExitBuffer = Buffer.from([0xaa,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xab]);
 
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
 
@@ -212,7 +214,7 @@ DestPort.prototype.savePackage = function(parcel){
   }
 
   if (parcel.TrackNum !== undefined && parcel.TrackNum !== null && parcel.TrackNum !=""){
-    bfstatus.RealtimeScan(0,parcel.TrackNum+parcel.ChannelCode);
+    bfstatus.RealtimeScan(0,parcel.TrackNum+","+parcel.ChannelCode+","+parcel.destPort);
   }else{
     var volumeData = parcel.volumeData;
     if (volumeData == undefined || volumeData == null)
@@ -257,13 +259,14 @@ DestPort.prototype.ActualSendData = function(){
     && now - this.sendBuffer.TriggerTime < this.settings.delayTime){
 
     this.transport.write(this.sendBuffer.rewriteBuffer);
-  }else{
-    for (var [nextParcelID,nextParcel] of this.packetMapping){
-      if (nextParcel === undefined || nextParcel === null){
+  }else {
+    this.sendBuffer = null;
+    for (var [nextParcelID,nextParcel] of this.packetMapping) {
+      if (nextParcel === undefined || nextParcel === null) {
         this.packetMapping.delete(nextParcelID);
-      }else if (now - nextParcel.TriggerTime > this.settings.delayTime){
+      } else if (now - nextParcel.TriggerTime > this.settings.delayTime) {
         this.packetMapping.delete(nextParcelID);
-      }else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay) {
+      } else if (now - nextParcel.TriggerTime < this.settings.delayTime && now - nextParcel.TriggerTime > this.settings.minDelay) {
         if (nextParcel.destPort != null && nextParcel.destPort != undefined) {
           this.sendBuffer = nextParcel;
           this.MakeRewriteBuff();
@@ -273,6 +276,9 @@ DestPort.prototype.ActualSendData = function(){
         this.packetMapping.delete(nextParcelID);
         break;
       }
+    }
+    if (this.sendBuffer == null) { //can't find new
+      this.transport.write(this.noExitBuffer);
     }
   }
 };
@@ -286,11 +292,12 @@ DestPort.prototype.MakeRewriteBuff= function(){
   if (destPort === undefined || destPort === null) {
     destPort = this.settings.trashPort;
     parcel.Logs = "receive no vitronic response";
-	
 	  console.log("got no response in time");
+    return;
   }
 
   logger.info("send parcel "+parcel.packetID+" to port "+destPort);
+  parcel.SerialNumber = parcel.packetID;
 
   var exitPort = parseInt(destPort.substr(0,destPort.indexOf('|')));
   var exitDirection = parseInt(destPort.substr(destPort.indexOf('|')+1));
@@ -298,6 +305,11 @@ DestPort.prototype.MakeRewriteBuff= function(){
   parcel.ExitPort = exitPort;
   parcel.ExitDirection = exitDirection;
   //parcel.TrackNum = parcel.scanResult;
+
+  this.savePackage(parcel); //保存到数据库,以备查错误
+  if (exitPort <900 || exitPort > 999){
+    return;
+  }
 
   var cmd = new Command(Command.PC_TO_ENTRY);
   cmd.enterPortID = parcel.EnterPort;
@@ -311,7 +323,7 @@ DestPort.prototype.MakeRewriteBuff= function(){
   cmd.MakeBuffer();
   parcel.rewriteBuffer = cmd.buffer;
 
-  this.savePackage(parcel);
+
   // todo:resend?
 };
 
@@ -341,38 +353,35 @@ DestPort.prototype.receiveScan = function(result){
 
 DestPort.prototype.GetExitPortOnline = function(dest){
 	var workingPort = this;
+  dest.destPort = this.settings.trashPort;
+
   if (dest.scanResult.length ==0) {
     dest.Logs = "Scan return 0 elements";
     return;
   }
-  dest.destPort = "999|1";
+  //dest.destPort = "999|1";
 
-  /*
-  logger.info("get ylhd package:"+dest.scanResult[0]);
-  dest.TrackNum = dest.scanResult[0];
 
-  ylhd.getPackageInfo(dest.scanResult[0],function (data) {
-    if (data.success && data.map.dest != undefined){
-      var mapdest = data.map.dest;
-      if (mapdest.printArea){
-        logger.info('Exitport is '+ mapdest.printArea + 'for package:'+dest.TrackNum);
-		dest.destPort = mapdest.printArea;
-		dest.CountryCode = mapdest.destCode;
-		dest.ChannelCode = mapdest.channel;
-      }else{
-		dest.destPort = workingPort.settings.trashPort;
-        logger.info("server return no exitport for barcode:"+dest.TrackNum);
-      }
-
-    }else{
-		dest.destPort = workingPort.settings.trashPort;
-      logger.info("server return no exitport for barcode:"+dest.TrackNum);		
-    }
-  });
-  */
 
   for (let oneBarcode of dest.scanResult){
-    logger.info("get ylhd package:"+oneBarcode);
+    logger.info("get bdt package:"+oneBarcode);
+    bdt.bdtGetExit(oneBarcode,function (data){
+      if (data != null && data != undefined) {
+        logger.info('server1 return ' + data.msg + ' for package:' + oneBarcode);
+
+        if (data.map != null && data.map != undefined) {
+          dest.TrackNum = data.map.trackingNo;
+          dest.destPort = data.map.port;
+          dest.PackageWeight = data.map.weight;
+          dest.ChannelCode = data.map.shipName;
+          dest.CountryCode = data.map.destCode;
+        }
+      }else{
+        logger.info('server error for barcod:'+oneBarcode);
+      }
+    });
+
+    /*
     ylhd.getPackageInfo(oneBarcode,function(data){
       if (data != null && data != undefined) {
         logger.info('server1 return Exitport '+ data + ' for package:'+oneBarcode);
@@ -395,6 +404,7 @@ DestPort.prototype.GetExitPortOnline = function(dest){
         logger.info('server2 return no result for barcode:'+oneBarcode);
       }
     });
+    */
   }
 
 

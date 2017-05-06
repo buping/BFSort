@@ -292,7 +292,7 @@ ExitButton.prototype.QueryOne = function(){
   query.exitDirection = 0;
   query.exitPortID = board.Id;
   query.totalCount = board.TotalCount;
-  query.totalWeight = parseInt(board.TotalWeight * 10);
+  query.totalWeight = parseInt(board.TotalWeight * 100);
   query.exitStatus = board.ExitStatus;
   query.cmdConfirm = board.CmdConfirm;
   

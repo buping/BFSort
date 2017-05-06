@@ -67,7 +67,28 @@ var RealtimeScan = function(scanType,msg){
 
 
 	client.publish('scan',JSON.stringify(scanMsg));
+};
+
+var ReportError = function (level,msg){
+	var errMsg = {};
+	errMsg.project = projectName;
+	errMsg.node = nodeName;
+	errMsg.level = level;
+	errMsg.msg = msg;
+
+	client.publish('error',JSON.stringify(errMsg));
+};
+
+var ReportSpeed = function (speed){
+	var speedMsg = {};
+	speedMsg.project = projectName;
+	speedMsg.node = nodeName;
+	speedMsg.speed = speed;
+
+	client.publish('speed',JSON.stringify(speedMsg));
 }
+
 
 module.exports.StartHeartBeat = StartHeartBeat;
 module.exports.RealtimeScan = RealtimeScan;
+module.exports.ReportError = ReportError;

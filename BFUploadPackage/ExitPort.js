@@ -11,7 +11,7 @@ var enteroutportDb = require('./models').ba_enteroutport;
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 30,
+  Interval: 50,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数

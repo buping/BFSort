@@ -159,7 +159,7 @@ if (bfConfig.DestPort !== undefined){
 
   if (TriggerPort.working !== undefined  && Datalogic.working !== undefined){
     TriggerPort.working.on("triggered",function(parcel){
-      console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
+      //console.log("got trigger,write after 3 seconds."+util.inspect(parcel));
       DestPort.working.enqueue(parcel);
       Datalogic.working.enqueue(parcel);
     });

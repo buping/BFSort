@@ -13,7 +13,7 @@ log4js.configure({
             filename: 'logs/log.log',
             pattern: "_MM-dd",
             maxLogSize: 20480000,
-            backups: 3,
+            backups: 20,
             category: 'd'
 
         }//日期文件格式
