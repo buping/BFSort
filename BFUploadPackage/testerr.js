@@ -9,6 +9,8 @@ function test(){
   var msg = "error"+count;
   console.log('send error report:'+msg);
   bfstatus.ReportError(0,msg);
+  bfstatus.ReportSpeed(count);
+
 }
 
 setInterval(test,2000);

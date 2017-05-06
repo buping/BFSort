@@ -92,6 +92,9 @@ function DestPort(options, callback){
 
   this.noExitBuffer = Buffer.from([0xaa,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xab]);
 
+  this.cartScanResult = new Array(this.settings.CartCount);
+
+
   this.transport = new com.SerialPort(options.SerialName,this.settings.SerialPort);
 
   this.transport.on("close",function(){
@@ -231,6 +234,14 @@ DestPort.prototype.savePackage = function(parcel){
 
   }
 
+  if (parcel.CartID>0 && parcel.CartID<= this.settings.CartCount){
+    var lastResult = this.cartScanResult[parcel.CartID -1];
+    if (parcel.resultStr == lastResult){
+      bfstatus.ReportError(2,parcel.CartID+'号小车电机疑似故障,请停机检修');
+    }else{
+      this.cartScanResult[parcel.CartID -1] = parcel.resultStr;
+    }
+  }
 };
 
 DestPort.prototype.isConnected = function(){
@@ -347,8 +358,10 @@ DestPort.prototype.receiveScan = function(result){
 
   dest.scanResult = result.validBarCodes;
   dest.volumeData = result.volumeData;
+  dest.resultStr = result.resultStr;
   //this.findExitPort(dest);
   this.GetExitPortOnline(dest);
+
 };
 
 DestPort.prototype.GetExitPortOnline = function(dest){

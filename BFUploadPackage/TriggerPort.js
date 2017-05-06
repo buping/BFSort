@@ -259,11 +259,16 @@ TriggerPort.prototype.InitCartAlive = function() {
   for (var i = 0; i < this.settings.CartCount; i++) {
     this.cartAliveTime[i] = now;
   }
+  this.LastCartID = 1;
+  this.LastTriggerTime = now;
+  this.SpeedTimer = new Array();
 };
 
 TriggerPort.prototype.CheckCartAlive = function(){
-  if (this.railSpeed==0)
-    return;
+  if (this.railSpeed==0){
+	bfstatus.ReportSpeed(this.railSpeed);
+	return;
+  }
 
   var now = Date.now();
 
@@ -281,9 +286,45 @@ TriggerPort.prototype.CalSpeed = function(cartID){
     return;
 
   var now = Date.now();
-  if (CartID>0 && CartID<= this.settings.CartCount)
-    this.cartAliveTime[CartID-1] = Date.now();
+  if (cartID>0 && cartID<= this.settings.CartCount)
+    this.cartAliveTime[cartID-1] = now;
 
+  var elapsed = now - this.LastTriggerTime;
+    
+
+
+  if (cartID == this.LastCartID || elapsed>800){
+    this.railSpeed = 0;
+	  this.LastTriggerTime = now;
+	  this.LastCartID = cartID;
+
+	return;
+  }
+
+
+  this.SpeedTimer.push(elapsed);
+
+  this.LastTriggerTime = now;
+  this.LastCartID = cartID;
+  
+
+  if (this.SpeedTimer.length >10){
+    this.SpeedTimer.shift();
+  }
+
+  var totalTime = 0;
+  for (var i=0;i<this.SpeedTimer.length;i++){
+    totalTime+=this.SpeedTimer[i];
+  }
+  totalTime /= 1000;
+  
+ 
+
+  this.railSpeed = (this.settings.CartWidth*this.SpeedTimer.length)/totalTime;
+  
+  this.railSpeed = this.railSpeed.toFixed(3);
+  console.log(this.railSpeed);
+  bfstatus.ReportSpeed(this.railSpeed);
 };
 
 

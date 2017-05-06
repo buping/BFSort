@@ -3,9 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="71f7937e-bd60-420b-9f14-6eacb41c3202" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ExitButton.js" afterPath="$PROJECT_DIR$/ExitButton.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ExitPort.js" afterPath="$PROJECT_DIR$/ExitPort.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/BFStatus.js" afterPath="$PROJECT_DIR$/BFStatus.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DestPort.js" afterPath="$PROJECT_DIR$/DestPort.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TriggerPort.js" afterPath="$PROJECT_DIR$/TriggerPort.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/datalogic.js" afterPath="$PROJECT_DIR$/datalogic.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testerr.js" afterPath="$PROJECT_DIR$/testerr.js" />
     </list>
     <list id="84ec4a91-98bc-4d3f-bfae-28116a528589" name="New changelist" comment="">
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/a.txt" />
@@ -33,71 +35,63 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="ExitButton.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="bdt.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bdt.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="464">
+              <caret line="16" column="59" selection-start-line="16" selection-start-column="59" selection-end-line="16" selection-end-column="59" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ExitButton.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExitButton.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
+            <state relative-caret-position="10440">
               <caret line="360" column="24" selection-start-line="360" selection-start-column="19" selection-end-line="360" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EnterPort.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/EnterPort.js">
+      <file leaf-file-name="testerr.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/testerr.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="76" column="20" selection-start-line="76" selection-start-column="17" selection-end-line="76" selection-end-column="20" />
-              <folding />
+            <state relative-caret-position="261">
+              <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+              <folding>
+                <element signature="e#0#50#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CLodopfuncs.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CLodopfuncs.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="839">
-              <caret line="184" column="65" selection-start-line="184" selection-start-column="65" selection-end-line="184" selection-end-column="65" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ExitPort.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ExitPort.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="369" column="21" selection-start-line="369" selection-start-column="21" selection-end-line="369" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bfconfig.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config/bfconfig.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
-              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="log.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/log.js">
+      <file leaf-file-name="DestPort.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/DestPort.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="493">
-              <caret line="29" column="32" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
+              <caret line="243" column="3" selection-start-line="243" selection-start-column="3" selection-end-line="243" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Command.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Command.js">
+      <file leaf-file-name="datalogic.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/datalogic.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="462">
-              <caret line="102" column="44" selection-start-line="102" selection-start-column="44" selection-end-line="102" selection-end-column="44" />
+              <caret line="169" column="16" selection-start-line="169" selection-start-column="16" selection-end-line="169" selection-end-column="16" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="delolddata.sql" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/delolddata.sql">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -106,8 +100,8 @@
       <file leaf-file-name="BFStatus.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/BFStatus.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1769">
-              <caret line="61" column="19" selection-start-line="61" selection-start-column="19" selection-end-line="61" selection-end-column="19" />
+            <state relative-caret-position="290">
+              <caret line="79" column="19" selection-start-line="79" selection-start-column="19" selection-end-line="79" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -116,8 +110,18 @@
       <file leaf-file-name="TriggerPort.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TriggerPort.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="276" column="2" selection-start-line="276" selection-start-column="2" selection-end-line="276" selection-end-column="2" />
+            <state relative-caret-position="348">
+              <caret line="84" column="53" selection-start-line="84" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bfconfig_video.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config/bfconfig_video.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="580">
+              <caret line="20" column="20" selection-start-line="20" selection-start-column="20" selection-end-line="20" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -126,8 +130,8 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="100" column="19" selection-start-line="100" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+            <state relative-caret-position="547">
+              <caret line="167" column="36" selection-start-line="167" selection-start-column="25" selection-end-line="167" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -162,7 +166,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/routes/admin.js" />
         <option value="$PROJECT_DIR$/models/pr_printdata.js" />
         <option value="$PROJECT_DIR$/models/ba_logs.js" />
         <option value="$PROJECT_DIR$/models/pr_printdatabak.js" />
@@ -188,7 +191,6 @@
         <option value="$PROJECT_DIR$/test/testsunyou.js" />
         <option value="$PROJECT_DIR$/test/testgetpackage.js" />
         <option value="$PROJECT_DIR$/testjuxin.js" />
-        <option value="$PROJECT_DIR$/datalogic.js" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/EnterPort.js" />
         <option value="$PROJECT_DIR$/config/config.json" />
@@ -205,14 +207,16 @@
         <option value="$PROJECT_DIR$/testprinter.js" />
         <option value="D:/bsort/八达通/CLodopfuncs.js" />
         <option value="$PROJECT_DIR$/../batchAddSortData/public/uploadexcel.html" />
-        <option value="$PROJECT_DIR$/BFStatus.js" />
         <option value="$PROJECT_DIR$/config/bfconfig.json" />
-        <option value="$PROJECT_DIR$/testerr.js" />
-        <option value="$PROJECT_DIR$/DestPort.js" />
         <option value="$PROJECT_DIR$/testbdt.js" />
         <option value="$PROJECT_DIR$/ExitButton.js" />
-        <option value="$PROJECT_DIR$/TriggerPort.js" />
         <option value="$PROJECT_DIR$/ExitPort.js" />
+        <option value="$PROJECT_DIR$/testerr.js" />
+        <option value="$PROJECT_DIR$/TriggerPort.js" />
+        <option value="$PROJECT_DIR$/config/bfconfig_video.json" />
+        <option value="$PROJECT_DIR$/datalogic.js" />
+        <option value="$PROJECT_DIR$/BFStatus.js" />
+        <option value="$PROJECT_DIR$/DestPort.js" />
       </list>
     </option>
   </component>
@@ -301,6 +305,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -350,7 +355,6 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -524,7 +528,8 @@
       <workItem from="1493871175269" duration="25614000" />
       <workItem from="1494042840908" duration="315000" />
       <workItem from="1494050691051" duration="786000" />
-      <workItem from="1494051778903" duration="5927000" />
+      <workItem from="1494051778903" duration="7547000" />
+      <workItem from="1494064322861" duration="2223000" />
     </task>
     <task id="LOCAL-00001" summary="add to webstorm project">
       <created>1470297823571</created>
@@ -722,11 +727,18 @@
       <option name="project" value="LOCAL" />
       <updated>1494051789575</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="add error message report">
+      <created>1494062678523</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1494062678523</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="437724000" />
+    <option name="totallyTimeSpent" value="441567000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1060" extended-state="6" />
@@ -772,7 +784,8 @@
     <MESSAGE value="add DestPort.js" />
     <MESSAGE value="add scanfeedback" />
     <MESSAGE value="add print support" />
-    <option name="LAST_COMMIT_MESSAGE" value="add print support" />
+    <MESSAGE value="add error message report" />
+    <option name="LAST_COMMIT_MESSAGE" value="add error message report" />
     <option name="PRESELECT_EXISTING_CHANGELIST" value="false" />
   </component>
   <component name="XDebuggerManager">
@@ -786,13 +799,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/testonline.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58">
-          <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/testpackagebag.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="58">
@@ -1004,29 +1010,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/datalogic.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="137" column="82" selection-start-line="137" selection-start-column="70" selection-end-line="137" selection-end-column="82" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bdt.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/delolddata.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://D:/bsort/八达通/CLodopfuncs.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="145">
@@ -1060,28 +1043,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/testerr.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="29">
-          <caret line="3" column="31" selection-start-line="3" selection-start-column="31" selection-end-line="3" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#50#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/testbdt.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="607">
           <caret line="50" column="11" selection-start-line="50" selection-start-column="11" selection-end-line="50" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DestPort.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="723">
-          <caret line="382" column="0" selection-start-line="382" selection-start-column="0" selection-end-line="382" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1104,7 +1069,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/log.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
+        <state relative-caret-position="841">
           <caret line="29" column="32" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
           <folding />
         </state>
@@ -1118,41 +1083,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/BFStatus.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1769">
-          <caret line="61" column="19" selection-start-line="61" selection-start-column="19" selection-end-line="61" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="100" column="19" selection-start-line="100" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/EnterPort.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
+        <state relative-caret-position="2204">
           <caret line="76" column="20" selection-start-line="76" selection-start-column="17" selection-end-line="76" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TriggerPort.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="276" column="2" selection-start-line="276" selection-start-column="2" selection-end-line="276" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ExitPort.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
+        <state relative-caret-position="10701">
           <caret line="369" column="21" selection-start-line="369" selection-start-column="21" selection-end-line="369" selection-end-column="21" />
           <folding />
         </state>
@@ -1160,8 +1101,82 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ExitButton.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
+        <state relative-caret-position="10440">
           <caret line="360" column="24" selection-start-line="360" selection-start-column="19" selection-end-line="360" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bdt.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="16" column="59" selection-start-line="16" selection-start-column="59" selection-end-line="16" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testerr.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#50#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TriggerPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="84" column="53" selection-start-line="84" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/bfconfig_video.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="580">
+          <caret line="20" column="20" selection-start-line="20" selection-start-column="20" selection-end-line="20" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="547">
+          <caret line="167" column="36" selection-start-line="167" selection-start-column="25" selection-end-line="167" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/datalogic.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="462">
+          <caret line="169" column="16" selection-start-line="169" selection-start-column="16" selection-end-line="169" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BFStatus.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="79" column="19" selection-start-line="79" selection-start-column="19" selection-end-line="79" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/delolddata.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DestPort.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="243" column="3" selection-start-line="243" selection-start-column="3" selection-end-line="243" selection-end-column="3" />
           <folding />
         </state>
       </provider>

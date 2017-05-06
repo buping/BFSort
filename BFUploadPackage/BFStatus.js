@@ -1,4 +1,5 @@
 var bfConfig = require ('./config/bfconfig.json');
+var logger = require('./log.js').logger;
 
 var mqtt = require('mqtt')
 var client  = mqtt.connect('mqtt://mqtt.bfsort.com' ,{
@@ -76,6 +77,7 @@ var ReportError = function (level,msg){
 	errMsg.level = level;
 	errMsg.msg = msg;
 
+	logger.info(msg);
 	client.publish('error',JSON.stringify(errMsg));
 };
 
@@ -92,3 +94,5 @@ var ReportSpeed = function (speed){
 module.exports.StartHeartBeat = StartHeartBeat;
 module.exports.RealtimeScan = RealtimeScan;
 module.exports.ReportError = ReportError;
+module.exports.ReportSpeed = ReportSpeed;
+

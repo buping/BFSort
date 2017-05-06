@@ -99,12 +99,14 @@ Datalogic.prototype.readData = function(data){
   if (str == 'Noread'){
     readResult.barCodeNum = 0;
     readResult.barCodeArr = [];
+    readResult.resultStr = str;
   }else{
 	console.log("datalogic got barcode:"+str);
 	logger.info("valid datalogic data:" + str);
     var allCodes = str.split(';');
     readResult.barCodeNum = allCodes.length;
     readResult.barCodeArr = allCodes;
+    readResult.resultStr = str;
   }
   this.receiveScanResult(readResult);
 };
