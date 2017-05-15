@@ -51,7 +51,8 @@ function ExitButton(options, callback) {
   this.settings.SerialPort = Object.assign({}, defaults.SerialPort, options.SerialPort);
 
   var currentExitPort = require('./ExitPort.js').working;
-  this.queryBoards = currentExitPort.queryBoards;
+  if (currentExitPort != undefined);
+    this.queryBoards = currentExitPort.queryBoards;
   this.currentQueryIdx = 0;
 
 

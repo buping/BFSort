@@ -3,7 +3,7 @@
     "username": "bfsort",
     "password": "bfsorting",
     "database": "bfsort",
-    "host": "192.168.2.243",
+    "host": "192.168.66.243",
     "dialect": "mysql",
     "logging": false
   },

@@ -152,9 +152,12 @@ ExitPort.prototype.RecvCompleteCmd = function () {
 
   for (var boardIdx in this.queryBoards) {
     var board = this.queryBoards[boardIdx];
-	if (cmd.exitPortID == board.Id){
+	  if (cmd.exitPortID == board.Id){
       board.LastAliveTime = Date.now();
-	}
+      var elapsed = Date.now() - board.LastSendTime;
+      board.LastReceiveTime = Date.now();
+      console.log( board.Id + " 485 response time:"+elapsed);
+    }
   }
 
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
@@ -295,6 +298,12 @@ ExitPort.prototype.QueryOne = function () {
   if (this.activeQuery) {
     var board = this.queryBoards[this.currentQueryIdx];
     this.transport.write(board.SendCmd.buffer);
+
+    if (board.LastReceiveTime == 0){
+      console.log(board.Id+' last 485 no response');
+    }
+    board.LastSendTime = Date.now();
+    board.LastReceiveTime = 0;
     //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
     logger.info("Exitport sending buffer:" + util.inspect(board.SendCmd.buffer));
 

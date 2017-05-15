@@ -1,6 +1,16 @@
 {
   "ProjectName":"bdt",
   "NodeName":"exit1",
+
+  "ExitPort":{
+    "Boards":[
+      {"Id":951,"Direction":1}
+    ],
+    "SerialName":"COM2",
+    "SerialPort":{
+      "baudRate":115200
+    }
+  },
  
   "ExitButton":{
     "Boards":[
