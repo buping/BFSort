@@ -23,9 +23,9 @@ function pad(pad,str,padLeft){
   }
 }
 
-function  Datalogic(options) {
-  if (!(this instanceof Datalogic)){
-    return new Datalogic(options);
+function  HKVision(options) {
+  if (!(this instanceof HKVision)){
+    return new HKVision(options);
   }
   Emitter.call(this);
 
@@ -33,19 +33,19 @@ function  Datalogic(options) {
 }
 
 
-Datalogic.STX = 0x02;
-Datalogic.ETX = 0x03;
-Datalogic.CR = 0x0d;
-Datalogic.LF = 0x0a;
+HKVision.STX = 0x02;
+HKVision.ETX = 0x03;
+HKVision.CR = 0x0d;
+HKVision.LF = 0x0a;
 
 
-Datalogic.prototype = Object.create(Emitter.prototype,{
+HKVision.prototype = Object.create(Emitter.prototype,{
   constructor:{
-    value:Datalogic,
+    value:HKVision,
   }
 });
 
-Datalogic.prototype.Init = function (){
+HKVision.prototype.Init = function (){
   this.addr = this.settings.addr;
   this.port = this.settings.port;
   this.stationID = this.settings.station;
@@ -56,36 +56,27 @@ Datalogic.prototype.Init = function (){
 };
 
 
-Datalogic.prototype.start = function(){
-  this.client = net.connect({host:this.addr,port:this.port},function(){
-    this.isConnected = true;
-    logger.info('conntect to HKVision server');
-  }.bind(this));
+HKVision.prototype.start = function(){
+  this.client = net.createServer(function(socket) {
+    socket.on('data', function (data) {
+      console.log(data.toString('ascii'));
+      //console.log(util.inspect(data));
 
-  this.client.on('error',function(){
-  });
+    });
+    socket.on('end', function (data) {
+      console.log('connection colosed');
+    });
+    socket.on('error', function (data) {
+      console.log('connection error');
+    });
 
-  this.client.on('close',function(hadError){
-    this.isConnected = false;
-    this.client.end();
-    logger.info("connection to HKVision server error,reconnectin 5 seconds");
-    setTimeout(this.start.bind(this),5000);
-  }.bind(this));
-
-  this.client.on('data',function (data){
-	//console.log("datalogic:"+data);
-    this.readData (data);
-  }.bind(this));
-
-  this.client.on('end',function(){
-    //this.isConnected = false;
-    //logger.info('juxin disconnected');
-  });
+  }).listen(7000);
+  console.log('server started');
 }
 
-Datalogic.prototype.readData = function(data){
+HKVision.prototype.readData = function(data){
   //console.log(data);
-  if (data[0] != Datalogic.STX || data[data.length-1] != Datalogic.LF  || data[data.length-2] != Datalogic.CR){
+  if (data[0] != HKVision.STX || data[data.length-1] != HKVision.LF  || data[data.length-2] != HKVision.CR){
     logger.error('incorrect HKVision message format');
     return;
   }
@@ -111,16 +102,16 @@ Datalogic.prototype.readData = function(data){
   this.receiveScanResult(readResult);
 };
 
-Datalogic.prototype.writeData = function(data){
+HKVision.prototype.writeData = function(data){
   if (!this.isConnected){
     return false;
   }
   var buffStr = new Buffer(data,'ascii');
   var buffer = new Buffer(data.length +3);
-  buffer[0] = Datalogic.STX;
+  buffer[0] = HKVision.STX;
   buffStr.copy(buffer,1);
-  buffer[data.length + 1] = Datalogic.ETX;
-  buffer[data.length + 2] = Datalogic.CR;
+  buffer[data.length + 1] = HKVision.ETX;
+  buffer[data.length + 2] = HKVision.CR;
 
   this.client.write(buffer);
   return true;
@@ -129,12 +120,12 @@ Datalogic.prototype.writeData = function(data){
 //todo
 
 
-Datalogic.prototype.checkBarCode=function(barCode){
+HKVision.prototype.checkBarCode=function(barCode){
   //todo:Check for correct barcode;
   return true;
 };
 
-Datalogic.prototype.enqueue = function(parcel){
+HKVision.prototype.enqueue = function(parcel){
   //this.packetMapping.set(this.packetID,parcel);
   this.sendIdentifier(parcel.packetID);
   logger.info("send packet id "+parcel.packetID+" for parcel:"+parcel.SerialNumber+","+parcel.EnterPort);
@@ -147,18 +138,18 @@ Datalogic.prototype.enqueue = function(parcel){
    */
 };
 
-Datalogic.prototype.sendIdentifier = function(packetID){
+HKVision.prototype.sendIdentifier = function(packetID){
   this.packetID = packetID;
 };
 
 /*
  * send scan result,check for time
  */
-Datalogic.prototype.sendScanResult = function(result){
+HKVision.prototype.sendScanResult = function(result){
   this.emit("scan", result);
 };
 
-Datalogic.prototype.receiveScanResult = function(result){
+HKVision.prototype.receiveScanResult = function(result){
   result.validBarCodes = [];
   result.packetID = this.packetID;
   for (var i=0;i<result.barCodeNum;i++){
@@ -207,6 +198,8 @@ Datalogic.prototype.receiveScanResult = function(result){
    */
 };
 
-module.exports = Datalogic;
+module.exports = HKVision;
 
-var test = new Datalogic();
+
+var test = new HKVision();
+test.Init();

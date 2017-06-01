@@ -36,8 +36,8 @@ var defaults = {
     xany: false,
     rtscts: false,
     hupcl: true,
- //   parser:com.SerialPort.parsers.byteLength(11),
-	dataBits: 8,
+    //   parser:com.SerialPort.parsers.byteLength(11),
+    dataBits: 8,
     stopBits: 1
   }
 };
@@ -113,7 +113,7 @@ function TriggerPort(options, callback){
 
   this.transport.on('data',function(data){
     if (data && data.length>0){
-		//console.log("got data,len is "+data.length);
+      //console.log("got data,len is "+data.length);
       for (var i=0;i<data.length;i++){
         if(data[i] == INSTRUCTION_HEADER && this.isAllowRecieved == false){
           receivedCount = 1;
@@ -158,25 +158,25 @@ TriggerPort.prototype.recieveDirect= function(){
     return;
   }
 
-   
+
   var now = new Date();
   if (!this.currentBuffer.equals(this.lastBuffer)){
     this.sameBufferCount = 0;
     this.currentBuffer.copy(this.lastBuffer);
-	  console.log("trigger:" + util.inspect(this.currentBuffer));
+    console.log("trigger:" + util.inspect(this.currentBuffer));
     logger.info("trigger:" + util.inspect(this.currentBuffer));
 
     if (this.currentBuffer[1] == RECEIVE_TRIGGER){
       this.receiveTrigger();
     }
   }
-/*
-  }else {
-    this.sameBufferCount++;
-    //util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
-  }
-  */
-    /*
+  /*
+   }else {
+   this.sameBufferCount++;
+   //util.print(now.toLocaleTimeString() + ": count " + this.sameBufferCount + ":" + util.inspect(this.currentBuffer) + "\r");
+   }
+   */
+  /*
    if (this.webResponse !== undefined){
    this.webResponse.send(util.inspect(this.currentBuffer));
    }
@@ -200,24 +200,24 @@ TriggerPort.prototype.receiveTrigger = function() {
   parcel.packetID = this.packetID;
   this.packetID++;
   if (this.packetID>=10000){
-	  this.packetID = 1;
+    this.packetID = 1;
   }
   this.respondStatus = currentBuffer[9];
-  
+
   //this.parcel = parcel;
 
   /*
-  if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
-    return;
-  }
-  */
-  
+   if (parcel.EnterPort ==0 || parcel.SerialNumber ==0){
+   return;
+   }
+   */
+
   /*
-  if (parcel.SerialNumber == this.lastSerialNum && parcel.EnterPort == this.lastEnterPort){
-	return;
-  }
-  */
-  
+   if (parcel.SerialNumber == this.lastSerialNum && parcel.EnterPort == this.lastEnterPort){
+   return;
+   }
+   */
+
   this.lastSerialNum = parcel.SerialNumber;
   this.lastEnterPort = parcel.EnterPort;
 
@@ -229,7 +229,7 @@ TriggerPort.prototype.receiveTrigger = function() {
 
 
 TriggerPort.prototype.savePackage = function(parcel){
-  
+
   parcel.IsSelect = "0";
   parcel.EmployeeName = this.employeeName;
   parcel.ScanType = "PZ";
@@ -265,9 +265,15 @@ TriggerPort.prototype.InitCartAlive = function() {
 };
 
 TriggerPort.prototype.CheckCartAlive = function(){
+  var now = Date.now();
+  var elapsed = now - this.LastTriggerTime;
+  if (elapsed > 3000){
+    this.railSpeed = 0;
+  }
+
   if (this.railSpeed==0){
-	bfstatus.ReportSpeed(this.railSpeed);
-	return;
+    bfstatus.ReportSpeed(this.railSpeed);
+    return;
   }
 
   var now = Date.now();
@@ -290,15 +296,15 @@ TriggerPort.prototype.CalSpeed = function(cartID){
     this.cartAliveTime[cartID-1] = now;
 
   var elapsed = now - this.LastTriggerTime;
-    
+
 
 
   if (cartID == this.LastCartID || elapsed>800){
     this.railSpeed = 0;
-	  this.LastTriggerTime = now;
-	  this.LastCartID = cartID;
+    this.LastTriggerTime = now;
+    this.LastCartID = cartID;
 
-	return;
+    return;
   }
 
 
@@ -306,7 +312,7 @@ TriggerPort.prototype.CalSpeed = function(cartID){
 
   this.LastTriggerTime = now;
   this.LastCartID = cartID;
-  
+
 
   if (this.SpeedTimer.length >10){
     this.SpeedTimer.shift();
@@ -317,11 +323,11 @@ TriggerPort.prototype.CalSpeed = function(cartID){
     totalTime+=this.SpeedTimer[i];
   }
   totalTime /= 1000;
-  
- 
+
+
 
   this.railSpeed = (this.settings.CartWidth*this.SpeedTimer.length)/totalTime;
-  
+
   this.railSpeed = this.railSpeed.toFixed(3);
   console.log(this.railSpeed);
   bfstatus.ReportSpeed(this.railSpeed);

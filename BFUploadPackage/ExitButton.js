@@ -10,7 +10,7 @@ var printQueueDb = require('./models').ba_printqueue;
 var scanPackageDb = require('./models').eq_scanpackage;
 var enteroutportDb = require('./models').ba_enteroutport;
 var sunyouApi = require('./SunyouRequest.js');
-var bdt = require('./bdt.js');
+var bdt = require('./testbdt.js');
 var bfstatus = require('./BFStatus.js');
 
 
@@ -255,7 +255,8 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
       if (status == 2){
         if (outPortInfo.RunStatus == 0) {
           //sunyouApi.DoPrint(port, direction);
-		  bdt.Print(port, direction);
+		      bdt.Print(port, direction);
+          this.ClearPortData(port,direction);
           outPortInfo.RunStatus = 2;
           outPortInfo.save();
         }
@@ -263,7 +264,6 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
         outPortInfo.RunStatus = status;
         outPortInfo.save();
       }
-
     }else{
       outPortInfo = {};
       outPortInfo.IsSelect = '0';
@@ -278,11 +278,21 @@ ExitButton.prototype.UpdateExitPort = function(port,direction,status){
       outPortInfo.RunStatus = status;
       enteroutportDb.upsert(outPortInfo);
     }
-  }).catch(function (err){
+  }.bind(this)).catch(function (err){
     console.log('data base error'+err);
   });
   
 };
+
+ExitButton.prototype.ClearPortData = function(port,direction){
+  for (var boardIdx in this.queryBoards) {
+    var board = this.queryBoards[boardIdx];
+    if (port == board.Id && direction == board.Direction) {
+      board.TotalCount = 0;
+      board.TotalWeight = 0;
+    }
+  }
+}
 
 ExitButton.prototype.StartQuery = function(){
   setInterval(this.QueryOne.bind(this),this.settings.Interval);
