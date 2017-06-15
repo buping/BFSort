@@ -12,7 +12,7 @@ var bfstatus = require('./BFStatus.js');
 
 var defaults = {
   //reportVersionTimeout: 5000,
-  Interval: 60,
+  Interval: 25,
   //portDelay: 100,
   //sendInterval:500,
   //repeatSendTimes:3,	// 最多重发次数
@@ -90,7 +90,7 @@ function ExitPort(options, callback) {
   }.bind(this));
 
   this.transport.on('data', function (data) {
-    logger.info("Exitport Receive:" + util.inspect(data));
+    //logger.info("Exitport Receive:" + util.inspect(data));
     this.currentRecvCmd.Clear();
     this.currentRecvCmd.ReadData(data);
     if (this.currentRecvCmd.isComplete) {
@@ -152,12 +152,13 @@ ExitPort.prototype.RecvCompleteCmd = function () {
 
   for (var boardIdx in this.queryBoards) {
     var board = this.queryBoards[boardIdx];
-	  if (cmd.exitPortID == board.Id){
+	if (cmd.exitPortID == board.Id){
       board.LastAliveTime = Date.now();
-      var elapsed = Date.now() - board.LastSendTime;
+	  
+	  var elapsed = Date.now() - board.LastSendTime;
       board.LastReceiveTime = Date.now();
-      console.log( board.Id + " 485 response time:"+elapsed);
-    }
+      //console.log( board.Id + " 485 response time:"+elapsed);
+	}
   }
 
   //console.log(cmd.exitPortID + "|"+ cmd.serialNumber);
@@ -211,10 +212,10 @@ ExitPort.prototype.RecvCompleteCmd = function () {
 
 ExitPort.prototype.SavePackage = function (cmd, board) {
   var package;
-  console.log("saving receiving cmd:" + util.inspect(cmd));
+  logger.info("saving receiving cmd:" + util.inspect(cmd));
   scanPackageDb.findOne(
     {
-      where: {SerialNumber: cmd.serialNumber, EnterPort: cmd.enterPortID, FinishDate: null},
+      where: {SerialNumber: cmd.serialNumber, EnterPort: cmd.enterPortID,ExitPort: cmd.exitPortID,ExitDirection:cmd.exitDirection,FinishDate: null},
       order: 'UploadDate DESC'
     }
   ).then(
@@ -223,6 +224,7 @@ ExitPort.prototype.SavePackage = function (cmd, board) {
         logger.error("exitport receive package not in enterport,serial:"
           + cmd.serialNumber + ",enterport:" + cmd.enterPortID);
       } else {
+		logger.info('found package,set state to succ');
         foundPackage.FinishDate = Date.now();
         //res.Logs = "err no such serial number in upload";
         foundPackage.Logs = "succ";
@@ -232,7 +234,7 @@ ExitPort.prototype.SavePackage = function (cmd, board) {
               where: {TrackNum: foundPackage.TrackNum, PrintQueueID: null, FinishDate: {ne: null}}
             }
           ).then(function (count) {
-            console.log("count = " + count);
+            logger.info("count = " + count);
             if (count == 1) {
               enteroutportDb.findOne(
                 {
@@ -298,14 +300,15 @@ ExitPort.prototype.QueryOne = function () {
   if (this.activeQuery) {
     var board = this.queryBoards[this.currentQueryIdx];
     this.transport.write(board.SendCmd.buffer);
+    //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
+    //logger.info("Exitport sending buffer:" + util.inspect(board.SendCmd.buffer));
+	
 
-    if (board.LastReceiveTime == 0){
-      console.log(board.Id+' last 485 no response');
+	if (board.LastReceiveTime == 0){
+      logger.info(board.Id+' last 485 no response');
     }
     board.LastSendTime = Date.now();
     board.LastReceiveTime = 0;
-    //console.log("Exitport sending buffer:"+util.inspect(board.SendCmd.buffer));
-    logger.info("Exitport sending buffer:" + util.inspect(board.SendCmd.buffer));
 
     this.currentQueryIdx++;
     if (this.currentQueryIdx >= this.queryBoards.length) {
